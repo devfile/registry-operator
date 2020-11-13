@@ -1,0 +1,10 @@
+apiVersion: registry.devfile.io/v1alpha1
+kind: DevfileRegistry
+metadata:
+  name: devfileregistry-update
+spec:
+  devfileIndexImage: quay.io/devfile/metadata-server:latest
+  storage:
+    enabled: false
+  tls:
+    enabled: false

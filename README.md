@@ -11,7 +11,7 @@ Issue tracking repo: https://github.com/devfile/api with label area/registry
 The controller can be deployed to a cluster provided you are logged in with cluster-admin credentials:
 
 ```bash
-export IMG=johncollier/registry-operator:v0.0.1
+export IMG=quay.io/devfile/registry-operator:next
 make install && make deploy
 ```
 
