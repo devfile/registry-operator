@@ -63,7 +63,7 @@ func (r *DevfileRegistryReconciler) updateDevfilesRoute(ctx context.Context, cr 
 	needsUpdating := false
 
 	// Check to see if TLS fields were updated
-	if cr.Spec.TLS.Enabled != nil && *cr.Spec.TLS.Enabled {
+	if registry.IsTLSEnabled(cr) {
 		if route.Spec.TLS == nil {
 			route.Spec.TLS = &routev1.TLSConfig{Termination: routev1.TLSTerminationEdge}
 			needsUpdating = true
@@ -86,7 +86,7 @@ func (r *DevfileRegistryReconciler) updateOCIRoute(ctx context.Context, cr *regi
 	needsUpdating := false
 
 	// Check to see if TLS fields were updated
-	if cr.Spec.TLS.Enabled != nil && *cr.Spec.TLS.Enabled {
+	if registry.IsTLSEnabled(cr) {
 		if route.Spec.TLS == nil {
 			route.Spec.TLS = &routev1.TLSConfig{Termination: routev1.TLSTerminationEdge}
 			needsUpdating = true

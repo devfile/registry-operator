@@ -39,7 +39,7 @@ func GenerateDevfilesRoute(cr *registryv1alpha1.DevfileRegistry, scheme *runtime
 		},
 	}
 
-	if cr.Spec.TLS.Enabled != nil && *cr.Spec.TLS.Enabled {
+	if IsTLSEnabled(cr) {
 		route.Spec.TLS = &routev1.TLSConfig{Termination: routev1.TLSTerminationEdge}
 	}
 
@@ -68,7 +68,7 @@ func GenerateOCIRoute(cr *registryv1alpha1.DevfileRegistry, host string, scheme 
 		},
 	}
 
-	if cr.Spec.TLS.Enabled != nil && *cr.Spec.TLS.Enabled {
+	if IsTLSEnabled(cr) {
 		route.Spec.TLS = &routev1.TLSConfig{Termination: routev1.TLSTerminationEdge}
 	}
 
