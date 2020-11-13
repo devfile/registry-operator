@@ -1,0 +1,80 @@
+#
+# Copyright (c) 2020 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Validate PRs
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  go:
+    name: Check go sources
+    runs-on: ubuntu-latest
+    steps:
+    -
+      name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.12
+    -
+      name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+    -
+      name: Cache go modules
+      id: cache-mod
+      uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    -
+      name: Download dependencies
+      run: go mod download
+      if: steps.cache-mod.outputs.cache-hit != 'true'
+    -
+      name: Check go mod status
+      run: |
+        go mod tidy
+        if [[ ! -z $(git status -s) ]]
+        then
+          echo "Go mod state is not clean"
+          exit 1
+        fi
+    -
+      name: Check format
+      run: |
+        go get -u github.com/google/addlicense
+        go get -u golang.org/x/tools/cmd/goimports
+        git reset HEAD --hard
+
+        make fmt
+        make fmt_license
+        if [[ ! -z $(git status -s) ]]
+        then
+          echo "not well formatted sources are found"
+          exit 1
+        fi
+    -
+      name: Check code generation
+      run: make generate
+    -
+      name: Check CRD manifest generation
+      run: make manifests
+
+  docker:
+    name: Check docker build
+    runs-on: ubuntu-latest
+    steps:
+    -
+      name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+    -
+      name: Check if dockerimage build is working
+      run: docker build -f Dockerfile .
