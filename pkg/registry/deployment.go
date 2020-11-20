@@ -58,7 +58,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							LivenessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
 									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/devfiles/index.json",
+										Path: "/",
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
@@ -68,7 +68,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
 									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/devfiles/index.json",
+										Path: "/",
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
@@ -79,9 +79,6 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 						{
 							Image: GetOCIRegistryImage(cr),
 							Name:  "oci-registry",
-							Ports: []corev1.ContainerPort{{
-								ContainerPort: OCIRegistryPort,
-							}},
 							Resources: corev1.ResourceRequirements{
 								Requests: corev1.ResourceList{
 									corev1.ResourceCPU:    resource.MustParse("100m"),

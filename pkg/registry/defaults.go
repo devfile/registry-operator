@@ -18,7 +18,7 @@ import (
 
 const (
 	// Default image:tags
-	DefaultDevfileIndexImage = "quay.io/devfile/metadata-server:next"
+	DefaultDevfileIndexImage = "quay.io/devfile/devfile-index:next"
 	DefaultOCIRegistryImage  = "registry:2.7.1"
 
 	// Defaults/constants for devfile registry storages
@@ -31,8 +31,6 @@ const (
 	// Defaults/constants for devfile registry services
 	DevfileIndexPortName = "devfile-registry-metadata"
 	DevfileIndexPort     = 8080
-	OCIRegistryPortName  = "oci-registry"
-	OCIRegistryPort      = 5000
 )
 
 func GetOCIRegistryImage(cr *registryv1alpha1.DevfileRegistry) string {

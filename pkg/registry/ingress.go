@@ -36,13 +36,6 @@ func GenerateIngress(cr *registryv1alpha1.DevfileRegistry, host string, scheme *
 										ServicePort: intstr.FromInt(int(DevfileIndexPort)),
 									},
 								},
-								{
-									Path: "/v2",
-									Backend: v1beta1.IngressBackend{
-										ServiceName: ServiceName(cr.Name),
-										ServicePort: intstr.FromInt(int(OCIRegistryPort)),
-									},
-								},
 							},
 						},
 					},

@@ -104,7 +104,7 @@ func (r *DevfileRegistryReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 	hostname := devfileRegistry.Spec.K8s.IngressDomain
 	if config.ControllerCfg.IsOpenShift() {
 		// Check if the route exposing the devfile index exists
-		result, err = r.ensureDevfilesRoute(ctx, devfileRegistry, labels)
+		result, err = r.ensureRoute(ctx, devfileRegistry, labels)
 		if result != nil {
 			return *result, err
 		}
@@ -122,12 +122,6 @@ func (r *DevfileRegistryReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 				return ctrl.Result{Requeue: true}, nil
 			}
 			hostname = devfilesRoute.Spec.Host
-		}
-
-		// Check if the route exposing the devfile index exists
-		result, err = r.ensureOCIRoute(ctx, devfileRegistry, hostname, labels)
-		if result != nil {
-			return *result, err
 		}
 	} else {
 		// Create/update the ingress for the devfile registry

@@ -58,31 +58,8 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 	return nil
 }
 
-// updateOCIRoute checks to see if any of the fields in an existing devfile index route needs updating
-func (r *DevfileRegistryReconciler) updateDevfilesRoute(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, route *routev1.Route) error {
-	needsUpdating := false
-
-	// Check to see if TLS fields were updated
-	if registry.IsTLSEnabled(cr) {
-		if route.Spec.TLS == nil {
-			route.Spec.TLS = &routev1.TLSConfig{Termination: routev1.TLSTerminationEdge}
-			needsUpdating = true
-		}
-	} else {
-		if route.Spec.TLS != nil {
-			route.Spec.TLS = nil
-			needsUpdating = true
-		}
-	}
-
-	if needsUpdating {
-		return r.Update(ctx, route)
-	}
-	return nil
-}
-
-// updateOCIRoute checks to see if any of the fields in an existing oci registry route needs updating
-func (r *DevfileRegistryReconciler) updateOCIRoute(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, route *routev1.Route) error {
+// updateRoute checks to see if any of the fields in an existing devfile index route needs updating
+func (r *DevfileRegistryReconciler) updateRoute(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, route *routev1.Route) error {
 	needsUpdating := false
 
 	// Check to see if TLS fields were updated

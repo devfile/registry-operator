@@ -20,8 +20,8 @@ import (
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 )
 
-// GenerateDevfilesRoute returns a route exposing the devfile registry index
-func GenerateDevfilesRoute(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme, labels map[string]string) *routev1.Route {
+// GenerateRoute returns a route exposing the devfile registry index
+func GenerateRoute(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme, labels map[string]string) *routev1.Route {
 	weight := int32(100)
 
 	route := &routev1.Route{
@@ -41,39 +41,6 @@ func GenerateDevfilesRoute(cr *registryv1alpha1.DevfileRegistry, scheme *runtime
 
 	if IsTLSEnabled(cr) {
 		route.Spec.TLS = &routev1.TLSConfig{Termination: routev1.TLSTerminationEdge}
-	}
-
-	// Set DevfileRegistry instance as the owner and controller
-	ctrl.SetControllerReference(cr, route, scheme)
-	return route
-}
-
-// GenerateOCIRoute returns a route object for the OCI registry server
-func GenerateOCIRoute(cr *registryv1alpha1.DevfileRegistry, host string, scheme *runtime.Scheme, labels map[string]string) *routev1.Route {
-	weight := int32(100)
-
-	route := &routev1.Route{
-		ObjectMeta: generateObjectMeta(OCIRouteName(cr.Name), cr.Namespace, labels),
-		Spec: routev1.RouteSpec{
-			Host: host,
-			To: routev1.RouteTargetReference{
-				Kind:   "Service",
-				Name:   ServiceName(cr.Name),
-				Weight: &weight,
-			},
-			Port: &routev1.RoutePort{
-				TargetPort: intstr.FromString(OCIRegistryPortName),
-			},
-			Path: "/v2",
-		},
-	}
-
-	if IsTLSEnabled(cr) {
-		route.Spec.TLS = &routev1.TLSConfig{Termination: routev1.TLSTerminationEdge}
-	}
-
-	if host != "" {
-		route.Spec.Host = host
 	}
 
 	// Set DevfileRegistry instance as the owner and controller

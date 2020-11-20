@@ -100,12 +100,12 @@ func (r *DevfileRegistryReconciler) ensurePVC(ctx context.Context, cr *registryv
 	return nil, nil
 }
 
-func (r *DevfileRegistryReconciler) ensureDevfilesRoute(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, labels map[string]string) (*reconcile.Result, error) {
+func (r *DevfileRegistryReconciler) ensureRoute(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, labels map[string]string) (*reconcile.Result, error) {
 	route := &routev1.Route{}
 	err := r.Get(ctx, types.NamespacedName{Name: registry.DevfilesRouteName(cr.Name), Namespace: cr.Namespace}, route)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new route exposing the devfile registry index
-		route := registry.GenerateDevfilesRoute(cr, r.Scheme, labels)
+		route := registry.GenerateRoute(cr, r.Scheme, labels)
 		log.Info("Creating a new Route", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
 		err = r.Create(ctx, route)
 		if err != nil {
@@ -118,34 +118,7 @@ func (r *DevfileRegistryReconciler) ensureDevfilesRoute(ctx context.Context, cr 
 		return &ctrl.Result{}, err
 	}
 
-	err = r.updateDevfilesRoute(ctx, cr, route)
-	if err != nil {
-		log.Error(err, "Failed to update Route")
-		return &ctrl.Result{}, err
-	}
-
-	return nil, nil
-}
-
-func (r *DevfileRegistryReconciler) ensureOCIRoute(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, hostname string, labels map[string]string) (*reconcile.Result, error) {
-	route := &routev1.Route{}
-	err := r.Get(ctx, types.NamespacedName{Name: registry.OCIRouteName(cr.Name), Namespace: cr.Namespace}, route)
-	if err != nil && errors.IsNotFound(err) {
-		// Define a new route exposing the devfile registry index
-		route = registry.GenerateOCIRoute(cr, hostname, r.Scheme, labels)
-		log.Info("Creating a new Route", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
-		err = r.Create(ctx, route)
-		if err != nil {
-			log.Error(err, "Failed to create new Route", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
-			return &ctrl.Result{}, err
-		}
-		return nil, nil
-	} else if err != nil {
-		log.Error(err, "Failed to get Route")
-		return &ctrl.Result{}, err
-	}
-
-	err = r.updateOCIRoute(ctx, cr, route)
+	err = r.updateRoute(ctx, cr, route)
 	if err != nil {
 		log.Error(err, "Failed to update Route")
 		return &ctrl.Result{}, err
