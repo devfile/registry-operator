@@ -3,7 +3,7 @@ kind: DevfileRegistry
 metadata:
   name: devfileregistry
 spec:
-  devfileIndexImage: quay.io/devfile/metadata-server:latest
+  devfileIndexImage: quay.io/devfile/devfile-index:next
   storage:
     enabled: false
   tls:
