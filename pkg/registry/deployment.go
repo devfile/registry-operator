@@ -62,8 +62,6 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
-								InitialDelaySeconds: int32(3),
-								PeriodSeconds:       int32(3),
 							},
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
@@ -72,8 +70,6 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
-								InitialDelaySeconds: int32(3),
-								PeriodSeconds:       int32(3),
 							},
 						},
 						{

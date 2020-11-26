@@ -17,12 +17,10 @@ import (
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+// Important: Run "make" to regenerate code after modifying this file
 
 // DevfileRegistrySpec defines the desired state of DevfileRegistry
 type DevfileRegistrySpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
 	// Sets the container image containing devfile stacks to be deployed on the Devfile Registry
 	DevfileIndexImage string `json:"devfileIndexImage,omitempty"`
 
@@ -68,8 +66,7 @@ type DevfileRegistrySpecK8sOnly struct {
 
 // DevfileRegistryStatus defines the observed state of DevfileRegistry
 type DevfileRegistryStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// URL is the exposed URL for the Devfile Registry, and is set in the status after the registry has become available.
 	URL string `json:"url"`
 }
 

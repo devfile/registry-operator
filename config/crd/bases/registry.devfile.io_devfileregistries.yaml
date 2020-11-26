@@ -95,9 +95,8 @@ spec:
           description: DevfileRegistryStatus defines the observed state of DevfileRegistry
           properties:
             url:
-              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                of cluster Important: Run "make" to regenerate code after modifying
-                this file'
+              description: URL is the exposed URL for the Devfile Registry, and is
+                set in the status after the registry has become available.
               type: string
           required:
           - url

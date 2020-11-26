@@ -92,12 +92,10 @@ func (r *DevfileRegistryReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 	}
 
 	// Check to see if there's an old PVC that needs to be deleted
-	// Has to happen AFTER the deployment has been updated to remove the volume mount
-	if !registry.IsStorageEnabled(devfileRegistry) {
-		err = r.deletePVCIfNeeded(ctx, devfileRegistry)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
+	// Has to happen AFTER the deployment has been updated.
+	err = r.deleteOldPVCIfNeeded(ctx, devfileRegistry)
+	if err != nil {
+		return ctrl.Result{}, err
 	}
 
 	// Create/update the ingress/route for the devfile registry

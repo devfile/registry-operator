@@ -128,19 +128,26 @@ func (r *DevfileRegistryReconciler) updateIngress(ctx context.Context, cr *regis
 }
 
 // deletePVCIfNeeded deletes the PVC for the devfile registry if one exists and if persistent storage was disabled
-func (r *DevfileRegistryReconciler) deletePVCIfNeeded(ctx context.Context, cr *registryv1alpha1.DevfileRegistry) error {
+func (r *DevfileRegistryReconciler) deleteOldPVCIfNeeded(ctx context.Context, cr *registryv1alpha1.DevfileRegistry) error {
 	// Check to see if a PVC exists, if so, need to clean it up because storage was disabled
-	pvc := &corev1.PersistentVolumeClaim{}
-	err := r.Get(ctx, types.NamespacedName{Name: registry.PVCName(cr.Name), Namespace: cr.Namespace}, pvc)
-	if err != nil && !errors.IsNotFound(err) {
-		log.Error(err, "Error listing PersistentVolumeClaims")
-		return err
-	} else if pvc != nil && pvc.Name != "" {
-		log.Error(err, "Storage has been disabled ")
-		err = r.Delete(ctx, pvc)
-		if err != nil {
+	if !registry.IsStorageEnabled(cr) {
+		pvc := &corev1.PersistentVolumeClaim{}
+		err := r.Get(ctx, types.NamespacedName{Name: registry.PVCName(cr.Name), Namespace: cr.Namespace}, pvc)
+		if err != nil && errors.IsNotFound(err) {
+			// PVC not found, so there's no old PVC to delete. Just return nil, nothing to do.
+			return nil
+		} else if err != nil {
+			// Some other error occurred when listing PVCs, so log and return an error
 			log.Error(err, "Error listing PersistentVolumeClaims")
 			return err
+		} else {
+			// PVC found despite storage being disable, so delete it
+			log.Info(err, "Old PersistentVolumeClaim", pvc.Name, "found. Deleting it as storage has been disabled.")
+			err = r.Delete(ctx, pvc)
+			if err != nil {
+				log.Error(err, "Error deleting PersistentVolumeClaim", pvc.Name)
+				return err
+			}
 		}
 	}
 	return nil
