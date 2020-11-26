@@ -100,27 +100,23 @@ func (r *DevfileRegistryReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 
 	// Create/update the ingress/route for the devfile registry
 	hostname := devfileRegistry.Spec.K8s.IngressDomain
-	if config.ControllerCfg.IsOpenShift() {
+	if config.ControllerCfg.IsOpenShift() && hostname == "" {
 		// Check if the route exposing the devfile index exists
 		result, err = r.ensureRoute(ctx, devfileRegistry, labels)
 		if result != nil {
 			return *result, err
 		}
 
-		// If the route hostname was autodiscovered by OpenShift, need to retrieve the generated hostname.
-		// This is so that we can re-use the hostname in the second route and allows us to expose both routes under the same hostname
-		if hostname == "" {
-			// Get the hostname of the devfiles route
-			devfilesRoute := &routev1.Route{}
-			err = r.Get(ctx, types.NamespacedName{Name: devfileRegistry.Name + "-devfiles", Namespace: devfileRegistry.Namespace}, devfilesRoute)
-			if err != nil {
-				// Log an error, but requeue, as the controller's cached kube client likely hasn't registered the new route yet.
-				// See https://github.com/operator-framework/operator-sdk/issues/4013#issuecomment-707267616 for an explanation on why we requeue rather than error out here
-				log.Error(err, "Failed to get Route")
-				return ctrl.Result{Requeue: true}, nil
-			}
-			hostname = devfilesRoute.Spec.Host
+		// Get the hostname of the generated devfile route
+		devfilesRoute := &routev1.Route{}
+		err = r.Get(ctx, types.NamespacedName{Name: devfileRegistry.Name + "-devfiles", Namespace: devfileRegistry.Namespace}, devfilesRoute)
+		if err != nil {
+			// Log an error, but requeue, as the controller's cached kube client likely hasn't registered the new route yet.
+			// See https://github.com/operator-framework/operator-sdk/issues/4013#issuecomment-707267616 for an explanation on why we requeue rather than error out here
+			log.Error(err, "Failed to get Route")
+			return ctrl.Result{Requeue: true}, nil
 		}
+		hostname = devfilesRoute.Spec.Host
 	} else {
 		// Create/update the ingress for the devfile registry
 		hostname = registry.GetDevfileRegistryIngress(devfileRegistry)
