@@ -34,11 +34,11 @@ func (r *DevfileRegistryReconciler) ensureService(ctx context.Context, cr *regis
 	err := r.Get(ctx, types.NamespacedName{Name: registry.ServiceName(cr.Name), Namespace: cr.Namespace}, svc)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new service
-		pvc := registry.GenerateService(cr, r.Scheme, labels)
-		log.Info("Creating a new Service", "Service.Namespace", pvc.Namespace, "Service.Name", pvc.Name)
-		err = r.Create(ctx, pvc)
+		svc := registry.GenerateService(cr, r.Scheme, labels)
+		log.Info("Creating a new Service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
+		err = r.Create(ctx, svc)
 		if err != nil {
-			log.Error(err, "Failed to create new Service", "Service.Namespace", pvc.Namespace, "Service.Name", pvc.Name)
+			log.Error(err, "Failed to create new Service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
 			return &ctrl.Result{}, err
 		}
 		return nil, nil
