@@ -8,11 +8,19 @@ metadata:
   creationTimestamp: null
   name: devfileregistries.registry.devfile.io
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.url
+    description: The URL for the Devfile Registry
+    name: URL
+    type: string
   group: registry.devfile.io
   names:
     kind: DevfileRegistry
     listKind: DevfileRegistryList
     plural: devfileregistries
+    shortNames:
+    - devreg
+    - dr
     singular: devfileregistry
   scope: Namespaced
   subresources:
@@ -36,13 +44,62 @@ spec:
         spec:
           description: DevfileRegistrySpec defines the desired state of DevfileRegistry
           properties:
-            foo:
-              description: Foo is an example field of DevfileRegistry. Edit DevfileRegistry_types.go
-                to remove/update
+            devfileIndexImage:
+              description: Sets the container image containing devfile stacks to be
+                deployed on the Devfile Registry
               type: string
+            k8s:
+              description: DevfileRegistrySpecK8sOnly defines the desired state of
+                the kubernetes-only fields of the DevfileRegistry
+              properties:
+                ingressDomain:
+                  description: Ingress domain for a Kubernetes cluster. This MUST
+                    be explicitly specified on Kubernetes. There are no defaults
+                  type: string
+              type: object
+            ociRegistryImage:
+              description: Overrides the container image used for the OCI registry.
+                Recommended to leave blank and default to the image specified by the
+                operator.
+              type: string
+            storage:
+              description: DevfileRegistrySpecStorage defines the desired state of
+                the storage for the DevfileRegistry
+              properties:
+                enabled:
+                  description: Instructs the operator to deploy the DevfileRegistry
+                    with persistent storage Enabled by default. Disabling is only
+                    recommended for development or test.
+                  type: boolean
+                ociRegistryImage:
+                  description: Configures the size of the devfile registry's persistent
+                    volume, if enabled. Defaults to 1Gi.
+                  type: string
+              type: object
+            tls:
+              description: DevfileRegistrySpecTLS defines the desired state for TLS
+                in the DevfileRegistry
+              properties:
+                enabled:
+                  description: Instructs the operator to deploy the DevfileRegistry
+                    with TLS enabled. Enabled by default. Disabling is only recommended
+                    for development or test.
+                  type: boolean
+                ociRegistryImage:
+                  description: Name of an optional, pre-existing TLS secret to use
+                    for TLS termination on ingress/route resources.
+                  type: string
+              type: object
           type: object
         status:
           description: DevfileRegistryStatus defines the observed state of DevfileRegistry
+          properties:
+            url:
+              description: URL is the exposed URL for the Devfile Registry, and is
+                set in the status after the registry has become available.
+              type: string
+          required:
+          - url
           type: object
       type: object
   version: v1alpha1

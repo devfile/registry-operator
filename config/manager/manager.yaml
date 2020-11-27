@@ -12,15 +12,18 @@ metadata:
   namespace: system
   labels:
     control-plane: controller-manager
+    app.kubernetes.io/name: devfileregistry-operator
 spec:
   selector:
     matchLabels:
       control-plane: controller-manager
+      app.kubernetes.io/name: devfileregistry-operator
   replicas: 1
   template:
     metadata:
       labels:
         control-plane: controller-manager
+        app.kubernetes.io/name: devfileregistry-operator
     spec:
       containers:
       - command:
@@ -28,6 +31,7 @@ spec:
         args:
         - --enable-leader-election
         image: controller:latest
+        imagePullPolicy: Always
         name: manager
         resources:
           limits:
