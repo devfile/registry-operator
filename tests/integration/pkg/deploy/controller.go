@@ -46,7 +46,7 @@ func (w *Deployment) DeployDevfileRegistryOperator() error {
 	output, err := cmd.CombinedOutput()
 	fmt.Println(string(output))
 	if err != nil && !strings.Contains(string(output), "AlreadyExists") {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return err
 	}
 
@@ -62,8 +62,9 @@ func (w *Deployment) DeployDevfileRegistryOperator() error {
 func (w *Deployment) InstallCustomResourceDefinitions() error {
 	devfileRegistryCRD := exec.Command("make", "install")
 	output, err := devfileRegistryCRD.CombinedOutput()
+	fmt.Println(string(output))
 	if err != nil && !strings.Contains(string(output), "AlreadyExists") {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return err
 	}
 	return nil

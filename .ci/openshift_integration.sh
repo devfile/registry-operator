@@ -22,4 +22,10 @@ set -x
 # This workaround is here until we don't figure out cause
 go mod tidy
 go mod vendor
+
+# Make sure kustomize and controller-gen are installed before running the tests
+# ToDo: Remove later, should not be required.
+make kustomize
+make controller-gen
+
 make test-integration
