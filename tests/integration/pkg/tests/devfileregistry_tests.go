@@ -32,7 +32,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource]", func() {
 		label := "devfileregistry_cr=" + crName
 
 		// Deploy the devfileregistry resource for this test case and wait for the pod to be running
-		err := K8sClient.KubectlApplyResource("tests/integration/examples/create/devfileregistry.yaml")
+		err := K8sClient.OcApplyResource("tests/integration/examples/create/devfileregistry.yaml")
 		if err != nil {
 			ginkgo.Fail("Failed to create devfileregistry instance: " + err.Error())
 			return
@@ -55,7 +55,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource]", func() {
 	})
 
 	var _ = ginkgo.AfterEach(func() {
-		K8sClient.KubectlDeleteResource("tests/integration/examples/create/devfileregistry.yaml")
+		K8sClient.OcDeleteResource("tests/integration/examples/create/devfileregistry.yaml")
 	})
 })
 
@@ -65,7 +65,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource with TLS enabled]", f
 		label := "devfileregistry_cr=" + crName
 
 		// Deploy the devfileregistry resource for this test case and wait for the pod to be running
-		err := K8sClient.KubectlApplyResource("tests/integration/examples/create/devfileregistry-tls.yaml")
+		err := K8sClient.OcApplyResource("tests/integration/examples/create/devfileregistry-tls.yaml")
 		if err != nil {
 			ginkgo.Fail("Failed to create devfileregistry instance: " + err.Error())
 			return
@@ -91,7 +91,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource with TLS enabled]", f
 	})
 
 	var _ = ginkgo.AfterEach(func() {
-		K8sClient.KubectlDeleteResource("tests/integration/examples/create/devfileregistry-tls.yaml")
+		K8sClient.OcDeleteResource("tests/integration/examples/create/devfileregistry-tls.yaml")
 	})
 })
 
@@ -101,7 +101,7 @@ var _ = ginkgo.Describe("[Update Devfile Registry resource]", func() {
 		label := "devfileregistry_cr=" + crName
 
 		// Deploy the devfileregistry resource for this test case and wait for the pod to be running
-		err := K8sClient.KubectlApplyResource("tests/integration/examples/update/devfileregistry-old.yaml")
+		err := K8sClient.OcApplyResource("tests/integration/examples/update/devfileregistry-old.yaml")
 		if err != nil {
 			ginkgo.Fail("Failed to create devfileregistry instance: " + err.Error())
 			return
@@ -123,7 +123,7 @@ var _ = ginkgo.Describe("[Update Devfile Registry resource]", func() {
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Update the devfileregistry resource for this test case
-		err = K8sClient.KubectlApplyResource("tests/integration/examples/update/devfileregistry-new.yaml")
+		err = K8sClient.OcApplyResource("tests/integration/examples/update/devfileregistry-new.yaml")
 		if err != nil {
 			ginkgo.Fail("Failed to create devfileregistry instance: " + err.Error())
 			return
@@ -140,6 +140,6 @@ var _ = ginkgo.Describe("[Update Devfile Registry resource]", func() {
 	})
 
 	var _ = ginkgo.AfterEach(func() {
-		K8sClient.KubectlDeleteResource("tests/integration/examples/update/devfileregistry-new.yaml")
+		K8sClient.OcDeleteResource("tests/integration/examples/update/devfileregistry-new.yaml")
 	})
 })
