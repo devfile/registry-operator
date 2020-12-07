@@ -24,6 +24,17 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
+# Check if oc or kubectl are installed and determine which of the two to use
+ifeq (,$(shell which kubectl))
+ifeq (,$(shell which oc))
+$(error oc or kubectl is required to proceed)
+else
+K8S_CLI := oc
+endif
+else
+K8S_CLI := kubectl
+endif
+
 all: manager
 
 # Run tests
@@ -48,17 +59,17 @@ run: generate fmt vet manifests
 
 # Install CRDs into a cluster
 install: manifests kustomize
-	$(KUSTOMIZE) build config/crd | kubectl apply -f -
+	$(KUSTOMIZE) build config/crd | $(K8S_CLI) apply -f -
 
 # Uninstall operator and CRDs from a cluster
 uninstall: manifests kustomize
-	$(KUSTOMIZE) build config/default | kubectl delete -f -
-	#$(KUSTOMIZE) build config/crd | kubectl delete -f -
+	$(KUSTOMIZE) build config/default | $(K8S_CLI) delete -f -
+	#$(KUSTOMIZE) build config/crd | $(K8S_CLI) delete -f -
 
 # Deploy controller in the configured Kubernetes cluster in ~/.kube/config
 deploy: manifests kustomize
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default | kubectl apply -f -
+	$(KUSTOMIZE) build config/default | $(K8S_CLI) apply -f -
 
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen

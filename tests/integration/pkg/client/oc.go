@@ -20,9 +20,9 @@ import (
 	"github.com/devfile/registry-operator/tests/integration/pkg/config"
 )
 
-// KubectlApplyResource applies resources on the cluster, corresponding to the specified file(s)
-func (w *K8sClient) KubectlApplyResource(filePath string) (err error) {
-	cmd := exec.Command("kubectl", "apply", "--namespace", config.Namespace, "-f", filePath)
+// OcApplyResource applies resources on the cluster, corresponding to the specified file(s)
+func (w *K8sClient) OcApplyResource(filePath string) (err error) {
+	cmd := exec.Command("oc", "apply", "--namespace", config.Namespace, "-f", filePath)
 	outBytes, err := cmd.CombinedOutput()
 	output := string(outBytes)
 	if err != nil && !strings.Contains(output, "AlreadyExists") {
@@ -31,9 +31,9 @@ func (w *K8sClient) KubectlApplyResource(filePath string) (err error) {
 	return err
 }
 
-// KubectlDeleteResource deletes the resources from the cluster that the specified file(s) correspond to
-func (w *K8sClient) KubectlDeleteResource(filePath string) (err error) {
-	cmd := exec.Command("kubectl", "delete", "--namespace", config.Namespace, "-f", filePath)
+// OcDeleteResource deletes the resources from the cluster that the specified file(s) correspond to
+func (w *K8sClient) OcDeleteResource(filePath string) (err error) {
+	cmd := exec.Command("oc", "delete", "--namespace", config.Namespace, "-f", filePath)
 	outBytes, err := cmd.CombinedOutput()
 	output := string(outBytes)
 	if err != nil && !strings.Contains(output, "AlreadyExists") {
