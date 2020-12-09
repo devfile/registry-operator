@@ -18,6 +18,9 @@ set -u
 # print each command before executing it
 set -x
 
+# Make sure we're running the integration tests with the image built by OpenShift CI
+export IMG=${REGISTRY_OPERATOR}
+
 # For some reason go on PROW force usage vendor folder
 # This workaround is here until we don't figure out cause
 go mod tidy
