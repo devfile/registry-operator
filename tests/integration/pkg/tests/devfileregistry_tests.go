@@ -18,6 +18,7 @@ import (
 
 	"github.com/devfile/registry-operator/pkg/util"
 	"github.com/devfile/registry-operator/tests/integration/pkg/client"
+	"github.com/devfile/registry-operator/tests/integration/pkg/config"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 )
@@ -52,6 +53,15 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource]", func() {
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		err = util.WaitForServer(registry.Status.URL, 30*time.Second)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+		// Verify that the metrics endpoint is running
+		podList, err := K8sClient.ListPods(config.Namespace, label)
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		registryPod := podList.Items[0]
+		metricsURL := "http://localhost:5001/metrics"
+		output, err := K8sClient.CurlEndpointInContainer(registryPod.Name, "devfile-registry-bootstrap", metricsURL)
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		gomega.Expect(output).To(gomega.ContainSubstring("registry_storage_cache_total"))
 	})
 
 	var _ = ginkgo.AfterEach(func() {

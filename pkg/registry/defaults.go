@@ -29,8 +29,10 @@ const (
 	DevfileRegistryTLSEnabled = true
 
 	// Defaults/constants for devfile registry services
-	DevfileIndexPortName = "devfile-registry-metadata"
-	DevfileIndexPort     = 8080
+	DevfileIndexPortName   = "devfile-registry-metadata"
+	DevfileIndexPort       = 8080
+	DevfileMetricsPortName = "devfile-registry-metrics"
+	DevfileMetricsPort     = 5001
 )
 
 func GetOCIRegistryImage(cr *registryv1alpha1.DevfileRegistry) string {

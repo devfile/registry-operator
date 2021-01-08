@@ -90,6 +90,11 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 									Name:      DevfileRegistryVolumeName,
 									MountPath: "/var/lib/registry",
 								},
+								{
+									Name:      "config",
+									MountPath: "/etc/docker/registry",
+									ReadOnly:  true,
+								},
 							},
 						},
 					},
@@ -97,6 +102,22 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 						{
 							Name:         DevfileRegistryVolumeName,
 							VolumeSource: GetDevfileRegistryVolumeSource(cr),
+						},
+						{
+							Name: "config",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: ConfigMapName(cr.Name),
+									},
+									Items: []corev1.KeyToPath{
+										{
+											Key:  "registry-config.yml",
+											Path: "config.yml",
+										},
+									},
+								},
+							},
 						},
 					},
 				},
