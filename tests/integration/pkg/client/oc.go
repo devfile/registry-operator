@@ -41,3 +41,11 @@ func (w *K8sClient) OcDeleteResource(filePath string) (err error) {
 	}
 	return err
 }
+
+// CurlEndpointInContainer execs into the given container in the pod and uses curl to hit the specified endpoint
+func (w *K8sClient) CurlEndpointInContainer(pod string, container string, endpoint string) (string, error) {
+	cmd := exec.Command("oc", "exec", pod, "--namespace", config.Namespace, "-c", container, "--", "curl", endpoint)
+	outBytes, err := cmd.CombinedOutput()
+	output := string(outBytes)
+	return output, err
+}

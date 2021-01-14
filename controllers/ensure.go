@@ -13,6 +13,7 @@ package controllers
 
 import (
 	"context"
+	"reflect"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	"github.com/devfile/registry-operator/pkg/registry"
@@ -22,133 +23,82 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-// ensureService ensures that a service for the devfile registry exists on the cluster and is up to date with the custom resource
-func (r *DevfileRegistryReconciler) ensureService(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, labels map[string]string) (*reconcile.Result, error) {
-	// Check if the service already exists, if not create a new one
-	svc := &corev1.Service{}
-	err := r.Get(ctx, types.NamespacedName{Name: registry.ServiceName(cr.Name), Namespace: cr.Namespace}, svc)
+func (r *DevfileRegistryReconciler) ensure(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, resource runtime.Object, labels map[string]string, ingressDomain string) (*reconcile.Result, error) {
+	resourceType := reflect.TypeOf(resource).Elem().Name()
+	resourceName := getResourceName(resource, cr.Name)
+
+	// Check to see if the requested resource exists on the cluster. If it doesn't exist, create it and return.
+	err := r.Get(ctx, types.NamespacedName{Name: resourceName, Namespace: cr.Namespace}, resource)
 	if err != nil && errors.IsNotFound(err) {
-		// Define a new service
-		svc := registry.GenerateService(cr, r.Scheme, labels)
-		log.Info("Creating a new Service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
-		err = r.Create(ctx, svc)
+		generatedResource := r.generateResourceObject(cr, resource, labels, ingressDomain)
+		log.Info("Creating a new "+resourceType, resourceType+".Namespace", cr.Namespace+".Name", resourceName)
+		err = r.Create(ctx, generatedResource)
 		if err != nil {
-			log.Error(err, "Failed to create new Service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
+			log.Error(err, "Failed to create new "+resourceType, resourceType+".Namespace", cr.Namespace, "Service.Name", cr.Namespace+".Name", resourceName)
 			return &ctrl.Result{}, err
 		}
 		return nil, nil
 	} else if err != nil {
-		log.Error(err, "Failed to get Service")
+		log.Error(err, "Failed to get "+resourceType)
 		return &ctrl.Result{}, err
 	}
 
-	return nil, nil
-}
-
-// ensureDeployment ensures that a devfile registry deployment exists on the cluster and is up to date with the custom resource
-func (r *DevfileRegistryReconciler) ensureDeployment(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, labels map[string]string) (*reconcile.Result, error) {
-	dep := &appsv1.Deployment{}
-	err := r.Get(ctx, types.NamespacedName{Name: registry.DeploymentName(cr.Name), Namespace: cr.Namespace}, dep)
-	if err != nil && errors.IsNotFound(err) {
-		// Generate a new Deployment template and create it on the cluster
-		dep = registry.GenerateDeployment(cr, r.Scheme, labels)
-
-		log.Info("Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
-		err = r.Create(ctx, dep)
-		if err != nil {
-			log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
-			return &ctrl.Result{}, err
-		}
-		return nil, nil
-	} else if err != nil {
-		log.Error(err, "Failed to get Deployment")
-		return &ctrl.Result{}, err
+	// Update the given resource, if needed
+	// At this moment, only registry deployments, routes and ingresses need to be updated.
+	switch resource.(type) {
+	case *appsv1.Deployment:
+		dep, _ := resource.(*appsv1.Deployment)
+		err = r.updateDeployment(ctx, cr, dep)
+	case *routev1.Route:
+		route, _ := resource.(*routev1.Route)
+		err = r.updateRoute(ctx, cr, route)
+	case *v1beta1.Ingress:
+		ingress, _ := resource.(*v1beta1.Ingress)
+		err = r.updateIngress(ctx, cr, ingressDomain, ingress)
 	}
-
-	err = r.updateDeployment(ctx, cr, dep)
 	if err != nil {
-		log.Error(err, "Failed to update Deployment")
+		log.Error(err, "Failed to update "+resourceType)
 		return &ctrl.Result{}, err
 	}
 	return nil, nil
 }
 
-func (r *DevfileRegistryReconciler) ensurePVC(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, labels map[string]string) (*reconcile.Result, error) {
-	// Check if the persistentvolumeclaim already exists, if not create a new one
-	pvc := &corev1.PersistentVolumeClaim{}
-	err := r.Get(ctx, types.NamespacedName{Name: registry.PVCName(cr.Name), Namespace: cr.Namespace}, pvc)
-	if err != nil && errors.IsNotFound(err) {
-		// Define a new PVC
-		pvc := registry.GeneratePVC(cr, r.Scheme, labels)
-		log.Info("Creating a new PersistentVolumeClaim", "PersistentVolumeClaim.Namespace", pvc.Namespace, "PersistentVolumeClaim.Name", pvc.Name)
-		err = r.Create(ctx, pvc)
-		if err != nil {
-			log.Error(err, "Failed to create new PersistentVolumeClaim", "PersistentVolumeClaim.Namespace", pvc.Namespace, "PersistentVolumeClaim.Name", pvc.Name)
-			return &ctrl.Result{}, err
-		}
-		return nil, nil
-	} else if err != nil {
-		log.Error(err, "Failed to get PersistentVolumeClaim")
-		return &ctrl.Result{}, err
+func getResourceName(resource runtime.Object, crName string) string {
+	switch resource.(type) {
+	case *appsv1.Deployment:
+		return registry.DeploymentName(crName)
+	case *corev1.ConfigMap:
+		return registry.ConfigMapName(crName)
+	case *corev1.PersistentVolumeClaim:
+		return registry.PVCName(crName)
+	case *corev1.Service:
+		return registry.ServiceName(crName)
+	case *routev1.Route, *v1beta1.Ingress:
+		return registry.IngressName(crName)
 	}
-
-	return nil, nil
+	return registry.GenericResourceName(crName)
 }
 
-func (r *DevfileRegistryReconciler) ensureRoute(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, labels map[string]string) (*reconcile.Result, error) {
-	route := &routev1.Route{}
-	err := r.Get(ctx, types.NamespacedName{Name: registry.DevfilesRouteName(cr.Name), Namespace: cr.Namespace}, route)
-	if err != nil && errors.IsNotFound(err) {
-		// Define a new route exposing the devfile registry index
-		route := registry.GenerateRoute(cr, r.Scheme, labels)
-		log.Info("Creating a new Route", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
-		err = r.Create(ctx, route)
-		if err != nil {
-			log.Error(err, "Failed to create new Route", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
-			return &ctrl.Result{}, err
-		}
-		return nil, nil
-	} else if err != nil {
-		log.Error(err, "Failed to get Route")
-		return &ctrl.Result{}, err
+func (r *DevfileRegistryReconciler) generateResourceObject(cr *registryv1alpha1.DevfileRegistry, resource runtime.Object, labels map[string]string, ingressDomain string) runtime.Object {
+	switch resource.(type) {
+	case *appsv1.Deployment:
+		return registry.GenerateDeployment(cr, r.Scheme, labels)
+	case *corev1.ConfigMap:
+		return registry.GenerateOCIRegistryConfigMap(cr, r.Scheme, labels)
+	case *corev1.PersistentVolumeClaim:
+		return registry.GeneratePVC(cr, r.Scheme, labels)
+	case *corev1.Service:
+		return registry.GenerateService(cr, r.Scheme, labels)
+	case *routev1.Route:
+		return registry.GenerateRoute(cr, r.Scheme, labels)
+	case *v1beta1.Ingress:
+		return registry.GenerateIngress(cr, ingressDomain, r.Scheme, labels)
 	}
-
-	err = r.updateRoute(ctx, cr, route)
-	if err != nil {
-		log.Error(err, "Failed to update Route")
-		return &ctrl.Result{}, err
-	}
-
-	return nil, nil
-}
-
-func (r *DevfileRegistryReconciler) ensureIngress(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, hostname string, labels map[string]string) (*reconcile.Result, error) {
-	ingress := &v1beta1.Ingress{}
-	err := r.Get(ctx, types.NamespacedName{Name: registry.IngressName(cr.Name), Namespace: cr.Namespace}, ingress)
-	if err != nil && errors.IsNotFound(err) {
-		// Define a new ingress exposing the devfile index and oci registry
-		ingress = registry.GenerateIngress(cr, hostname, r.Scheme, labels)
-		log.Info("Creating a new Ingress", "Ingress.Namespace", ingress.Namespace, "Ingress.Name", ingress.Name)
-		err = r.Create(ctx, ingress)
-		if err != nil {
-			log.Error(err, "Failed to create new Ingress", "Ingress.Namespace", ingress.Namespace, "Ingress.Name", ingress.Name)
-			return &ctrl.Result{}, err
-		}
-		return nil, nil
-	} else if err != nil {
-		log.Error(err, "Failed to get Ingress")
-		return &ctrl.Result{}, err
-	}
-
-	err = r.updateIngress(ctx, cr, hostname, ingress)
-	if err != nil {
-		log.Error(err, "Failed to update Ingress")
-		return &ctrl.Result{}, err
-	}
-	return nil, nil
+	return nil
 }
