@@ -30,8 +30,10 @@ import (
 func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, dep *appsv1.Deployment) error {
 	// Check to see if the existing devfile registry deployment needs to be updated
 	needsUpdating := false
-	if dep.Spec.Template.Spec.Containers[0].Image != cr.Spec.DevfileIndexImage {
-		dep.Spec.Template.Spec.Containers[0].Image = cr.Spec.DevfileIndexImage
+
+	indexImage := registry.GetDevfileIndexImage(cr)
+	if dep.Spec.Template.Spec.Containers[0].Image != indexImage {
+		dep.Spec.Template.Spec.Containers[0].Image = indexImage
 		needsUpdating = true
 	}
 	ociImage := registry.GetOCIRegistryImage(cr)

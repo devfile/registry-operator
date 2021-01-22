@@ -30,8 +30,12 @@ func GenerateService(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Schem
 					Port: DevfileIndexPort,
 				},
 				{
-					Name: DevfileMetricsPortName,
-					Port: DevfileMetricsPort,
+					Name: DevfileIndexMetricsPortName,
+					Port: DevfileIndexMetricsPort,
+				},
+				{
+					Name: OCIMetricsPortName,
+					Port: OCIMetricsPort,
 				},
 			},
 			Selector: labels,

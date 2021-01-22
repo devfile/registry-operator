@@ -11,8 +11,53 @@ Issue tracking repo: https://github.com/devfile/api with label area/registry
 The controller can be deployed to a cluster provided you are logged in with cluster-admin credentials:
 
 ```bash
-export IMG=quay.io/devfile/registry-operator:next
 make install && make deploy
+```
+
+The operator will be installed under the `registry-operator-system` namespace. However, devfile registries can be deployed in any namespace.
+
+## Deploying a Devfile Registry
+
+Once the Devfile Registry operator has been deployed to a cluster, it's straightforward to deploy a Devfile Registry. The following samples below showcase how the registry can be deployed on to an OpenShift or Kubernetes cluster. 
+
+In addition to the examples below, the `samples/` folder in this repo provides some example devfile registry yaml files for convenience.
+
+
+### OpenShift
+
+Installing the devfile registry via the devfile registry operator on an OpenShift cluster can be done in one easy command:
+
+```bash
+$ cat <<EOF | oc apply -f -
+apiVersion: registry.devfile.io/v1alpha1
+kind: DevfileRegistry
+metadata:
+  name: devfile-registry
+spec:
+  devfileIndexImage: quay.io/devfile/devfile-index:next
+EOF
+```
+
+
+### Kubernetes
+
+Installing the devfile registry on a Kubernetes cluster is similar, but requires setting the `k8s.ingressDomain` field first.
+
+```bash
+$ export INGRESS_DOMAIN=<my-ingress-domain>
+
+$ cat <<EOF | kubectl apply -f -
+apiVersion: registry.devfile.io/v1alpha1
+kind: DevfileRegistry
+metadata:
+  name: devfile-registry
+spec:
+  devfileIndexImage: quay.io/devfile/devfile-index:next
+  tls:
+    enabled: false
+  k8s:
+    ingressDomain: $INGRESS_DOMAIN
+EOF
 ```
 
 ## Development
