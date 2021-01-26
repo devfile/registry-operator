@@ -1,0 +1,7 @@
+apiVersion: registry.devfile.io/v1alpha1
+kind: DevfileRegistry
+metadata:
+  name: devfile-registry
+spec:
+  devfileIndexImage: quay.io/devfile/devfile-index:next
+  
