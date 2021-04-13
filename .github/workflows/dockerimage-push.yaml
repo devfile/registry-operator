@@ -14,7 +14,7 @@ on:
 
 jobs:
 
-  build:
+  push-operator-image:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
@@ -29,13 +29,29 @@ jobs:
         dockerfile: Dockerfile
         tags: next
         tag_with_sha: true
-    - name: Docker Build & Push - Registry Operator Bundle
+        
+  push-operator-bundle:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout registry-operator source code
+      uses: actions/checkout@v2
+    - name: Install operator-sdk v1.3.0
+      uses: redhat-actions/openshift-tools-installer@v1
+      with:
+        operator-sdk: "1.3.0"
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.12
+    - name: Generate the OLM bundles
+      run: make bundle
+    - name: Push the Registry Operator Bundle to quay.io
       uses: docker/build-push-action@v1.1.0
       with:
         username: ${{ secrets.QUAY_USERNAME }}
         password: ${{ secrets.QUAY_PASSWORD }}
         registry: quay.io
-        repository: devfile/registry-operator
+        repository: devfile/registry-operator-bundle
         dockerfile: bundle.Dockerfile
         tags: next
         tag_with_sha: true
