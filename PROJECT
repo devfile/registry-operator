@@ -3,9 +3,13 @@ layout: go.kubebuilder.io/v2
 projectName: registry-operator
 repo: github.com/devfile/registry-operator
 resources:
-- group: registry
+-
+  controller: true
+  domain: devfile.io
+  group: registry
   kind: DevfileRegistry
+  path: github.com/devfile/registry-operator/api/v1alpha1
   version: v1alpha1
-version: 3-alpha
+version: "3"
 plugins:
   go.sdk.operatorframework.io/v2-alpha: {}

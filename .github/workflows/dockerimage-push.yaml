@@ -19,7 +19,7 @@ jobs:
     steps:
     - name: Checkout registry-operator source code
       uses: actions/checkout@v2
-    - name: Docker Build & Push
+    - name: Docker Build & Push - Registry Operator Image
       uses: docker/build-push-action@v1.1.0
       with:
         username: ${{ secrets.QUAY_USERNAME }}
@@ -27,5 +27,15 @@ jobs:
         registry: quay.io
         repository: devfile/registry-operator
         dockerfile: Dockerfile
+        tags: next
+        tag_with_sha: true
+    - name: Docker Build & Push - Registry Operator Bundle
+      uses: docker/build-push-action@v1.1.0
+      with:
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
+        registry: quay.io
+        repository: devfile/registry-operator
+        dockerfile: bundle.Dockerfile
         tags: next
         tag_with_sha: true
