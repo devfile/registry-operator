@@ -35,17 +35,7 @@ jobs:
     steps:
     - name: Checkout registry-operator source code
       uses: actions/checkout@v2
-    - name: Install operator-sdk
-      uses: shivanshs9/setup-k8s-operator-sdk@v1
-      with:
-        version: "^1.5.0"
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.12
-    - name: Generate the OLM bundles
-      run: make bundle
-    - name: Push the Registry Operator Bundle to quay.io
+    - name: Build and push the Registry Operator Bundle to quay.io
       uses: docker/build-push-action@v1.1.0
       with:
         username: ${{ secrets.QUAY_USERNAME }}
