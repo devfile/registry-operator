@@ -91,10 +91,10 @@ jobs:
     -
       name: Check out code into the Go module directory
       uses: actions/checkout@v2
-    - name: Install operator-sdk v1.3.0
+    - name: Install operator-sdk
       uses: redhat-actions/openshift-tools-installer@v1
       with:
-        operator-sdk: "1.3.0"
+        operator-sdk: "4.7.6"
     -
       name: Build the operator's bundle
       run: make bundle
