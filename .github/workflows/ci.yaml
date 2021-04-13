@@ -69,7 +69,7 @@ jobs:
       run: make manifests
 
   operator-build:
-    name: Check operator image docker build
+    name: Check operator container image build
     runs-on: ubuntu-latest
     steps:
     -
@@ -80,9 +80,14 @@ jobs:
       run: docker build -f Dockerfile .
 
   operator-bundle-build:
-    name: Check operator bundle docker build
+    name: Check operator bundle build
     runs-on: ubuntu-latest
     steps:
+    -
+      name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.12
     -
       name: Check out code into the Go module directory
       uses: actions/checkout@v2
