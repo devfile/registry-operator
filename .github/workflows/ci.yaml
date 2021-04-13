@@ -92,9 +92,10 @@ jobs:
       name: Check out code into the Go module directory
       uses: actions/checkout@v2
     - name: Install operator-sdk
-      uses: shivanshs9/setup-k8s-operator-sdk@v1
+      uses: jaxxstorm/action-install-gh-release@release/v1-alpha
       with:
-        version: "^1.5.0"
+        repo: operator-framework/operator-sdk
+        tag: v1.5.0
     -
       name: Build the operator's bundle
       run: make bundle
