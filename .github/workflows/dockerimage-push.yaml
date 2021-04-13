@@ -36,9 +36,9 @@ jobs:
     - name: Checkout registry-operator source code
       uses: actions/checkout@v2
     - name: Install operator-sdk
-      uses: redhat-actions/openshift-tools-installer@v1
+      uses: shivanshs9/setup-k8s-operator-sdk@v1
       with:
-        operator-sdk: "4.7.6"
+        version: "^1.5.0"
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
