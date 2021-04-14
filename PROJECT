@@ -3,7 +3,7 @@ layout: go.kubebuilder.io/v2
 projectName: registry-operator
 repo: github.com/devfile/registry-operator
 resources:
-  controller: true
+- controller: true
   domain: devfile.io
   group: registry
   kind: DevfileRegistry
