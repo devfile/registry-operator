@@ -1,7 +1,8 @@
 # Current Operator version
-VERSION ?= 0.0.1
+VERSION ?= `cat VERSION`
 # Default bundle image tag
-BUNDLE_IMG ?= controller-bundle:$(VERSION)
+BUNDLE_IMG ?= quay.io/devfile/registry-operator-bundle:$(VERSION)
+
 # Options for 'bundle-build'
 ifneq ($(origin CHANNELS), undefined)
 BUNDLE_CHANNELS := --channels=$(CHANNELS)
@@ -154,3 +155,8 @@ bundle: manifests
 .PHONY: bundle-build
 bundle-build:
 	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+
+# Push the bundle image.
+.PHONY: bundle-push
+bundle-push:
+	docker push $(BUNDLE_IMG)

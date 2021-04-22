@@ -14,12 +14,12 @@ on:
 
 jobs:
 
-  build:
+  push-operator-image:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
       uses: actions/checkout@v2
-    - name: Docker Build & Push
+    - name: Docker Build & Push - Registry Operator Image
       uses: docker/build-push-action@v1.1.0
       with:
         username: ${{ secrets.QUAY_USERNAME }}
@@ -27,5 +27,21 @@ jobs:
         registry: quay.io
         repository: devfile/registry-operator
         dockerfile: Dockerfile
+        tags: next
+        tag_with_sha: true
+        
+  push-operator-bundle:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout registry-operator source code
+      uses: actions/checkout@v2
+    - name: Build and push the Registry Operator Bundle to quay.io
+      uses: docker/build-push-action@v1.1.0
+      with:
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
+        registry: quay.io
+        repository: devfile/registry-operator-bundle
+        dockerfile: bundle.Dockerfile
         tags: next
         tag_with_sha: true
