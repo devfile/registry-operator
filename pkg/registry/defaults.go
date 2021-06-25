@@ -23,10 +23,10 @@ const (
 
 	// Defaults/constants for devfile registry storages
 	DefaultDevfileRegistryVolumeSize = "1Gi"
-	DevfileRegistryVolumeEnabled     = true
+	DevfileRegistryVolumeEnabled     = false
 	DevfileRegistryVolumeName        = "devfile-registry-storage"
 
-	DevfileRegistryTLSEnabled = true
+	DevfileRegistryTLSEnabled = false
 
 	// Defaults/constants for devfile registry services
 	DevfileIndexPortName        = "devfile-registry-metadata"

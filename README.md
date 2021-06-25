@@ -6,15 +6,14 @@ Devfile Registry operator repository that contains the operator for the DevfileR
 
 Issue tracking repo: https://github.com/devfile/api with label area/registry
 
-## Running the controller in a cluster
+## Deploying the Devfile Registry Operator
 
-The controller can be deployed to a cluster provided you are logged in with cluster-admin credentials:
+The operator can be deployed from its OLM bundle to a cluster, provided you are logged in with cluster-admin credentials and have the `operator-sdk` CLI installed:
 
 ```bash
-make install && make deploy
+operator-sdk run bundle quay.io/devfile/registry-operator-bundle:next
 ```
 
-The operator will be installed under the `registry-operator-system` namespace. However, devfile registries can be deployed in any namespace.
 
 ## Deploying a Devfile Registry
 
@@ -53,8 +52,6 @@ metadata:
   name: devfile-registry
 spec:
   devfileIndexImage: quay.io/devfile/devfile-index:next
-  tls:
-    enabled: false
   k8s:
     ingressDomain: $INGRESS_DOMAIN
 EOF
@@ -82,6 +79,16 @@ Some of the rules supported by the makefile:
 | test_integration | Run the integration tests for the operator. |
 
 To see all rules supported by the makefile, run `make help`
+
+### Build and Deploy the Controller
+
+The operator can be built and deployed from source to a cluster provided you are logged in with cluster-admin credentials:
+
+```bash
+make install && make deploy
+```
+
+The operator will be installed under the `registry-operator-system` namespace. However, devfile registries can be deployed in any namespace.
 
 ## Testing
 
