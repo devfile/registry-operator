@@ -58,7 +58,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							LivenessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
 									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/",
+										Path: "/health",
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
@@ -66,7 +66,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
 									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/",
+										Path: "/health",
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
