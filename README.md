@@ -35,6 +35,9 @@ metadata:
   name: devfile-registry
 spec:
   devfileIndexImage: quay.io/devfile/devfile-index:next
+  telemetry:
+    enabled: true
+    registry: test
 EOF
 ```
 
@@ -57,6 +60,9 @@ spec:
     enabled: false
   k8s:
     ingressDomain: $INGRESS_DOMAIN
+  telemetry:
+    enabled: true
+    registry: test
 EOF
 ```
 

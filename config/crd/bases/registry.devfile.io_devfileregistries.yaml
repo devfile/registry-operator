@@ -76,6 +76,19 @@ spec:
                     volume, if enabled. Defaults to 1Gi.
                   type: string
               type: object
+            telemetry:
+              description: Telemetry defines the desired state for telemetry in the
+                DevfileRegistry
+              properties:
+                enabled:
+                  description: Instructs the operator to deploy the DevfileRegistry
+                    with telemetry enabled. Disabled by default. Enabling is recommended
+                    for registry improvement.
+                  type: boolean
+                registry:
+                  description: Registry name
+                  type: string
+              type: object
             tls:
               description: DevfileRegistrySpecTLS defines the desired state for TLS
                 in the DevfileRegistry
