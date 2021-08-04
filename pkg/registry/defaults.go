@@ -26,7 +26,8 @@ const (
 	DevfileRegistryVolumeEnabled     = true
 	DevfileRegistryVolumeName        = "devfile-registry-storage"
 
-	DevfileRegistryTLSEnabled = true
+	DevfileRegistryTLSEnabled       = true
+	DevfileRegistryTelemetryEnabled = false
 
 	// Defaults/constants for devfile registry services
 	DevfileIndexPortName        = "devfile-registry-metadata"
@@ -86,4 +87,13 @@ func IsTLSEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
 		return *cr.Spec.TLS.Enabled
 	}
 	return DevfileRegistryTLSEnabled
+}
+
+// IsTelemetryEnabled returns true if telemetry.enabled is set in the DevfileRegistry CR
+// If it's not set, it returns false by default
+func IsTelemetryEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
+	if cr.Spec.Telemetry.Enabled != nil {
+		return *cr.Spec.Telemetry.Enabled
+	}
+	return DevfileRegistryTelemetryEnabled
 }

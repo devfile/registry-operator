@@ -76,11 +76,11 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							Env: []corev1.EnvVar{
 								{
 									Name:  "ENABLE_TELEMETRY",
-									Value: strconv.FormatBool(*cr.Spec.Telemetry.Enabled),
+									Value: strconv.FormatBool(IsTelemetryEnabled(cr)),
 								},
 								{
-									Name:  "REGISTRY",
-									Value: cr.Spec.Telemetry.Registry,
+									Name:  "REGISTRY_NAME",
+									Value: cr.Spec.Telemetry.RegistryName,
 								},
 							},
 						},

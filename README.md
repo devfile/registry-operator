@@ -37,7 +37,7 @@ spec:
   devfileIndexImage: quay.io/devfile/devfile-index:next
   telemetry:
     enabled: true
-    registry: test
+    registryName: test
 EOF
 ```
 
@@ -62,7 +62,7 @@ spec:
     ingressDomain: $INGRESS_DOMAIN
   telemetry:
     enabled: true
-    registry: test
+    registryName: test
 EOF
 ```
 
