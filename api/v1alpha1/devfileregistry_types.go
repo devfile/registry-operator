@@ -72,7 +72,7 @@ type DevfileRegistrySpecTelemetry struct {
 	// +optional
 	Enabled *bool `json:"enabled,omitempty"`
 
-	// Registry name, the registry name can be any string and we only use it as identifier for telemetry
+	// The registry name (can be any string) that is used as identifier for devfile telemetry.
 	// +optional
 	RegistryName string `json:"registryName"`
 }
