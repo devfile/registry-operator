@@ -88,6 +88,12 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 									ReadOnly:  false,
 								},
 							},
+							Env: []corev1.EnvVar{
+								{
+									Name:  "DEVFILE_VIEWER_ROOT",
+									Value: "/viewer",
+								},
+							},
 						},
 						{
 							Image: GetOCIRegistryImage(cr),
