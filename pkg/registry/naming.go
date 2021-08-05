@@ -28,7 +28,7 @@ func ServiceName(devfileRegistryName string) string {
 	return GenericResourceName(devfileRegistryName)
 }
 
-// OCIConfigMapName returns the name of the service object associated with the DevfileRegistry CR
+// ConfigMapName returns the name of the service object associated with the DevfileRegistry CR
 func ConfigMapName(devfileRegistryName string) string {
 	return devfileRegistryName + "-registry-config"
 }
