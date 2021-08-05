@@ -71,6 +71,23 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 									},
 								},
 							},
+							StartupProbe: &corev1.Probe{
+								Handler: corev1.Handler{
+									HTTPGet: &corev1.HTTPGetAction{
+										Path: "/viewer",
+										Port: intstr.FromInt(DevfileIndexPort),
+									},
+								},
+								InitialDelaySeconds: 15,
+								PeriodSeconds:       10,
+							},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "viewer-config",
+									MountPath: "/app/config",
+									ReadOnly:  false,
+								},
+							},
 						},
 						{
 							Image: GetOCIRegistryImage(cr),
@@ -114,6 +131,22 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 										{
 											Key:  "registry-config.yml",
 											Path: "config.yml",
+										},
+									},
+								},
+							},
+						},
+						{
+							Name: "viewer-config",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: ConfigMapName(cr.Name),
+									},
+									Items: []corev1.KeyToPath{
+										{
+											Key:  "devfile-registry-hosts.json",
+											Path: "devfile-registry-hosts.json",
 										},
 									},
 								},
