@@ -85,8 +85,9 @@ spec:
                     with telemetry enabled. Disabled by default. Enabling is recommended
                     for registry improvement.
                   type: boolean
-                registry:
-                  description: Registry name
+                registryName:
+                  description: The registry name (can be any string) that is used
+                    as identifier for devfile telemetry.
                   type: string
               type: object
             tls:
