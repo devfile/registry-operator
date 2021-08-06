@@ -78,7 +78,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
-								InitialDelaySeconds: 15,
+								InitialDelaySeconds: 30,
 								PeriodSeconds:       10,
 							},
 							VolumeMounts: []corev1.VolumeMount{
