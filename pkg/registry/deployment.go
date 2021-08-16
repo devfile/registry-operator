@@ -12,6 +12,8 @@
 package registry
 
 import (
+	"strconv"
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -92,6 +94,14 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 								{
 									Name:  "DEVFILE_VIEWER_ROOT",
 									Value: "/viewer",
+								},
+								{
+									Name:  "ENABLE_TELEMETRY",
+									Value: strconv.FormatBool(IsTelemetryEnabled(cr)),
+								},
+								{
+									Name:  "REGISTRY_NAME",
+									Value: cr.Spec.Telemetry.RegistryName,
 								},
 							},
 						},

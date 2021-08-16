@@ -27,10 +27,11 @@ type DevfileRegistrySpec struct {
 	// Overrides the container image used for the OCI registry.
 	// Recommended to leave blank and default to the image specified by the operator.
 	// +optional
-	OciRegistryImage string                     `json:"ociRegistryImage,omitempty"`
-	Storage          DevfileRegistrySpecStorage `json:"storage,omitempty"`
-	TLS              DevfileRegistrySpecTLS     `json:"tls,omitempty"`
-	K8s              DevfileRegistrySpecK8sOnly `json:"k8s,omitempty"`
+	OciRegistryImage string                       `json:"ociRegistryImage,omitempty"`
+	Storage          DevfileRegistrySpecStorage   `json:"storage,omitempty"`
+	TLS              DevfileRegistrySpecTLS       `json:"tls,omitempty"`
+	K8s              DevfileRegistrySpecK8sOnly   `json:"k8s,omitempty"`
+	Telemetry        DevfileRegistrySpecTelemetry `json:"telemetry,omitempty"`
 }
 
 // DevfileRegistrySpecStorage defines the desired state of the storage for the DevfileRegistry
@@ -62,6 +63,18 @@ type DevfileRegistrySpecTLS struct {
 type DevfileRegistrySpecK8sOnly struct {
 	// Ingress domain for a Kubernetes cluster. This MUST be explicitly specified on Kubernetes. There are no defaults
 	IngressDomain string `json:"ingressDomain,omitempty"`
+}
+
+// Telemetry defines the desired state for telemetry in the DevfileRegistry
+type DevfileRegistrySpecTelemetry struct {
+	// Instructs the operator to deploy the DevfileRegistry with telemetry enabled.
+	// Disabled by default. Enabling is recommended for registry improvement.
+	// +optional
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// The registry name (can be any string) that is used as identifier for devfile telemetry.
+	// +optional
+	RegistryName string `json:"registryName"`
 }
 
 // DevfileRegistryStatus defines the observed state of DevfileRegistry
