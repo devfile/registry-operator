@@ -90,7 +90,7 @@ func (r *DevfileRegistryReconciler) generateResourceObject(cr *registryv1alpha1.
 	case *appsv1.Deployment:
 		return registry.GenerateDeployment(cr, r.Scheme, labels)
 	case *corev1.ConfigMap:
-		return registry.GenerateOCIRegistryConfigMap(cr, r.Scheme, labels)
+		return registry.GenerateRegistryConfigMap(cr, r.Scheme, labels)
 	case *corev1.PersistentVolumeClaim:
 		return registry.GeneratePVC(cr, r.Scheme, labels)
 	case *corev1.Service:

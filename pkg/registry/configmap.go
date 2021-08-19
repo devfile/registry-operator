@@ -19,8 +19,8 @@ import (
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 )
 
-// GenerateOCIRegistryConfigMap returns a configmap that is used to configure the OCI registry container
-func GenerateOCIRegistryConfigMap(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme, labels map[string]string) *corev1.ConfigMap {
+// GenerateRegistryConfigMap returns a configmap that is used to configure the devfile registry
+func GenerateRegistryConfigMap(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme, labels map[string]string) *corev1.ConfigMap {
 	configMapData := make(map[string]string, 0)
 
 	registryConfig := `
@@ -44,6 +44,15 @@ http:
       path: /metrics`
 
 	configMapData["registry-config.yml"] = registryConfig
+
+	viewerConfig := `
+{
+  "Community": {
+    "url": "http://localhost:8080"
+  }
+}`
+
+	configMapData["devfile-registry-hosts.json"] = viewerConfig
 
 	cm := &corev1.ConfigMap{
 		ObjectMeta: generateObjectMeta(ConfigMapName(cr.Name), cr.Namespace, labels),

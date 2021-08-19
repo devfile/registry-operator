@@ -45,13 +45,13 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource]", func() {
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Wait for the registry instance to become ready
-		err = K8sClient.WaitForRegistryInstance(crName, 30*time.Second)
+		err = K8sClient.WaitForRegistryInstance(crName, 5*time.Minute)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Retrieve the registry URL and verify the server is up and running
 		registry, err := K8sClient.GetRegistryInstance(crName)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
-		err = util.WaitForServer(registry.Status.URL, 30*time.Second)
+		err = util.WaitForServer(registry.Status.URL, 5*time.Minute)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Verify that the index metrics endpoint is running
@@ -94,7 +94,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource with TLS enabled]", f
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Wait for the registry instance to become ready
-		err = K8sClient.WaitForRegistryInstance(crName, 30*time.Second)
+		err = K8sClient.WaitForRegistryInstance(crName, 5*time.Minute)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Retrieve the registry URL and verify that its protocol is https
@@ -103,7 +103,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource with TLS enabled]", f
 		gomega.Expect(registry.Status.URL).To(gomega.ContainSubstring("https://"))
 
 		// Verify that the server is accessible.
-		err = util.WaitForServer(registry.Status.URL, 30*time.Second)
+		err = util.WaitForServer(registry.Status.URL, 5*time.Minute)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 	})
 
@@ -130,13 +130,13 @@ var _ = ginkgo.Describe("[Update Devfile Registry resource]", func() {
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Wait for the registry instance to become ready
-		err = K8sClient.WaitForRegistryInstance(crName, 30*time.Second)
+		err = K8sClient.WaitForRegistryInstance(crName, 5*time.Minute)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Retrieve the registry URL and verify the server is up and running
 		registry, err := K8sClient.GetRegistryInstance(crName)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
-		err = util.WaitForServer(registry.Status.URL, 30*time.Second)
+		err = util.WaitForServer(registry.Status.URL, 5*time.Minute)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Update the devfileregistry resource for this test case
@@ -147,12 +147,12 @@ var _ = ginkgo.Describe("[Update Devfile Registry resource]", func() {
 		}
 
 		// Retrieve the registry URL and verify that its protocol is https
-		url, err := K8sClient.WaitForURLChange(crName, registry.Status.URL, 30*time.Second)
+		url, err := K8sClient.WaitForURLChange(crName, registry.Status.URL, 5*time.Minute)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		gomega.Expect(url).To(gomega.ContainSubstring("https://"))
 
 		// Verify that the server is accessible.
-		err = util.WaitForServer(url, 30*time.Second)
+		err = util.WaitForServer(url, 5*time.Minute)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 	})
 
