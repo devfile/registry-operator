@@ -16,7 +16,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.10.0+git
+    operators.operatorframework.io/builder: operator-sdk-v1.12.0+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
   name: registry-operator.v0.0.1
   namespace: placeholder
@@ -73,7 +73,7 @@ spec:
           - get
           - list
         - apiGroups:
-          - networking
+          - networking.k8s.io
           resources:
           - ingresses
           verbs:
@@ -163,7 +163,7 @@ spec:
                 - --enable-leader-election
                 command:
                 - /manager
-                image: quay.io/jcollier/registry-operator:latest
+                image: maysunfaisal/registry-operator:next
                 imagePullPolicy: Always
                 name: manager
                 resources:
