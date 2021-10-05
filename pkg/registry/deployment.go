@@ -42,19 +42,20 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
-							Image: cr.Spec.DevfileIndexImage,
-							Name:  "devfile-registry-bootstrap",
+							Image:           cr.Spec.DevfileIndexImage,
+							ImagePullPolicy: corev1.PullAlways,
+							Name:            "devfile-registry",
 							Ports: []corev1.ContainerPort{{
 								ContainerPort: DevfileIndexPort,
 							}},
 							Resources: corev1.ResourceRequirements{
 								Requests: corev1.ResourceList{
-									corev1.ResourceCPU:    resource.MustParse("100m"),
+									corev1.ResourceCPU:    resource.MustParse("250m"),
 									corev1.ResourceMemory: resource.MustParse("64Mi"),
 								},
 								Limits: corev1.ResourceList{
-									corev1.ResourceCPU:    resource.MustParse("250m"),
-									corev1.ResourceMemory: resource.MustParse("128Mi"),
+									corev1.ResourceCPU:    resource.MustParse("500m"),
+									corev1.ResourceMemory: resource.MustParse("256Mi"),
 								},
 							},
 							LivenessProbe: &corev1.Probe{
@@ -81,7 +82,8 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 									},
 								},
 								InitialDelaySeconds: 30,
-								PeriodSeconds:       10,
+								PeriodSeconds:       1,
+								TimeoutSeconds:      1,
 							},
 							VolumeMounts: []corev1.VolumeMount{
 								{
