@@ -55,7 +55,7 @@ kind: DevfileRegistry
 metadata:
   name: devfile-registry
 spec:
-  devfileIndexImage: maysunfaisal/devfile-index:latest
+  devfileIndexImage: quay.io/devfile/devfile-index:next
   tls:
     enabled: false
   k8s:

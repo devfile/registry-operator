@@ -163,7 +163,7 @@ spec:
                 - --enable-leader-election
                 command:
                 - /manager
-                image: maysunfaisal/registry-operator:next
+                image: quay.io/devfile/registry-operator:next
                 imagePullPolicy: Always
                 name: manager
                 resources:
