@@ -79,7 +79,7 @@ manifests: controller-gen
 ### fmt: Run go fmt against code
 fmt:
 ifneq ($(shell command -v goimports 2> /dev/null),)
-	find . -name '*.go' -exec goimports -w {} \;
+	find . -name '*.go' -not -name '*zz_generated*.go' -exec goimports -w {} \;
 else
 	@echo "WARN: goimports is not installed -- formatting using go fmt instead."
 	@echo "      Please install goimports to ensure file imports are consistent."
