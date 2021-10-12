@@ -60,13 +60,13 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource]", func() {
 		registryPod := podList.Items[0]
 
 		indexMetricsURL := "http://localhost:7071/metrics"
-		output, err := K8sClient.CurlEndpointInContainer(registryPod.Name, "devfile-registry-bootstrap", indexMetricsURL)
+		output, err := K8sClient.CurlEndpointInContainer(registryPod.Name, "devfile-registry", indexMetricsURL)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		gomega.Expect(output).To(gomega.ContainSubstring("promhttp_metric_handler_requests_total"))
 
 		// Verify that the oci metrics endpoint is running
 		ociMetricsURL := "http://localhost:5001/metrics"
-		output, err = K8sClient.CurlEndpointInContainer(registryPod.Name, "devfile-registry-bootstrap", ociMetricsURL)
+		output, err = K8sClient.CurlEndpointInContainer(registryPod.Name, "devfile-registry", ociMetricsURL)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		gomega.Expect(output).To(gomega.ContainSubstring("registry_storage_cache_total"))
 	})
