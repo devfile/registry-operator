@@ -18,17 +18,18 @@ set -u
 # print each command before executing it
 set -x
 
-# Make sure we're running the integration tests with the image built by OpenShift CI
-export IMG=${REGISTRY_OPERATOR}
+echo tests disabled
+# # Make sure we're running the integration tests with the image built by OpenShift CI
+# export IMG=${REGISTRY_OPERATOR}
 
-# For some reason go on PROW force usage vendor folder
-# This workaround is here until we don't figure out cause
-go mod tidy
-go mod vendor
+# # For some reason go on PROW force usage vendor folder
+# # This workaround is here until we don't figure out cause
+# go mod tidy
+# go mod vendor
 
-# Make sure kustomize and controller-gen are installed before running the tests
-# ToDo: Remove later, should not be required.
-make kustomize
-make controller-gen
+# # Make sure kustomize and controller-gen are installed before running the tests
+# # ToDo: Remove later, should not be required.
+# make kustomize
+# make controller-gen
 
-make test-integration
+# make test-integration
