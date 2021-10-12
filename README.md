@@ -72,7 +72,7 @@ The repository contains a Makefile; building and deploying can be configured via
 
 |variable|purpose|default value|
 |---|---|---|
-| `IMG` | Image used for controller | `quay.io/devfile/registry-operator:next` |
+| `IMG` | Image used for controller (run makefile, if `IMG` is updated) | `quay.io/devfile/registry-operator:next` |
 
 Some of the rules supported by the makefile:
 
@@ -85,6 +85,7 @@ Some of the rules supported by the makefile:
 | uninstall | remove the devfile registry operator and CRDs from the cluster |
 | manifests | Generate manifests e.g. CRD, RBAC etc. |
 | generate | Generate the API type definitions. Must be run after modifying the DevfileRegistry type. |
+| bundle | Generate bundle manifests and metadata, then validate generated files. |
 | test_integration | Run the integration tests for the operator. |
 
 To see all rules supported by the makefile, run `make help`

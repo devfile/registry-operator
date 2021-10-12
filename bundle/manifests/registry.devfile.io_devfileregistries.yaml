@@ -1,16 +1,11 @@
-apiVersion: apiextensions.k8s.io/v1beta1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.3.0
+    controller-gen.kubebuilder.io/version: v0.5.0
   creationTimestamp: null
   name: devfileregistries.registry.devfile.io
 spec:
-  additionalPrinterColumns:
-  - JSONPath: .status.url
-    description: The URL for the Devfile Registry
-    name: URL
-    type: string
   group: registry.devfile.io
   names:
     kind: DevfileRegistry
@@ -21,72 +16,108 @@ spec:
     - dr
     singular: devfileregistry
   scope: Namespaced
-  subresources:
-    status: {}
-  validation:
-    openAPIV3Schema:
-      description: DevfileRegistry is the Schema for the devfileregistries API
-      properties:
-        apiVersion:
-          description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-          type: string
-        kind:
-          description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-          type: string
-        metadata:
-          type: object
-        spec:
-          description: DevfileRegistrySpec defines the desired state of DevfileRegistry
-          properties:
-            devfileIndexImage:
-              description: Sets the container image containing devfile stacks to be deployed on the Devfile Registry
-              type: string
-            k8s:
-              description: DevfileRegistrySpecK8sOnly defines the desired state of the kubernetes-only fields of the DevfileRegistry
-              properties:
-                ingressDomain:
-                  description: Ingress domain for a Kubernetes cluster. This MUST be explicitly specified on Kubernetes. There are no defaults
-                  type: string
-              type: object
-            ociRegistryImage:
-              description: Overrides the container image used for the OCI registry. Recommended to leave blank and default to the image specified by the operator.
-              type: string
-            storage:
-              description: DevfileRegistrySpecStorage defines the desired state of the storage for the DevfileRegistry
-              properties:
-                enabled:
-                  description: Instructs the operator to deploy the DevfileRegistry with persistent storage Enabled by default. Disabling is only recommended for development or test.
-                  type: boolean
-                ociRegistryImage:
-                  description: Configures the size of the devfile registry's persistent volume, if enabled. Defaults to 1Gi.
-                  type: string
-              type: object
-            tls:
-              description: DevfileRegistrySpecTLS defines the desired state for TLS in the DevfileRegistry
-              properties:
-                enabled:
-                  description: Instructs the operator to deploy the DevfileRegistry with TLS enabled. Enabled by default. Disabling is only recommended for development or test.
-                  type: boolean
-                ociRegistryImage:
-                  description: Name of an optional, pre-existing TLS secret to use for TLS termination on ingress/route resources.
-                  type: string
-              type: object
-          type: object
-        status:
-          description: DevfileRegistryStatus defines the observed state of DevfileRegistry
-          properties:
-            url:
-              description: URL is the exposed URL for the Devfile Registry, and is set in the status after the registry has become available.
-              type: string
-          required:
-          - url
-          type: object
-      type: object
-  version: v1alpha1
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: The URL for the Devfile Registry
+      jsonPath: .status.url
+      name: URL
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: DevfileRegistry is the Schema for the devfileregistries API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DevfileRegistrySpec defines the desired state of DevfileRegistry
+            properties:
+              devfileIndexImage:
+                description: Sets the container image containing devfile stacks to
+                  be deployed on the Devfile Registry
+                type: string
+              k8s:
+                description: DevfileRegistrySpecK8sOnly defines the desired state
+                  of the kubernetes-only fields of the DevfileRegistry
+                properties:
+                  ingressDomain:
+                    description: Ingress domain for a Kubernetes cluster. This MUST
+                      be explicitly specified on Kubernetes. There are no defaults
+                    type: string
+                type: object
+              ociRegistryImage:
+                description: Overrides the container image used for the OCI registry.
+                  Recommended to leave blank and default to the image specified by
+                  the operator.
+                type: string
+              storage:
+                description: DevfileRegistrySpecStorage defines the desired state
+                  of the storage for the DevfileRegistry
+                properties:
+                  enabled:
+                    description: Instructs the operator to deploy the DevfileRegistry
+                      with persistent storage Enabled by default. Disabling is only
+                      recommended for development or test.
+                    type: boolean
+                  ociRegistryImage:
+                    description: Configures the size of the devfile registry's persistent
+                      volume, if enabled. Defaults to 1Gi.
+                    type: string
+                type: object
+              telemetry:
+                description: Telemetry defines the desired state for telemetry in
+                  the DevfileRegistry
+                properties:
+                  enabled:
+                    description: Instructs the operator to deploy the DevfileRegistry
+                      with telemetry enabled. Disabled by default. Enabling is recommended
+                      for registry improvement.
+                    type: boolean
+                  registryName:
+                    description: The registry name (can be any string) that is used
+                      as identifier for devfile telemetry.
+                    type: string
+                type: object
+              tls:
+                description: DevfileRegistrySpecTLS defines the desired state for
+                  TLS in the DevfileRegistry
+                properties:
+                  enabled:
+                    description: Instructs the operator to deploy the DevfileRegistry
+                      with TLS enabled. Enabled by default. Disabling is only recommended
+                      for development or test.
+                    type: boolean
+                  ociRegistryImage:
+                    description: Name of an optional, pre-existing TLS secret to use
+                      for TLS termination on ingress/route resources.
+                    type: string
+                type: object
+            type: object
+          status:
+            description: DevfileRegistryStatus defines the observed state of DevfileRegistry
+            properties:
+              url:
+                description: URL is the exposed URL for the Devfile Registry, and
+                  is set in the status after the registry has become available.
+                type: string
+            required:
+            - url
+            type: object
+        type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 status:
   acceptedNames:
     kind: ""

@@ -21,7 +21,7 @@ import (
 	"github.com/prometheus/common/log"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -58,8 +58,8 @@ func (r *DevfileRegistryReconciler) ensure(ctx context.Context, cr *registryv1al
 	case *routev1.Route:
 		route, _ := resource.(*routev1.Route)
 		err = r.updateRoute(ctx, cr, route)
-	case *v1beta1.Ingress:
-		ingress, _ := resource.(*v1beta1.Ingress)
+	case *networkingv1.Ingress:
+		ingress, _ := resource.(*networkingv1.Ingress)
 		err = r.updateIngress(ctx, cr, ingressDomain, ingress)
 	}
 	if err != nil {
@@ -79,7 +79,7 @@ func getResourceName(resource runtime.Object, crName string) string {
 		return registry.PVCName(crName)
 	case *corev1.Service:
 		return registry.ServiceName(crName)
-	case *routev1.Route, *v1beta1.Ingress:
+	case *routev1.Route, *networkingv1.Ingress:
 		return registry.IngressName(crName)
 	}
 	return registry.GenericResourceName(crName)
@@ -97,7 +97,7 @@ func (r *DevfileRegistryReconciler) generateResourceObject(cr *registryv1alpha1.
 		return registry.GenerateService(cr, r.Scheme, labels)
 	case *routev1.Route:
 		return registry.GenerateRoute(cr, r.Scheme, labels)
-	case *v1beta1.Ingress:
+	case *networkingv1.Ingress:
 		return registry.GenerateIngress(cr, ingressDomain, r.Scheme, labels)
 	}
 	return nil

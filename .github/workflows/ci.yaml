@@ -21,7 +21,7 @@ jobs:
       name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
-        go-version: ^1.12
+        go-version: ^1.17
     -
       name: Check out code into the Go module directory
       uses: actions/checkout@v2
@@ -44,7 +44,7 @@ jobs:
         go mod tidy
         if [[ ! -z $(git status -s) ]]
         then
-          echo "Go mod state is not clean"
+          echo "Go mod state is not clean: $(git status -s)"
           exit 1
         fi
     -
@@ -55,10 +55,16 @@ jobs:
         git reset HEAD --hard
 
         make fmt
+        if [[ ! -z $(git status -s) ]]
+        then
+          echo "not well formatted sources found during make fmt: $(git status -s)"
+          exit 1
+        fi
+
         make fmt_license
         if [[ ! -z $(git status -s) ]]
         then
-          echo "not well formatted sources are found"
+          echo "not well formatted sources found during make fmt_license: $(git status -s)"
           exit 1
         fi
     -

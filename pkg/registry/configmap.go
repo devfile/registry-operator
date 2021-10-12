@@ -45,8 +45,7 @@ http:
 
 	configMapData["registry-config.yml"] = registryConfig
 
-	viewerConfig := `
-{
+	viewerConfig := `{
   "Community": {
     "url": "http://localhost:8080"
   }

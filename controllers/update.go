@@ -20,7 +20,7 @@ import (
 	"github.com/prometheus/common/log"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -84,13 +84,13 @@ func (r *DevfileRegistryReconciler) updateRoute(ctx context.Context, cr *registr
 }
 
 // updateIngress checks to see if any of the fields in an existing ingress resouorce need to be updated
-func (r *DevfileRegistryReconciler) updateIngress(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, hostname string, ingress *v1beta1.Ingress) error {
+func (r *DevfileRegistryReconciler) updateIngress(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, hostname string, ingress *networkingv1.Ingress) error {
 	needsUpdating := false
 	// Check to see if TLS fields were updated
 	if registry.IsTLSEnabled(cr) {
 		if len(ingress.Spec.TLS) == 0 {
 			// TLS was toggled on, so enable it in the ingress spec
-			ingress.Spec.TLS = []v1beta1.IngressTLS{
+			ingress.Spec.TLS = []networkingv1.IngressTLS{
 				{
 					Hosts:      []string{hostname},
 					SecretName: cr.Spec.TLS.SecretName,
@@ -106,7 +106,7 @@ func (r *DevfileRegistryReconciler) updateIngress(ctx context.Context, cr *regis
 	} else {
 		if len(ingress.Spec.TLS) > 0 {
 			// TLS was disabled, so disable it in the ingress spec
-			ingress.Spec.TLS = []v1beta1.IngressTLS{}
+			ingress.Spec.TLS = []networkingv1.IngressTLS{}
 			needsUpdating = true
 		}
 	}

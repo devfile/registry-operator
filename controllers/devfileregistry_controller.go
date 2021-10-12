@@ -19,7 +19,7 @@ import (
 	routev1 "github.com/openshift/api/route/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -45,7 +45,7 @@ type DevfileRegistryReconciler struct {
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core,resources=configmaps;services;persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;
-// +kubebuilder:rbac:groups=extensions,resources=ingresses,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=route.openshift.io,resources=routes;routes/custom-host,verbs=get;list;watch;create;update;patch;delete
 
 func (r *DevfileRegistryReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
@@ -127,7 +127,7 @@ func (r *DevfileRegistryReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 	} else {
 		// Create/update the ingress for the devfile registry
 		hostname = registry.GetDevfileRegistryIngress(devfileRegistry)
-		result, err = r.ensure(ctx, devfileRegistry, &v1beta1.Ingress{}, labels, hostname)
+		result, err = r.ensure(ctx, devfileRegistry, &networkingv1.Ingress{}, labels, hostname)
 		if result != nil {
 			return *result, err
 		}
@@ -174,7 +174,7 @@ func (r *DevfileRegistryReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.Service{}).
 		Owns(&corev1.PersistentVolumeClaim{}).
-		Owns(&v1beta1.Ingress{})
+		Owns(&networkingv1.Ingress{})
 
 	// If on OpenShift, mark routes as owned by the controller
 	if config.ControllerCfg.IsOpenShift() {

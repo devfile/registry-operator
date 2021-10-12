@@ -79,7 +79,7 @@ manifests: controller-gen
 ### fmt: Run go fmt against code
 fmt:
 ifneq ($(shell command -v goimports 2> /dev/null),)
-	find . -name '*.go' -exec goimports -w {} \;
+	find . -name '*.go' -not -name '*zz_generated*.go' -exec goimports -w {} \;
 else
 	@echo "WARN: goimports is not installed -- formatting using go fmt instead."
 	@echo "      Please install goimports to ensure file imports are consistent."
@@ -120,7 +120,7 @@ ifeq (, $(shell which controller-gen))
 	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	GOFLAGS="" go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.3.0 ;\
+	GOFLAGS="" go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.5.0 ;\
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
 CONTROLLER_GEN=$(GOBIN)/controller-gen
