@@ -36,7 +36,6 @@ metadata:
 spec:
   devfileIndexImage: quay.io/devfile/devfile-index:next
   telemetry:
-    enabled: true
     registryName: test
 EOF
 ```
@@ -61,10 +60,19 @@ spec:
   k8s:
     ingressDomain: $INGRESS_DOMAIN
   telemetry:
-    enabled: true
     registryName: test
 EOF
 ```
+
+## Telemetry
+If you want to send telemetry information to your own Segment instance, specify the write key in the telemetry object
+
+```bash
+  telemetry:
+    registryName: test
+    key: <your-segment-write-key>
+```
+
 
 ## Development
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 Red Hat, Inc.
+// Copyright (c) 2020-2022 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -89,11 +89,11 @@ func IsTLSEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
 	return DevfileRegistryTLSEnabled
 }
 
-// IsTelemetryEnabled returns true if telemetry.enabled is set in the DevfileRegistry CR
+// IsTelemetryEnabled returns true if telemetry.key is set in the DevfileRegistry CR
 // If it's not set, it returns false by default
 func IsTelemetryEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
-	if cr.Spec.Telemetry.Enabled != nil {
-		return *cr.Spec.Telemetry.Enabled
+	if len(cr.Spec.Telemetry.Key) > 0 {
+		return true
 	}
 	return DevfileRegistryTelemetryEnabled
 }
