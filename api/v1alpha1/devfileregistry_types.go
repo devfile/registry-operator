@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 Red Hat, Inc.
+// Copyright (c) 2020-2022 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -67,14 +67,14 @@ type DevfileRegistrySpecK8sOnly struct {
 
 // Telemetry defines the desired state for telemetry in the DevfileRegistry
 type DevfileRegistrySpecTelemetry struct {
-	// Instructs the operator to deploy the DevfileRegistry with telemetry enabled.
-	// Disabled by default. Enabling is recommended for registry improvement.
-	// +optional
-	Enabled *bool `json:"enabled,omitempty"`
-
 	// The registry name (can be any string) that is used as identifier for devfile telemetry.
 	// +optional
 	RegistryName string `json:"registryName"`
+
+	// Specify a telemetry key to allow devfile specific data to be sent to a client's own Segment analytics source.
+	// If the write key is specified then telemetry will be enabled
+	// +optional
+	Key string `json:"key,omitempty"`
 }
 
 // DevfileRegistryStatus defines the observed state of DevfileRegistry

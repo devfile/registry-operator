@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 Red Hat, Inc.
+// Copyright (c) 2020-2022 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -218,6 +218,66 @@ func TestGetDevfileRegistryVolumeSize(t *testing.T) {
 			volSize := getDevfileRegistryVolumeSize(&tt.cr)
 			if volSize != tt.want {
 				t.Errorf("TestGetDevfileRegistryVolumeSize error: storage size mismatch, expected: %v got: %v", tt.want, volSize)
+			}
+		})
+	}
+
+}
+
+func TestIsTelemetryEnabled(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   registryv1alpha1.DevfileRegistry
+		want bool
+	}{
+		{
+			name: "Case 1: Telemetry key not specified",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					Telemetry: registryv1alpha1.DevfileRegistrySpecTelemetry{
+						RegistryName: "test",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "Case 2: Telemetry key specified",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					Telemetry: registryv1alpha1.DevfileRegistrySpecTelemetry{
+						RegistryName: "test",
+						Key:          "abcdef",
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "Case 3: Telemetry key specified but is empty",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					Telemetry: registryv1alpha1.DevfileRegistrySpecTelemetry{
+						RegistryName: "test",
+						Key:          "",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "Case 4: Telemetry object is empty",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			enabled := IsTelemetryEnabled(&tt.cr)
+			if enabled != tt.want {
+				t.Errorf("func TestIsTelemetryEnabled(t *testing.T) {\n error: enablement value mismatch, expected: %v got: %v", tt.want, enabled)
 			}
 		})
 	}
