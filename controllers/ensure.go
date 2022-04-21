@@ -13,7 +13,9 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/runtime"
 	"reflect"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	"github.com/devfile/registry-operator/pkg/registry"
@@ -23,13 +25,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func (r *DevfileRegistryReconciler) ensure(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, resource runtime.Object, labels map[string]string, ingressDomain string) (*reconcile.Result, error) {
+func (r *DevfileRegistryReconciler) ensure(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, resource client.Object, labels map[string]string, ingressDomain string) (*reconcile.Result, error) {
 	resourceType := reflect.TypeOf(resource).Elem().Name()
 	resourceName := getResourceName(resource, cr.Name)
 
@@ -85,7 +86,7 @@ func getResourceName(resource runtime.Object, crName string) string {
 	return registry.GenericResourceName(crName)
 }
 
-func (r *DevfileRegistryReconciler) generateResourceObject(cr *registryv1alpha1.DevfileRegistry, resource runtime.Object, labels map[string]string, ingressDomain string) runtime.Object {
+func (r *DevfileRegistryReconciler) generateResourceObject(cr *registryv1alpha1.DevfileRegistry, resource client.Object, labels map[string]string, ingressDomain string) client.Object {
 	switch resource.(type) {
 	case *appsv1.Deployment:
 		return registry.GenerateDeployment(cr, r.Scheme, labels)
