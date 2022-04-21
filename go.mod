@@ -3,7 +3,7 @@ module github.com/devfile/registry-operator
 go 1.13
 
 require (
-	github.com/go-logr/logr v0.4.0 // indirect
+	github.com/go-logr/logr v0.4.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.17.0
