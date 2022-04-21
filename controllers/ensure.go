@@ -13,8 +13,9 @@ package controllers
 
 import (
 	"context"
-	"k8s.io/apimachinery/pkg/runtime"
 	"reflect"
+
+	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"

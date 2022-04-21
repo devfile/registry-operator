@@ -13,8 +13,9 @@ package main
 
 import (
 	"flag"
-	routev1 "github.com/openshift/api/route/v1"
 	"os"
+
+	routev1 "github.com/openshift/api/route/v1"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
 	"k8s.io/apimachinery/pkg/runtime"
