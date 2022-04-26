@@ -136,7 +136,7 @@ ifeq (, $(shell which kustomize))
 	cd $$KUSTOMIZE_GEN_TMP_DIR ;\
 	go mod init tmp ;\
 	GOFLAGS="" go get -d sigs.k8s.io/kustomize/kustomize/v3@v3.8.7 ;\
-	go install sigs.k8s.io/kustomize/kustomize/v3 ;\
+	go mod vendor  ;\
 	rm -rf $$KUSTOMIZE_GEN_TMP_DIR ;\
 	}
 KUSTOMIZE=$(GOBIN)/kustomize
