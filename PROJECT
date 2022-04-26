@@ -1,14 +1,20 @@
 domain: devfile.io
-layout: go.kubebuilder.io/v2
+layout:
+- go.kubebuilder.io/v3
+plugins:
+  go.sdk.operatorframework.io/v2: {}
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
 projectName: registry-operator
 repo: github.com/devfile/registry-operator
 resources:
-- controller: true
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
   domain: devfile.io
   group: registry
   kind: DevfileRegistry
   path: github.com/devfile/registry-operator/api/v1alpha1
   version: v1alpha1
 version: "3"
-plugins:
-  go.sdk.operatorframework.io/v2-alpha: {}
