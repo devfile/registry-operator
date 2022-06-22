@@ -74,7 +74,7 @@ By default for each change in the PR, GitHub Actions and OpenShift CI will run c
 
 If comments have been given in a review, they have to be addressed before merging.
 
-After addressing review comments, don’t forget to add a comment in the PR afterward, so everyone gets notified by Github and know to re-review.
+After addressing review comments, don’t forget to add a comment in the PR afterward, so everyone gets notified by Github and knows to re-review.
 
 
 # Contact us
