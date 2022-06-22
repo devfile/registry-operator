@@ -24,9 +24,7 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 
 2. Fork and clone this repository.
 
-3. `cd registry-operator`
-
-4. Open the folder in the IDE of your choice (VS Code with Go extension, or GoLand is recommended)
+3. Open the folder in the IDE of your choice (VS Code with Go extension, or GoLand is recommended)
 
 #### Build and Run the Operator
 1. Log in to an OpenShfit or Kubernetes cluster
@@ -37,9 +35,9 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 
 4. Run `make docker-push` to push the devfile registry operator image.
 
-4. Run `make install` to install the CRDs
+5. Run `make install` to install the CRDs
 
-5. Run `make deploy` to deploy the operator.
+6. Run `make deploy` to deploy the operator.
 
 ### Testing your Changes
 
