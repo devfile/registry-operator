@@ -31,7 +31,7 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 #### Build and Run the Operator
 1. Log in to an OpenShfit or Kubernetes cluster
 
-2. Run `export IMG=<operator-image>` where `<operator-image>` is the image repository where you would like to push the image to (e.g. `quay.io/user/registry-operator:latest`).
+2. Run `export IMG=<operator-image>` where `<operator-image>` is the image repository to where you would like to push the image (e.g. `quay.io/user/registry-operator:latest`).
 
 3. Run `make docker-build` to build the devfile registry operator.
 
