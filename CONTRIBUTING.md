@@ -6,7 +6,7 @@ Thank you for your interest in contributing to the Devfile Registry Operator! We
 
 Before contributing to this repository for the first time, please review our project's [Code of Conduct](https://github.com/devfile/api/blob/main/CODE_OF_CONDUCT.md)
 
-## How to Contribute:
+## How to Contribute
 
 ### Issues
 
