@@ -1,0 +1,24 @@
+# permissions for end users to edit devfileregistrylists.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: devfileregistrieslist-editor-role
+rules:
+- apiGroups:
+  - registry.devfile.io
+  resources:
+  - devfileregistrieslists
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - registry.devfile.io
+  resources:
+  - devfileregistrieslists/status
+  verbs:
+  - get

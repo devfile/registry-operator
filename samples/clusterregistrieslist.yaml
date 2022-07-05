@@ -1,0 +1,8 @@
+apiVersion: registry.devfile.io/v1alpha1
+kind: ClusterDevfileRegistriesList
+metadata:
+  name: cluster-list
+spec:
+  devfileRegistries:
+    - name: devfile-staging
+      url: 'https://registry.stage.devfile.io'

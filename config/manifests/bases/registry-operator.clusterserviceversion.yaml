@@ -10,10 +10,26 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: ClusterDevfileRegistriesList is a custom resource where cluster
+        admins can add a list of Devfile Registries to allow devfiles to be visible
+        at the cluster level.  In order to be added to the list, the Devfile Registries
+        must be reachable and support the Devfile v2.0 spec and above.
+      displayName: Cluster Devfile Registries List
+      kind: ClusterDevfileRegistriesList
+      name: clusterdevfileregistrieslists.registry.devfile.io
+      version: v1alpha1
     - description: DevfileRegistry is the Schema for the devfileregistries API
       displayName: Devfile Registry
       kind: DevfileRegistry
       name: devfileregistries.registry.devfile.io
+      version: v1alpha1
+    - description: DevfileRegistriesList is a custom resource where namespace users
+        can add a list of Devfile Registries to allow devfiles to be visible at the
+        namespace level.  In order to be added to the list, the Devfile Registries
+        must be reachable and support the Devfile v2.0 spec and above.
+      displayName: Devfile Registries List
+      kind: DevfileRegistriesList
+      name: devfileregistrieslists.registry.devfile.io
       version: v1alpha1
   description: Deploy and manage Devfile Registries on Kubernetes and OpenShift with
     the Devfile Registry operator.

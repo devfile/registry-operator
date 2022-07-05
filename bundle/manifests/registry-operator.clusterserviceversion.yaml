@@ -16,18 +16,34 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.12.0+git
-    operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
+    operators.operatorframework.io/builder: operator-sdk-v1.18.0
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: registry-operator.v0.0.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: ClusterDevfileRegistriesList is a custom resource where cluster
+        admins can add a list of Devfile Registries to allow devfiles to be visible
+        at the cluster level.  In order to be added to the list, the Devfile Registries
+        must be reachable and support the Devfile v2.0 spec and above.
+      displayName: Cluster Devfile Registries List
+      kind: ClusterDevfileRegistriesList
+      name: clusterdevfileregistrieslists.registry.devfile.io
+      version: v1alpha1
     - description: DevfileRegistry is the Schema for the devfileregistries API
       displayName: Devfile Registry
       kind: DevfileRegistry
       name: devfileregistries.registry.devfile.io
+      version: v1alpha1
+    - description: DevfileRegistriesList is a custom resource where namespace users
+        can add a list of Devfile Registries to allow devfiles to be visible at the
+        namespace level.  In order to be added to the list, the Devfile Registries
+        must be reachable and support the Devfile v2.0 spec and above.
+      displayName: Devfile Registries List
+      kind: DevfileRegistriesList
+      name: devfileregistrieslists.registry.devfile.io
       version: v1alpha1
   description: Deploy and manage Devfile Registries on Kubernetes and OpenShift with
     the Devfile Registry operator.
@@ -87,6 +103,32 @@ spec:
         - apiGroups:
           - registry.devfile.io
           resources:
+          - clusterdevfileregistrieslists
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - registry.devfile.io
+          resources:
+          - clusterdevfileregistrieslists/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - registry.devfile.io
+          resources:
+          - clusterdevfileregistrieslists/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - registry.devfile.io
+          resources:
           - devfileregistries
           verbs:
           - create
@@ -101,6 +143,32 @@ spec:
           resources:
           - devfileregistries/finalizers
           - devfileregistries/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - registry.devfile.io
+          resources:
+          - devfileregistrieslists
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - registry.devfile.io
+          resources:
+          - devfileregistrieslists/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - registry.devfile.io
+          resources:
+          - devfileregistrieslists/status
           verbs:
           - get
           - patch
@@ -142,6 +210,8 @@ spec:
           strategy: {}
           template:
             metadata:
+              annotations:
+                kubectl.kubernetes.io/default-container: manager
               labels:
                 app.kubernetes.io/name: devfileregistry-operator
                 control-plane: controller-manager
@@ -152,20 +222,44 @@ spec:
                 - --upstream=http://127.0.0.1:8080/
                 - --logtostderr=true
                 - --v=10
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.5.0
+                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
                 name: kube-rbac-proxy
                 ports:
                 - containerPort: 8443
                   name: https
-                resources: {}
+                  protocol: TCP
+                resources:
+                  limits:
+                    cpu: 500m
+                    memory: 128Mi
+                  requests:
+                    cpu: 5m
+                    memory: 64Mi
               - args:
-                - --metrics-addr=127.0.0.1:8080
-                - --enable-leader-election
+                - --health-probe-bind-address=:8081
+                - --metrics-bind-address=127.0.0.1:8080
+                - --leader-elect
                 command:
                 - /manager
-                image: quay.io/devfile/registry-operator:next
+                image: quay.io/ktsao/registry-operator:next
                 imagePullPolicy: Always
+                livenessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: 8081
+                  initialDelaySeconds: 15
+                  periodSeconds: 20
                 name: manager
+                ports:
+                - containerPort: 9443
+                  name: webhook-server
+                  protocol: TCP
+                readinessProbe:
+                  httpGet:
+                    path: /readyz
+                    port: 8081
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
                 resources:
                   limits:
                     cpu: 100m
@@ -173,7 +267,20 @@ spec:
                   requests:
                     cpu: 100m
                     memory: 20Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                volumeMounts:
+                - mountPath: /tmp/k8s-webhook-server/serving-certs
+                  name: cert
+                  readOnly: true
+              securityContext:
+                runAsNonRoot: true
               terminationGracePeriodSeconds: 10
+              volumes:
+              - name: cert
+                secret:
+                  defaultMode: 420
+                  secretName: webhook-server-cert
       permissions:
       - rules:
         - apiGroups:
@@ -189,13 +296,17 @@ spec:
           - patch
           - delete
         - apiGroups:
-          - ""
+          - coordination.k8s.io
           resources:
-          - configmaps/status
+          - leases
           verbs:
           - get
+          - list
+          - watch
+          - create
           - update
           - patch
+          - delete
         - apiGroups:
           - ""
           resources:
@@ -238,3 +349,84 @@ spec:
     name: Red Hat
     url: https://redhat.com
   version: 0.0.1
+  webhookdefinitions:
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: registry-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mclusterdevfileregistrieslist.kb.io
+    rules:
+    - apiGroups:
+      - registry.devfile.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - clusterdevfileregistrieslists
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-registry-devfile-io-v1alpha1-clusterdevfileregistrieslist
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: registry-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mdevfileregistrieslist.kb.io
+    rules:
+    - apiGroups:
+      - registry.devfile.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - devfileregistrieslists
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-registry-devfile-io-v1alpha1-devfileregistrieslist
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: registry-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vclusterdevfileregistrieslist.kb.io
+    rules:
+    - apiGroups:
+      - registry.devfile.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - clusterdevfileregistrieslists
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-registry-devfile-io-v1alpha1-clusterdevfileregistrieslist
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: registry-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vdevfileregistrieslist.kb.io
+    rules:
+    - apiGroups:
+      - registry.devfile.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - devfileregistrieslists
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-registry-devfile-io-v1alpha1-devfileregistrieslist
