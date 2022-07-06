@@ -30,5 +30,8 @@ go mod vendor
 # ToDo: Remove later, should not be required.
 make kustomize
 make controller-gen
-
+# need to have cert-manager installed to run tests
+make install-cert
+# wait one minute for cert manager to get set up
+sleep 60
 make test-integration
