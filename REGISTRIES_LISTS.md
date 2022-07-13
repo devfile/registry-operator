@@ -90,9 +90,9 @@ $ kubectl get DevfileRegistriesList namespace-list -o json | jq '.spec.devfileRe
 
 ### Tooling providers 
 
-Tooling providers can query the cluster for these CR types by using the [controller-runtime client ](https://pkg.go.dev/sigs.k8s.io/controller-runtime/pkg/client#Client) 
+Tooling providers can query the cluster for these CR types by using the [controller-runtime client ](https://pkg.go.dev/sigs.k8s.io/controller-runtime/pkg/client#Client) or [kubernetes client-go package](https://pkg.go.dev/k8s.io/client-go)
 
-#### Example: 
+#### Example using the controller-runtime client: 
 Get a list of registries from ClusterDevfileRegistriesList
 
 ```go
@@ -107,7 +107,7 @@ if err ==  nil {
     for i:= range registriesList {
     	// If considering live URLs, check for availability. 
     	// Can use https://pkg.go.dev/github.com/devfile/registry-operator/api/v1alpha1#IsRegistryValid to verify 
-    	regErr := isRegistryValid(registriesList[i].SkipTLSVerify, registries[i].URL)
+    	regErr := IsRegistryValid(registriesList[i].SkipTLSVerify, registries[i].URL)
         if regErr == nil {
         	// add to tooling catalog
         	...
@@ -116,7 +116,77 @@ if err ==  nil {
 }
 
 ```
+#### Example using the Kubernetes client-go client:
+Get a list of registries from ClusterDevfileRegistriesList
 
+```go
+....
+
+import (
+"context"
+"k8s.io/client-go/kubernetes"
+"sigs.k8s.io/controller-runtime/pkg/client/config"
+"github.com/devfile/registry-operator/api/v1alpha1"
+"gopkg.in/yaml.v2"
+)
+
+
+func GetK8sClient(name string) (*kubernetes.Clientset, error) {
+    cfg, err := config.GetConfig()
+    if err != nil {
+     return nil, err
+    }
+    kubeClient, err := kubernetes.NewForConfig(cfg)
+    if err != nil {
+        return nil, err
+    }
+    
+    return kubeClient, nil
+}
+
+
+func GetClusterDevfileRegistriesList(name string) (*v1alpha1.ClusterDevfileRegistriesList, error) {
+    k8client, err := GetK8sClient(name)
+    if err != nil {
+        return nil, err
+    }
+    
+    data, err := k8client.RESTClient().
+    Get().
+    AbsPath("/apis/registry.devfile.io/v1alpha1").
+    Namespace("default").
+    Resource("clusterdevfileregistrieslist").
+    Name(name).
+    DoRaw(context.TODO())
+    
+    // Unmarshall the struct
+    registryList := &v1alpha1.ClusterDevfileRegistriesList{}
+    err = yaml.Unmarshal(data, registryList)
+    if err != nil {
+        return nil, err
+    }
+    
+    return registryList, nil
+}
+
+
+func ProcessClusterDevfileRegistriesList(){
+    clusterList, err := GetClusterDevfileRegistriesList("cluster-list")
+    if err == nil {
+        registriesList := clusterList.Spec.DevfileRegistries
+        for i := range registriesList {
+            // If considering live URLs, check for availability.
+            // Can use https://pkg.go.dev/github.com/devfile/registry-operator/api/v1alpha1#IsRegistryValid to verify
+            regErr := v1alpha1.IsRegistryValid(registriesList[i].SkipTLSVerify, registriesList[i].URL)
+            if regErr == nil {
+                // add to tooling catalog
+                ...
+            }
+    }
+}
+
+
+```
 ### Cluster admins
 
 Cluster admins can query their local cluster for the existence of a CR list by running the following commands:

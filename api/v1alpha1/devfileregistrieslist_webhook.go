@@ -77,6 +77,7 @@ func (r *DevfileRegistriesList) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (r *DevfileRegistriesList) ValidateUpdate(old runtime.Object) error {
 	devfileregistrieslistlog.Info("validate update", "name", r.Name)
+	//re-validate the entire list to ensure existing URLs have not gone stale
 	return validateURLs(r.Spec.DevfileRegistries)
 }
 
