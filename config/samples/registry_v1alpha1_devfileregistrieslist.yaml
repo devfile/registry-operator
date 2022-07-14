@@ -1,0 +1,6 @@
+apiVersion: registry.devfile.io/v1alpha1
+kind: DevfileRegistriesList
+metadata:
+  name: devfileregistrieslist-sample
+spec:
+  # TODO(user): Add fields here

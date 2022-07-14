@@ -1,0 +1,96 @@
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-registry-devfile-io-v1alpha1-clusterdevfileregistrieslist
+  failurePolicy: Fail
+  name: mclusterdevfileregistrieslist.kb.io
+  rules:
+  - apiGroups:
+    - registry.devfile.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - clusterdevfileregistrieslists
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-registry-devfile-io-v1alpha1-devfileregistrieslist
+  failurePolicy: Fail
+  name: mdevfileregistrieslist.kb.io
+  rules:
+  - apiGroups:
+    - registry.devfile.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - devfileregistrieslists
+  sideEffects: None
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-registry-devfile-io-v1alpha1-clusterdevfileregistrieslist
+  failurePolicy: Fail
+  name: vclusterdevfileregistrieslist.kb.io
+  rules:
+  - apiGroups:
+    - registry.devfile.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - clusterdevfileregistrieslists
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-registry-devfile-io-v1alpha1-devfileregistrieslist
+  failurePolicy: Fail
+  name: vdevfileregistrieslist.kb.io
+  rules:
+  - apiGroups:
+    - registry.devfile.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - devfileregistrieslists
+  sideEffects: None

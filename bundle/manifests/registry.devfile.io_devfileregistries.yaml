@@ -2,7 +2,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.5.0
+    controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
   name: devfileregistries.registry.devfile.io
 spec:
@@ -78,11 +78,11 @@ spec:
                 description: Telemetry defines the desired state for telemetry in
                   the DevfileRegistry
                 properties:
-                  enabled:
-                    description: Instructs the operator to deploy the DevfileRegistry
-                      with telemetry enabled. Disabled by default. Enabling is recommended
-                      for registry improvement.
-                    type: boolean
+                  key:
+                    description: Specify a telemetry key to allow devfile specific
+                      data to be sent to a client's own Segment analytics source.
+                      If the write key is specified then telemetry will be enabled
+                    type: string
                   registryName:
                     description: The registry name (can be any string) that is used
                       as identifier for devfile telemetry.

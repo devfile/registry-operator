@@ -54,6 +54,32 @@ rules:
 - apiGroups:
   - registry.devfile.io
   resources:
+  - clusterdevfileregistrieslists
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - registry.devfile.io
+  resources:
+  - clusterdevfileregistrieslists/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - registry.devfile.io
+  resources:
+  - clusterdevfileregistrieslists/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - registry.devfile.io
+  resources:
   - devfileregistries
   verbs:
   - create
@@ -68,6 +94,32 @@ rules:
   resources:
   - devfileregistries/finalizers
   - devfileregistries/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - registry.devfile.io
+  resources:
+  - devfileregistrieslists
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - registry.devfile.io
+  resources:
+  - devfileregistrieslists/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - registry.devfile.io
+  resources:
+  - devfileregistrieslists/status
   verbs:
   - get
   - patch

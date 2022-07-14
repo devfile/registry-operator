@@ -1,0 +1,20 @@
+# permissions for end users to view clusterdevfileregistrieslists.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: clusterdevfileregistrieslist-viewer-role
+rules:
+- apiGroups:
+  - registry.devfile.io
+  resources:
+  - clusterdevfileregistrieslists
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - registry.devfile.io
+  resources:
+  - clusterdevfileregistrieslists/status
+  verbs:
+  - get
