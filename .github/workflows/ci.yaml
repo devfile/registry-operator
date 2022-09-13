@@ -75,6 +75,12 @@ jobs:
     -
       name: Check CRD manifest generation
       run: make manifests
+    - 
+      name: Run unit tests
+      run: make test
+    - 
+      name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2.1.0
 
   operator-build:
     name: Check operator container image build
