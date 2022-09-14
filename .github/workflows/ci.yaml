@@ -59,8 +59,7 @@ jobs:
         make fmt
         if [[ ! -z $(git status -s) ]]
         then
-          echo "not well formatted sources found during make fmt: $(git status -s)"
-          git diff
+          echo "not well formatted sources found during make fmt: $(git --no-pager diff)"
           exit 1
         fi
 
