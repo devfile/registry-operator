@@ -170,7 +170,7 @@ func getDevfileRegistriesListCR(name string, namespace string, registryName stri
 
 }
 
-//deleteCRList removes the cluster or namespace CR list from the cluster
+// deleteCRList removes the cluster or namespace CR list from the cluster
 func deleteCRList(drlLookupKey types.NamespacedName, f ListType) {
 
 	cl := &ClusterDevfileRegistriesList{}

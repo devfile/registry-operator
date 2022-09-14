@@ -38,7 +38,7 @@ const (
 	Interval                   = time.Millisecond * 250
 )
 
-//GetNewUnstartedTestServer is a mock test index server that supports just the v2 index schema
+// GetNewUnstartedTestServer is a mock test index server that supports just the v2 index schema
 func GetNewUnstartedTestServer() *httptest.Server {
 	notFilteredV2Index := []indexSchema.Schema{
 		{

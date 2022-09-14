@@ -35,13 +35,13 @@ import (
 
 // Integration/e2e test logic based on https://github.com/devfile/devworkspace-operator/tree/master/test/e2e
 
-//Create Constant file
+// Create Constant file
 const (
 	testResultsDirectory = "/tmp/artifacts"
 	jUnitOutputFilename  = "junit-devfileregistry-operator.xml"
 )
 
-//SynchronizedBeforeSuite blocks is executed before run all test suites
+// SynchronizedBeforeSuite blocks is executed before run all test suites
 var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 	fmt.Println("Starting to setup objects before run ginkgo suite")
 	namespace := os.Getenv("TEST_NAMESPACE")
