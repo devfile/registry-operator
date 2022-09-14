@@ -68,6 +68,7 @@ jobs:
         if [[ ! -z $(git status -s) ]]
         then
           echo "not well formatted sources found during make fmt_license: $(git status -s)"
+          git diff
           exit 1
         fi
     -
