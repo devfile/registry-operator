@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	"fmt"
+
 	indexSchema "github.com/devfile/registry-support/index/generator/schema"
 	registryLibrary "github.com/devfile/registry-support/registry-library/library"
 	"github.com/hashicorp/go-multierror"

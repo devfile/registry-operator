@@ -18,8 +18,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/devfile/registry-operator/api/v1alpha1"
 	"strings"
+
+	"github.com/devfile/registry-operator/api/v1alpha1"
 )
 
 const (

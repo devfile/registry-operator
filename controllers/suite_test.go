@@ -17,13 +17,14 @@ limitations under the License.
 package controllers
 
 import (
+	"path/filepath"
+	"testing"
+
 	. "github.com/devfile/registry-operator/api/v1alpha1"
 	. "github.com/devfile/registry-operator/pkg/test"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"path/filepath"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -36,6 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"context"
+
 	"github.com/devfile/registry-operator/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
