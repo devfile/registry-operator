@@ -45,6 +45,7 @@ jobs:
         if [[ ! -z $(git status -s) ]]
         then
           echo "Go mod state is not clean: $(git status -s)"
+          git diff
           exit 1
         fi
     -
