@@ -20,14 +20,15 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	. "github.com/devfile/registry-operator/pkg/test"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"net"
 	"path/filepath"
 	"testing"
 	"time"
+
+	. "github.com/devfile/registry-operator/pkg/test"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -152,7 +153,7 @@ var _ = BeforeSuite(func() {
 }, 60)
 
 var _ = AfterSuite(func() {
-	//delete the test namespace
+	// delete the test namespace
 	Expect(k8sClient.Delete(ctx, testNs)).Should(Succeed())
 	cancel()
 	By("tearing down the test environment")
@@ -160,7 +161,7 @@ var _ = AfterSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 })
 
-//deleteCRList removes the cluster or namespace CR list from the cluster
+// deleteCRList removes the cluster or namespace CR list from the cluster
 func deleteCRList(drlLookupKey types.NamespacedName, f ListType) {
 
 	cl := &ClusterDevfileRegistriesList{}
@@ -187,7 +188,7 @@ func deleteCRList(drlLookupKey types.NamespacedName, f ListType) {
 
 }
 
-//deleteFromDevfileRegistriesListCR validates that a  DevfileRegistryService object can be deleted from the list as an update to the CR
+// deleteFromDevfileRegistriesListCR validates that a  DevfileRegistryService object can be deleted from the list as an update to the CR
 func deleteFromDevfileRegistriesService(lookupKey types.NamespacedName, rName string, lType ListType) error {
 	ctx := context.Background()
 	nl := &DevfileRegistriesList{}
@@ -230,7 +231,7 @@ func deleteFromDevfileRegistriesService(lookupKey types.NamespacedName, rName st
 	return err
 }
 
-//appendToDevfileRegistriesService validates that a new DevfileRegistryService object can be added to update an existing CR
+// appendToDevfileRegistriesService validates that a new DevfileRegistryService object can be added to update an existing CR
 func appendToDevfileRegistriesService(lookupKey types.NamespacedName, rName string, rUrl string, lType ListType) error {
 	ctx := context.Background()
 	cl := &ClusterDevfileRegistriesList{}

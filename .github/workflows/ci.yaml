@@ -17,11 +17,11 @@ jobs:
     name: Check go sources
     runs-on: ubuntu-latest
     steps:
-    -
+    - 
       name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
-        go-version: ^1.17
+        go-version: 1.18
     -
       name: Check out code into the Go module directory
       uses: actions/checkout@v2
@@ -59,7 +59,7 @@ jobs:
         make fmt
         if [[ ! -z $(git status -s) ]]
         then
-          echo "not well formatted sources found during make fmt: $(git status -s)"
+          echo "not well formatted sources found during make fmt: $(git --no-pager diff)"
           exit 1
         fi
 
@@ -75,6 +75,12 @@ jobs:
     -
       name: Check CRD manifest generation
       run: make manifests
+    - 
+      name: Run unit tests
+      run: make test
+    - 
+      name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2.1.0
 
   operator-build:
     name: Check operator container image build

@@ -18,9 +18,10 @@ package v1alpha1
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/devfile/registry-operator/pkg/test"
 	"github.com/hashicorp/go-multierror"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )

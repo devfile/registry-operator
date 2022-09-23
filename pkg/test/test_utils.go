@@ -18,12 +18,13 @@ package test
 
 import (
 	"encoding/json"
-	indexSchema "github.com/devfile/registry-support/index/generator/schema"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"time"
+
+	indexSchema "github.com/devfile/registry-support/index/generator/schema"
 )
 
 // ListType is used in common test functions to distinguish the flow of logic between the Cluster and Namespace CRs
@@ -37,7 +38,7 @@ const (
 	Interval                   = time.Millisecond * 250
 )
 
-//GetNewUnstartedTestServer is a mock test index server that supports just the v2 index schema
+// GetNewUnstartedTestServer is a mock test index server that supports just the v2 index schema
 func GetNewUnstartedTestServer() *httptest.Server {
 	notFilteredV2Index := []indexSchema.Schema{
 		{

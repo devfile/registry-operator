@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"fmt"
+
 	"github.com/devfile/registry-operator/api/v1alpha1"
 	. "github.com/devfile/registry-operator/pkg/test"
 	. "github.com/onsi/ginkgo"
