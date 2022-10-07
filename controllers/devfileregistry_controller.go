@@ -138,7 +138,8 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	var devfileRegistryServer string
-	if registry.IsTLSEnabled(devfileRegistry) {
+	isTLSEnabled := registry.IsTLSEnabled(devfileRegistry)
+	if isTLSEnabled {
 		devfileRegistryServer = "https://" + hostname
 	} else {
 		devfileRegistryServer = "http://" + hostname
@@ -147,9 +148,9 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	if devfileRegistry.Status.URL != devfileRegistryServer {
 		// Check to see if the registry is active, and if so, update the status to reflect the URL
 
-		err = util.WaitForServer(devfileRegistryServer, 30*time.Second)
+		err = util.WaitForServer(devfileRegistryServer, 30*time.Second, isTLSEnabled)
 		if err != nil {
-			log.Error(err, "Devfile registry server failed to start after 30 seconds, requeing...")
+			log.Error(err, "Devfile registry server failed to start after 30 seconds, re-queueing...")
 			return ctrl.Result{Requeue: true}, err
 		}
 
