@@ -49,6 +49,6 @@ func GenerateRoute(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme,
 	}
 
 	// Set DevfileRegistry instance as the owner and controller
-	ctrl.SetControllerReference(cr, route, scheme)
+	_ = ctrl.SetControllerReference(cr, route, scheme)
 	return route
 }

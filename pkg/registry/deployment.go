@@ -178,7 +178,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 			},
 		},
 	}
-	// Set Memcached instance as the owner and controller
-	ctrl.SetControllerReference(cr, dep, scheme)
+	// Set DevfileRegistry instance as the owner and controller
+	_ = ctrl.SetControllerReference(cr, dep, scheme)
 	return dep
 }

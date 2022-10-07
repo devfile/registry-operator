@@ -48,6 +48,6 @@ func GenerateService(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Schem
 	}
 
 	// Set DevfileRegistry instance as the owner and controller
-	ctrl.SetControllerReference(cr, svc, scheme)
+	_ = ctrl.SetControllerReference(cr, svc, scheme)
 	return svc
 }

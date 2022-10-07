@@ -64,6 +64,6 @@ http:
 	}
 
 	// Set DevfileRegistry instance as the owner and controller
-	ctrl.SetControllerReference(cr, cm, scheme)
+	_ = ctrl.SetControllerReference(cr, cm, scheme)
 	return cm
 }
