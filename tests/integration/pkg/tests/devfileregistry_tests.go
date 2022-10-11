@@ -55,7 +55,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource]", func() {
 		// Retrieve the registry URL and verify the server is up and running
 		registry, err := K8sClient.GetRegistryInstance(crName)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
-		err = util.WaitForServer(registry.Status.URL, 5*time.Minute)
+		err = util.WaitForServer(registry.Status.URL, 5*time.Minute, false)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Verify that the index metrics endpoint is running
@@ -107,7 +107,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource with TLS enabled]", f
 		gomega.Expect(registry.Status.URL).To(gomega.ContainSubstring("https://"))
 
 		// Verify that the server is accessible.
-		err = util.WaitForServer(registry.Status.URL, 5*time.Minute)
+		err = util.WaitForServer(registry.Status.URL, 5*time.Minute, false)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 	})
 
@@ -140,7 +140,7 @@ var _ = ginkgo.Describe("[Update Devfile Registry resource]", func() {
 		// Retrieve the registry URL and verify the server is up and running
 		registry, err := K8sClient.GetRegistryInstance(crName)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
-		err = util.WaitForServer(registry.Status.URL, 5*time.Minute)
+		err = util.WaitForServer(registry.Status.URL, 5*time.Minute, false)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Update the devfileregistry resource for this test case
@@ -156,7 +156,7 @@ var _ = ginkgo.Describe("[Update Devfile Registry resource]", func() {
 		gomega.Expect(url).To(gomega.ContainSubstring("https://"))
 
 		// Verify that the server is accessible.
-		err = util.WaitForServer(url, 5*time.Minute)
+		err = util.WaitForServer(url, 5*time.Minute, false)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 	})
 

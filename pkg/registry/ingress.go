@@ -65,7 +65,7 @@ func GenerateIngress(cr *registryv1alpha1.DevfileRegistry, host string, scheme *
 	}
 
 	// Set DevfileRegistry instance as the owner and controller
-	ctrl.SetControllerReference(cr, ingress, scheme)
+	_ = ctrl.SetControllerReference(cr, ingress, scheme)
 	return ingress
 }
 

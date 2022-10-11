@@ -55,9 +55,9 @@ func (w *Deployment) DeployDevfileRegistryOperator() error {
 	}
 
 	deploy, err := w.kubeClient.WaitForPodRunningByLabel(label)
-	fmt.Println("Devfile Regisry pod to be ready")
+	fmt.Println("Devfile Registry pod to be ready")
 	if !deploy || err != nil {
-		fmt.Println("Devfile Regisry not deployed")
+		fmt.Println("Devfile Registry not deployed")
 		return err
 	}
 	return nil

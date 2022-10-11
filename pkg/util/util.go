@@ -26,10 +26,11 @@ import (
 
 // Poll up to timeout seconds for pod to enter running state.
 // Returns an error if the pod never enters the running state.
-func WaitForServer(url string, timeout time.Duration) error {
+func WaitForServer(url string, timeout time.Duration, isTLSEnabled bool) error {
 	return wait.PollImmediate(time.Second, timeout, func() (bool, error) {
 		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			/* #nosec G402 -- The InsecureSkipVerify allows users to deploy in test mode and is documented as such */
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: !isTLSEnabled},
 		}
 		client := &http.Client{Transport: tr}
 		resp, err := client.Get(url)

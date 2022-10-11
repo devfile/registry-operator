@@ -40,6 +40,6 @@ func GeneratePVC(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme, l
 	}
 
 	// Set DevfileRegistry instance as the owner and controller
-	ctrl.SetControllerReference(cr, pvc, scheme)
+	_ = ctrl.SetControllerReference(cr, pvc, scheme)
 	return pvc
 }
