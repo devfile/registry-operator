@@ -50,14 +50,6 @@ http:
 
 	configMapData["registry-config.yml"] = registryConfig
 
-	viewerConfig := `{
-  "Community": {
-    "url": "http://localhost:8080"
-  }
-}`
-
-	configMapData["devfile-registry-hosts.json"] = viewerConfig
-
 	cm := &corev1.ConfigMap{
 		ObjectMeta: generateObjectMeta(ConfigMapName(cr.Name), cr.Namespace, labels),
 		Data:       configMapData,
