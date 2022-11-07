@@ -32,11 +32,12 @@ type DevfileRegistrySpec struct {
 	// Overrides the container image used for the OCI registry.
 	// Recommended to leave blank and default to the image specified by the operator.
 	// +optional
-	OciRegistryImage string                       `json:"ociRegistryImage,omitempty"`
-	Storage          DevfileRegistrySpecStorage   `json:"storage,omitempty"`
-	TLS              DevfileRegistrySpecTLS       `json:"tls,omitempty"`
-	K8s              DevfileRegistrySpecK8sOnly   `json:"k8s,omitempty"`
-	Telemetry        DevfileRegistrySpecTelemetry `json:"telemetry,omitempty"`
+	RegistryViewerImage string                       `json:"registryViewerImage,omitempty"`
+	OciRegistryImage    string                       `json:"ociRegistryImage,omitempty"`
+	Storage             DevfileRegistrySpecStorage   `json:"storage,omitempty"`
+	TLS                 DevfileRegistrySpecTLS       `json:"tls,omitempty"`
+	K8s                 DevfileRegistrySpecK8sOnly   `json:"k8s,omitempty"`
+	Telemetry           DevfileRegistrySpecTelemetry `json:"telemetry,omitempty"`
 }
 
 // DevfileRegistrySpecStorage defines the desired state of the storage for the DevfileRegistry
