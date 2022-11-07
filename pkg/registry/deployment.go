@@ -77,29 +77,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 									},
 								},
 							},
-							StartupProbe: &corev1.Probe{
-								Handler: corev1.Handler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/viewer",
-										Port: intstr.FromInt(DevfileIndexPort),
-									},
-								},
-								InitialDelaySeconds: 30,
-								PeriodSeconds:       1,
-								TimeoutSeconds:      1,
-							},
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "viewer-config",
-									MountPath: "/app/config",
-									ReadOnly:  false,
-								},
-							},
 							Env: []corev1.EnvVar{
-								{
-									Name:  "DEVFILE_VIEWER_ROOT",
-									Value: "/viewer",
-								},
 								{
 									Name:  "REGISTRY_NAME",
 									Value: cr.Spec.Telemetry.RegistryName,
@@ -107,6 +85,37 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 								{
 									Name:  "TELEMETRY_KEY",
 									Value: cr.Spec.Telemetry.Key,
+								},
+							},
+						},
+						{
+							Image:           GetRegistryViewerImage(cr),
+							ImagePullPolicy: corev1.PullAlways,
+							Name:            "registry-viewer",
+							Resources: corev1.ResourceRequirements{
+								Requests: corev1.ResourceList{
+									corev1.ResourceCPU:    resource.MustParse("250m"),
+									corev1.ResourceMemory: resource.MustParse("64Mi"),
+								},
+								Limits: corev1.ResourceList{
+									corev1.ResourceCPU:    resource.MustParse("500m"),
+									corev1.ResourceMemory: resource.MustParse("256Mi"),
+								},
+							},
+							LivenessProbe: &corev1.Probe{
+								Handler: corev1.Handler{
+									HTTPGet: &corev1.HTTPGetAction{
+										Path: "/viewer",
+										Port: intstr.FromInt(RegistryViewerPort),
+									},
+								},
+							},
+							ReadinessProbe: &corev1.Probe{
+								Handler: corev1.Handler{
+									HTTPGet: &corev1.HTTPGetAction{
+										Path: "/viewer",
+										Port: intstr.FromInt(RegistryViewerPort),
+									},
 								},
 							},
 						},
@@ -152,22 +161,6 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 										{
 											Key:  "registry-config.yml",
 											Path: "config.yml",
-										},
-									},
-								},
-							},
-						},
-						{
-							Name: "viewer-config",
-							VolumeSource: corev1.VolumeSource{
-								ConfigMap: &corev1.ConfigMapVolumeSource{
-									LocalObjectReference: corev1.LocalObjectReference{
-										Name: ConfigMapName(cr.Name),
-									},
-									Items: []corev1.KeyToPath{
-										{
-											Key:  "devfile-registry-hosts.json",
-											Path: "devfile-registry-hosts.json",
 										},
 									},
 								},
