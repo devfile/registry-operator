@@ -23,8 +23,9 @@ import (
 
 const (
 	// Default image:tags
-	DefaultDevfileIndexImage = "quay.io/devfile/devfile-index:next"
-	DefaultOCIRegistryImage  = "quay.io/devfile/oci-registry:next"
+	DefaultDevfileIndexImage   = "quay.io/devfile/devfile-index:next"
+	DefaultRegistryViewerImage = "quay.io/devfile/registry-viewer:next"
+	DefaultOCIRegistryImage    = "quay.io/devfile/oci-registry:next"
 
 	// Defaults/constants for devfile registry storages
 	DefaultDevfileRegistryVolumeSize = "1Gi"
@@ -41,7 +42,15 @@ const (
 	DevfileIndexMetricsPort     = 7071
 	OCIMetricsPortName          = "oci-registry-metrics"
 	OCIMetricsPort              = 5001
+	RegistryViewerPort          = 3000
 )
+
+func GetRegistryViewerImage(cr *registryv1alpha1.DevfileRegistry) string {
+	if cr.Spec.RegistryViewerImage != "" {
+		return cr.Spec.RegistryViewerImage
+	}
+	return DefaultRegistryViewerImage
+}
 
 func GetOCIRegistryImage(cr *registryv1alpha1.DevfileRegistry) string {
 	if cr.Spec.OciRegistryImage != "" {
