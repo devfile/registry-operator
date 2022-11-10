@@ -35,6 +35,8 @@ const (
 	DevfileRegistryTLSEnabled       = true
 	DevfileRegistryTelemetryEnabled = false
 
+	DefaultDevfileRegistryHeadlessEnabled = false
+
 	// Defaults/constants for devfile registry services
 	DevfileIndexPortName        = "devfile-registry-metadata"
 	DevfileIndexPort            = 8080
@@ -110,4 +112,13 @@ func IsTelemetryEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
 		return true
 	}
 	return DevfileRegistryTelemetryEnabled
+}
+
+// IsHeadlessEnabled returns value (true/false) set under spec attribute headless
+// If it's not set, it returns false by default
+func IsHeadlessEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
+	if cr.Spec.Headless != nil {
+		return *cr.Spec.Headless
+	}
+	return DefaultDevfileRegistryHeadlessEnabled
 }
