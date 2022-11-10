@@ -89,37 +89,6 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							},
 						},
 						{
-							Image:           GetRegistryViewerImage(cr),
-							ImagePullPolicy: corev1.PullAlways,
-							Name:            "registry-viewer",
-							Resources: corev1.ResourceRequirements{
-								Requests: corev1.ResourceList{
-									corev1.ResourceCPU:    resource.MustParse("250m"),
-									corev1.ResourceMemory: resource.MustParse("64Mi"),
-								},
-								Limits: corev1.ResourceList{
-									corev1.ResourceCPU:    resource.MustParse("500m"),
-									corev1.ResourceMemory: resource.MustParse("256Mi"),
-								},
-							},
-							LivenessProbe: &corev1.Probe{
-								Handler: corev1.Handler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/viewer",
-										Port: intstr.FromInt(RegistryViewerPort),
-									},
-								},
-							},
-							ReadinessProbe: &corev1.Probe{
-								Handler: corev1.Handler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/viewer",
-										Port: intstr.FromInt(RegistryViewerPort),
-									},
-								},
-							},
-						},
-						{
 							Image: GetOCIRegistryImage(cr),
 							Name:  "oci-registry",
 							Resources: corev1.ResourceRequirements{
@@ -171,6 +140,42 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 			},
 		},
 	}
+
+	// Set Registry Viewer if headless is false
+	if !IsHeadlessEnabled(cr) {
+		dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
+			Image:           GetRegistryViewerImage(cr),
+			ImagePullPolicy: corev1.PullAlways,
+			Name:            "registry-viewer",
+			Resources: corev1.ResourceRequirements{
+				Requests: corev1.ResourceList{
+					corev1.ResourceCPU:    resource.MustParse("250m"),
+					corev1.ResourceMemory: resource.MustParse("64Mi"),
+				},
+				Limits: corev1.ResourceList{
+					corev1.ResourceCPU:    resource.MustParse("500m"),
+					corev1.ResourceMemory: resource.MustParse("256Mi"),
+				},
+			},
+			LivenessProbe: &corev1.Probe{
+				Handler: corev1.Handler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path: "/viewer",
+						Port: intstr.FromInt(RegistryViewerPort),
+					},
+				},
+			},
+			ReadinessProbe: &corev1.Probe{
+				Handler: corev1.Handler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path: "/viewer",
+						Port: intstr.FromInt(RegistryViewerPort),
+					},
+				},
+			},
+		})
+	}
+
 	// Set DevfileRegistry instance as the owner and controller
 	_ = ctrl.SetControllerReference(cr, dep, scheme)
 	return dep
