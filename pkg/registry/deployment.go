@@ -141,7 +141,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 		},
 	}
 
-	// Set Registry Viewer if headless is false
+	// Set Registry Viewer if headless is false, else run headless mode
 	if !IsHeadlessEnabled(cr) {
 		dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
 			Image:           GetRegistryViewerImage(cr),
@@ -173,6 +173,12 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					},
 				},
 			},
+		})
+	} else {
+		// Set environment variable to run index server in headless mode
+		dep.Spec.Template.Spec.Containers[0].Env = append(dep.Spec.Template.Spec.Containers[0].Env, corev1.EnvVar{
+			Name:  "REGISTRY_HEADLESS",
+			Value: "1",
 		})
 	}
 
