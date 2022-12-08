@@ -86,6 +86,11 @@ type DevfileRegistrySpecTelemetry struct {
 	// If the write key is specified then telemetry will be enabled
 	// +optional
 	Key string `json:"key,omitempty"`
+
+	// Specify a telemetry write key for the registry viewer component to allow data to be sent to a client's own Segment analytics source.
+	// If the write key is specified then telemetry for the registry viewer component will be enabled
+	// +optional
+	RegistryViewerWriteKey string `json:"registryViewerWriteKey,omitempty"`
 }
 
 // DevfileRegistryStatus defines the observed state of DevfileRegistry
