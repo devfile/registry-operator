@@ -173,12 +173,43 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					},
 				},
 			},
+			StartupProbe: &corev1.Probe{
+				Handler: corev1.Handler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path: "/viewer",
+						Port: intstr.FromInt(RegistryViewerPort),
+					},
+				},
+			},
+			VolumeMounts: []corev1.VolumeMount{
+				{
+					Name:      "viewer-env-file",
+					MountPath: "/app/apps/registry-viewer/.env.local",
+					SubPath:   ".env.local",
+				},
+			},
+		})
+		dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes, corev1.Volume{
+			Name: "viewer-env-file",
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: ConfigMapName(cr.Name),
+					},
+					Items: []corev1.KeyToPath{
+						{
+							Key:  ".env.registry-viewer",
+							Path: ".env.local",
+						},
+					},
+				},
+			},
 		})
 	} else {
 		// Set environment variable to run index server in headless mode
 		dep.Spec.Template.Spec.Containers[0].Env = append(dep.Spec.Template.Spec.Containers[0].Env, corev1.EnvVar{
 			Name:  "REGISTRY_HEADLESS",
-			Value: "1",
+			Value: "true",
 		})
 	}
 
