@@ -17,6 +17,8 @@ limitations under the License.
 package registry
 
 import (
+	"fmt"
+
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -48,7 +50,13 @@ http:
       enabled: true
       path: /metrics`
 
+	viewerEnvfile := fmt.Sprintf(`
+ANALYTICS_WRITE_KEY=%s
+DEVFILE_REGISTRIES=[{\"name\":\"Community\",\"url\":\"http://localhost:8080\",\"fqdn\":\"http://%s.%s\"}]`,
+		cr.Spec.Telemetry.RegistryViewerWriteKey, IngressName(cr.Name), cr.Spec.K8s.IngressDomain)
+
 	configMapData["registry-config.yml"] = registryConfig
+	configMapData[".env.registry-viewer"] = viewerEnvfile
 
 	cm := &corev1.ConfigMap{
 		ObjectMeta: generateObjectMeta(ConfigMapName(cr.Name), cr.Namespace, labels),
