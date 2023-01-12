@@ -32,11 +32,17 @@ type DevfileRegistrySpec struct {
 	// Overrides the container image used for the OCI registry.
 	// Recommended to leave blank and default to the image specified by the operator.
 	// +optional
-	OciRegistryImage string                       `json:"ociRegistryImage,omitempty"`
-	Storage          DevfileRegistrySpecStorage   `json:"storage,omitempty"`
-	TLS              DevfileRegistrySpecTLS       `json:"tls,omitempty"`
-	K8s              DevfileRegistrySpecK8sOnly   `json:"k8s,omitempty"`
-	Telemetry        DevfileRegistrySpecTelemetry `json:"telemetry,omitempty"`
+	OciRegistryImage string `json:"ociRegistryImage,omitempty"`
+	// Overrides the container image used for the registry viewer.
+	// +optional
+	RegistryViewerImage string                       `json:"registryViewerImage,omitempty"`
+	Storage             DevfileRegistrySpecStorage   `json:"storage,omitempty"`
+	TLS                 DevfileRegistrySpecTLS       `json:"tls,omitempty"`
+	K8s                 DevfileRegistrySpecK8sOnly   `json:"k8s,omitempty"`
+	Telemetry           DevfileRegistrySpecTelemetry `json:"telemetry,omitempty"`
+	// Sets the registry server deployment to run under headless mode
+	// +optional
+	Headless *bool `json:"headless,omitempty"`
 }
 
 // DevfileRegistrySpecStorage defines the desired state of the storage for the DevfileRegistry
@@ -80,6 +86,11 @@ type DevfileRegistrySpecTelemetry struct {
 	// If the write key is specified then telemetry will be enabled
 	// +optional
 	Key string `json:"key,omitempty"`
+
+	// Specify a telemetry write key for the registry viewer component to allow data to be sent to a client's own Segment analytics source.
+	// If the write key is specified then telemetry for the registry viewer component will be enabled
+	// +optional
+	RegistryViewerWriteKey string `json:"registryViewerWriteKey,omitempty"`
 }
 
 // DevfileRegistryStatus defines the observed state of DevfileRegistry

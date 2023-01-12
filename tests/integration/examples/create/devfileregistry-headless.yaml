@@ -1,0 +1,11 @@
+apiVersion: registry.devfile.io/v1alpha1
+kind: DevfileRegistry
+metadata:
+  name: devfileregistry-headless
+spec:
+  devfileIndexImage: quay.io/devfile/devfile-index:next
+  headless: true
+  storage:
+    enabled: false
+  tls:
+    enabled: false

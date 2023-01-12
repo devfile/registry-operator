@@ -23,8 +23,9 @@ import (
 
 const (
 	// Default image:tags
-	DefaultDevfileIndexImage = "quay.io/devfile/devfile-index:next"
-	DefaultOCIRegistryImage  = "quay.io/devfile/oci-registry:next"
+	DefaultDevfileIndexImage   = "quay.io/devfile/devfile-index:next"
+	DefaultRegistryViewerImage = "quay.io/devfile/registry-viewer:next"
+	DefaultOCIRegistryImage    = "quay.io/devfile/oci-registry:next"
 
 	// Defaults/constants for devfile registry storages
 	DefaultDevfileRegistryVolumeSize = "1Gi"
@@ -34,6 +35,8 @@ const (
 	DevfileRegistryTLSEnabled       = true
 	DevfileRegistryTelemetryEnabled = false
 
+	DefaultDevfileRegistryHeadlessEnabled = false
+
 	// Defaults/constants for devfile registry services
 	DevfileIndexPortName        = "devfile-registry-metadata"
 	DevfileIndexPort            = 8080
@@ -41,7 +44,15 @@ const (
 	DevfileIndexMetricsPort     = 7071
 	OCIMetricsPortName          = "oci-registry-metrics"
 	OCIMetricsPort              = 5001
+	RegistryViewerPort          = 3000
 )
+
+func GetRegistryViewerImage(cr *registryv1alpha1.DevfileRegistry) string {
+	if cr.Spec.RegistryViewerImage != "" {
+		return cr.Spec.RegistryViewerImage
+	}
+	return DefaultRegistryViewerImage
+}
 
 func GetOCIRegistryImage(cr *registryv1alpha1.DevfileRegistry) string {
 	if cr.Spec.OciRegistryImage != "" {
@@ -101,4 +112,13 @@ func IsTelemetryEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
 		return true
 	}
 	return DevfileRegistryTelemetryEnabled
+}
+
+// IsHeadlessEnabled returns value (true/false) set under spec attribute headless
+// If it's not set, it returns false by default
+func IsHeadlessEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
+	if cr.Spec.Headless != nil {
+		return *cr.Spec.Headless
+	}
+	return DefaultDevfileRegistryHeadlessEnabled
 }

@@ -45,16 +45,17 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 		//check Telemetry config to see updates are needed
 		registryName := cr.Spec.Telemetry.RegistryName
 		registryKey := cr.Spec.Telemetry.Key
-		if indexImageContainer.Env[1].Value != registryName {
-			indexImageContainer.Env[1].Value = registryName
+		if indexImageContainer.Env[0].Value != registryName {
+			indexImageContainer.Env[0].Value = registryName
 			needsUpdating = true
 		}
 
-		if indexImageContainer.Env[2].Value != registryKey {
-			indexImageContainer.Env[2].Value = registryKey
+		if indexImageContainer.Env[1].Value != registryKey {
+			indexImageContainer.Env[1].Value = registryKey
 			needsUpdating = true
 		}
 	}
+
 	ociImage := registry.GetOCIRegistryImage(cr)
 	if dep.Spec.Template.Spec.Containers[1].Image != ociImage {
 		dep.Spec.Template.Spec.Containers[1].Image = ociImage
@@ -72,6 +73,13 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 			needsUpdating = true
 		}
 	}
+
+	viewerImage := registry.GetRegistryViewerImage(cr)
+	if len(dep.Spec.Template.Spec.Containers) > 2 && dep.Spec.Template.Spec.Containers[2].Image != viewerImage {
+		dep.Spec.Template.Spec.Containers[2].Image = viewerImage
+		needsUpdating = true
+	}
+
 	if needsUpdating {
 		log.Info("Updating the DevfileRegistry deployment")
 		return r.Update(ctx, dep)

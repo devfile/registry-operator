@@ -116,6 +116,48 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource with TLS enabled]", f
 	})
 })
 
+var _ = ginkgo.Describe("[Create Devfile Registry resource with headless enabled]", func() {
+	ginkgo.It("Should deploy a headless devfile registry on to the cluster", func() {
+		crName := "devfileregistry-headless"
+		label := "devfileregistry_cr=" + crName
+
+		// Deploy the devfileregistry resource for this test case and wait for the pod to be running
+		err := K8sClient.OcApplyResource("tests/integration/examples/create/devfileregistry-headless.yaml")
+		if err != nil {
+			ginkgo.Fail("Failed to create devfileregistry instance: " + err.Error())
+			return
+		}
+		deploy, err := K8sClient.WaitForPodRunningByLabel(label)
+		if !deploy {
+			fmt.Println("Devfile Registry didn't start properly")
+		}
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+		// Wait for the registry instance to become ready
+		err = K8sClient.WaitForRegistryInstance(crName, 5*time.Minute)
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+		// Retrieve the registry URL and verify the server is up and running
+		registry, err := K8sClient.GetRegistryInstance(crName)
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		err = util.WaitForServer(registry.Status.URL, 5*time.Minute, false)
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+		// Registry Viewer should not be accessible
+		podList, err := K8sClient.ListPods(config.Namespace, label)
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		registryPod := podList.Items[0]
+		registryViewerURL := "http://localhost:8080/viewer"
+		output, err := K8sClient.CurlEndpointInContainer(registryPod.Name, "devfile-registry", registryViewerURL)
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		gomega.Expect(output).To(gomega.ContainSubstring("registry viewer is not available in headless mode"))
+	})
+
+	var _ = ginkgo.AfterEach(func() {
+		K8sClient.OcDeleteResource("tests/integration/examples/create/devfileregistry-headless.yaml")
+	})
+})
+
 var _ = ginkgo.Describe("[Update Devfile Registry resource]", func() {
 	ginkgo.It("Should deploy a devfile registry on to the cluster and properly update it", func() {
 		crName := "devfileregistry-update"

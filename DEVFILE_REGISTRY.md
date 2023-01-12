@@ -57,4 +57,5 @@ If you want to send telemetry information to your own Segment instance, specify 
   telemetry:
     registryName: test
     key: <your-segment-write-key>
+    registryViewerWriteKey: <your-segment-write-key>
 ```

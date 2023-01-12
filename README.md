@@ -57,13 +57,13 @@ To see all rules supported by the makefile, run `make help`
 
 ## Testing
 
-To run integration tests for the operator, run `make test_integration`. 
+To run integration tests for the operator, run `make test-integration`. 
 
 By default, the tests will use the default image for the operator, `quay.io/devfile/registry-operator:next`. To use your own image, run:
 
 ```
 export IMG=<your-operator-image>
-make test_integration
+make test-integration
 ```
 
 ### Run operator locally

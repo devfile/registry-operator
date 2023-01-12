@@ -77,29 +77,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 									},
 								},
 							},
-							StartupProbe: &corev1.Probe{
-								Handler: corev1.Handler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/viewer",
-										Port: intstr.FromInt(DevfileIndexPort),
-									},
-								},
-								InitialDelaySeconds: 30,
-								PeriodSeconds:       1,
-								TimeoutSeconds:      1,
-							},
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "viewer-config",
-									MountPath: "/app/config",
-									ReadOnly:  false,
-								},
-							},
 							Env: []corev1.EnvVar{
-								{
-									Name:  "DEVFILE_VIEWER_ROOT",
-									Value: "/viewer",
-								},
 								{
 									Name:  "REGISTRY_NAME",
 									Value: cr.Spec.Telemetry.RegistryName,
@@ -157,27 +135,84 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 								},
 							},
 						},
-						{
-							Name: "viewer-config",
-							VolumeSource: corev1.VolumeSource{
-								ConfigMap: &corev1.ConfigMapVolumeSource{
-									LocalObjectReference: corev1.LocalObjectReference{
-										Name: ConfigMapName(cr.Name),
-									},
-									Items: []corev1.KeyToPath{
-										{
-											Key:  "devfile-registry-hosts.json",
-											Path: "devfile-registry-hosts.json",
-										},
-									},
-								},
-							},
-						},
 					},
 				},
 			},
 		},
 	}
+
+	// Set Registry Viewer if headless is false, else run headless mode
+	if !IsHeadlessEnabled(cr) {
+		dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
+			Image:           GetRegistryViewerImage(cr),
+			ImagePullPolicy: corev1.PullAlways,
+			Name:            "registry-viewer",
+			Resources: corev1.ResourceRequirements{
+				Requests: corev1.ResourceList{
+					corev1.ResourceCPU:    resource.MustParse("250m"),
+					corev1.ResourceMemory: resource.MustParse("64Mi"),
+				},
+				Limits: corev1.ResourceList{
+					corev1.ResourceCPU:    resource.MustParse("500m"),
+					corev1.ResourceMemory: resource.MustParse("256Mi"),
+				},
+			},
+			LivenessProbe: &corev1.Probe{
+				Handler: corev1.Handler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path: "/viewer",
+						Port: intstr.FromInt(RegistryViewerPort),
+					},
+				},
+			},
+			ReadinessProbe: &corev1.Probe{
+				Handler: corev1.Handler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path: "/viewer",
+						Port: intstr.FromInt(RegistryViewerPort),
+					},
+				},
+			},
+			StartupProbe: &corev1.Probe{
+				Handler: corev1.Handler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path: "/viewer",
+						Port: intstr.FromInt(RegistryViewerPort),
+					},
+				},
+			},
+			VolumeMounts: []corev1.VolumeMount{
+				{
+					Name:      "viewer-env-file",
+					MountPath: "/app/apps/registry-viewer/.env.local",
+					SubPath:   ".env.local",
+				},
+			},
+		})
+		dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes, corev1.Volume{
+			Name: "viewer-env-file",
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: ConfigMapName(cr.Name),
+					},
+					Items: []corev1.KeyToPath{
+						{
+							Key:  ".env.registry-viewer",
+							Path: ".env.local",
+						},
+					},
+				},
+			},
+		})
+	} else {
+		// Set environment variable to run index server in headless mode
+		dep.Spec.Template.Spec.Containers[0].Env = append(dep.Spec.Template.Spec.Containers[0].Env, corev1.EnvVar{
+			Name:  "REGISTRY_HEADLESS",
+			Value: "true",
+		})
+	}
+
 	// Set DevfileRegistry instance as the owner and controller
 	_ = ctrl.SetControllerReference(cr, dep, scheme)
 	return dep
