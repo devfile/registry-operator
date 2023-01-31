@@ -30,6 +30,8 @@ import (
 
 func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme, labels map[string]string) *appsv1.Deployment {
 	replicas := int32(1)
+	allowPrivilegeEscalation := false
+	runAsNonRoot := true
 
 	dep := &appsv1.Deployment{
 		ObjectMeta: generateObjectMeta(cr.Name, cr.Namespace, labels),
@@ -48,6 +50,16 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							Image:           cr.Spec.DevfileIndexImage,
 							ImagePullPolicy: corev1.PullAlways,
 							Name:            "devfile-registry",
+							SecurityContext: &corev1.SecurityContext{
+								AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+								RunAsNonRoot:             &runAsNonRoot,
+								Capabilities: &corev1.Capabilities{
+									Drop: []corev1.Capability{"ALL"},
+								},
+								SeccompProfile: &corev1.SeccompProfile{
+									Type: "RuntimeDefault",
+								},
+							},
 							Ports: []corev1.ContainerPort{{
 								ContainerPort: DevfileIndexPort,
 							}},
@@ -91,6 +103,16 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 						{
 							Image: GetOCIRegistryImage(cr),
 							Name:  "oci-registry",
+							SecurityContext: &corev1.SecurityContext{
+								AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+								RunAsNonRoot:             &runAsNonRoot,
+								Capabilities: &corev1.Capabilities{
+									Drop: []corev1.Capability{"ALL"},
+								},
+								SeccompProfile: &corev1.SeccompProfile{
+									Type: "RuntimeDefault",
+								},
+							},
 							Resources: corev1.ResourceRequirements{
 								Requests: corev1.ResourceList{
 									corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -147,6 +169,16 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 			Image:           GetRegistryViewerImage(cr),
 			ImagePullPolicy: corev1.PullAlways,
 			Name:            "registry-viewer",
+			SecurityContext: &corev1.SecurityContext{
+				AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+				RunAsNonRoot:             &runAsNonRoot,
+				Capabilities: &corev1.Capabilities{
+					Drop: []corev1.Capability{"ALL"},
+				},
+				SeccompProfile: &corev1.SeccompProfile{
+					Type: "RuntimeDefault",
+				},
+			},
 			Resources: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
 					corev1.ResourceCPU:    resource.MustParse("250m"),
