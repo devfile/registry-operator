@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@ limitations under the License.
 package registry
 
 import (
-	"fmt"
-
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -91,6 +89,9 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
+								InitialDelaySeconds: 15,
+								PeriodSeconds:       10,
+								TimeoutSeconds:      3,
 							},
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
@@ -99,6 +100,9 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
+								InitialDelaySeconds: 15,
+								PeriodSeconds:       10,
+								TimeoutSeconds:      3,
 							},
 							Env: []corev1.EnvVar{
 								{
@@ -133,6 +137,28 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 									corev1.ResourceCPU:    resource.MustParse("500m"),
 									corev1.ResourceMemory: resource.MustParse("256Mi"),
 								},
+							},
+							LivenessProbe: &corev1.Probe{
+								Handler: corev1.Handler{
+									HTTPGet: &corev1.HTTPGetAction{
+										Path: "/v2",
+										Port: intstr.FromInt(OCIServerPort),
+									},
+								},
+								InitialDelaySeconds: 30,
+								PeriodSeconds:       10,
+								TimeoutSeconds:      3,
+							},
+							ReadinessProbe: &corev1.Probe{
+								Handler: corev1.Handler{
+									HTTPGet: &corev1.HTTPGetAction{
+										Path: "/v2",
+										Port: intstr.FromInt(OCIServerPort),
+									},
+								},
+								InitialDelaySeconds: 3,
+								PeriodSeconds:       10,
+								TimeoutSeconds:      3,
 							},
 							VolumeMounts: []corev1.VolumeMount{
 								{
@@ -176,6 +202,17 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 
 	// Set Registry Viewer if headless is false, else run headless mode
 	if !IsHeadlessEnabled(cr) {
+		dep.Spec.Template.Spec.Containers[0].StartupProbe = &corev1.Probe{
+			Handler: corev1.Handler{
+				HTTPGet: &corev1.HTTPGetAction{
+					Path: "/viewer",
+					Port: intstr.FromInt(RegistryViewerPort),
+				},
+			},
+			InitialDelaySeconds: 30,
+			PeriodSeconds:       10,
+			TimeoutSeconds:      3,
+		}
 		dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
 			Image:           GetRegistryViewerImage(cr),
 			ImagePullPolicy: corev1.PullAlways,
@@ -198,41 +235,6 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 				Limits: corev1.ResourceList{
 					corev1.ResourceCPU:    resource.MustParse("500m"),
 					corev1.ResourceMemory: resource.MustParse("256Mi"),
-				},
-			},
-			LivenessProbe: &corev1.Probe{
-				Handler: corev1.Handler{
-					HTTPGet: &corev1.HTTPGetAction{
-						Path: "/viewer",
-						Port: intstr.FromInt(RegistryViewerPort),
-					},
-				},
-			},
-			ReadinessProbe: &corev1.Probe{
-				Handler: corev1.Handler{
-					HTTPGet: &corev1.HTTPGetAction{
-						Path: "/viewer",
-						Port: intstr.FromInt(RegistryViewerPort),
-					},
-				},
-			},
-			StartupProbe: &corev1.Probe{
-				Handler: corev1.Handler{
-					HTTPGet: &corev1.HTTPGetAction{
-						Path: "/viewer",
-						Port: intstr.FromInt(RegistryViewerPort),
-					},
-				},
-			},
-			Env: []corev1.EnvVar{
-				{
-					Name:  "ANALYTICS_WRITE_KEY",
-					Value: cr.Spec.Telemetry.RegistryViewerWriteKey,
-				},
-				{
-					Name: "DEVFILE_REGISTRIES",
-					Value: fmt.Sprintf("[{\"name\":\"Community\",\"url\":\"http://localhost:8080\",\"fqdn\":\"%s\"}]",
-						cr.Status.URL),
 				},
 			},
 			VolumeMounts: []corev1.VolumeMount{
