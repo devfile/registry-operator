@@ -44,6 +44,7 @@ const (
 	DevfileIndexMetricsPort     = 7071
 	OCIMetricsPortName          = "oci-registry-metrics"
 	OCIMetricsPort              = 5001
+	OCIServerPort               = 5000
 	RegistryViewerPort          = 3000
 )
 
