@@ -17,6 +17,8 @@ limitations under the License.
 package registry
 
 import (
+	"fmt"
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -181,11 +183,22 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					},
 				},
 			},
+			Env: []corev1.EnvVar{
+				{
+					Name:  "ANALYTICS_WRITE_KEY",
+					Value: cr.Spec.Telemetry.RegistryViewerWriteKey,
+				},
+				{
+					Name: "DEVFILE_REGISTRIES",
+					Value: fmt.Sprintf(`[{\"name\":\"Community\",\"url\":\"http://localhost:8080\",\"fqdn\":\"http://%s.%s\"}]`,
+						IngressName(cr.Name), cr.Spec.K8s.IngressDomain),
+				},
+			},
 			VolumeMounts: []corev1.VolumeMount{
 				{
 					Name:      "viewer-env-file",
-					MountPath: "/app/apps/registry-viewer/.env.local",
-					SubPath:   ".env.local",
+					MountPath: "/app/.env.production",
+					SubPath:   ".env.production",
 				},
 			},
 		})
@@ -199,7 +212,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					Items: []corev1.KeyToPath{
 						{
 							Key:  ".env.registry-viewer",
-							Path: ".env.local",
+							Path: ".env.production",
 						},
 					},
 				},
