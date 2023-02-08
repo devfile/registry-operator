@@ -30,6 +30,10 @@ import (
 
 func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme, labels map[string]string) *appsv1.Deployment {
 	replicas := int32(1)
+	runAsNonRoot := true
+	runAsUser := int64(1001)
+	runAsGroup := int64(2001)
+	fsGroup := int64(3001)
 
 	dep := &appsv1.Deployment{
 		ObjectMeta: generateObjectMeta(cr.Name, cr.Namespace, labels),
@@ -43,6 +47,12 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
+					SecurityContext: &corev1.PodSecurityContext{
+						RunAsNonRoot: &runAsNonRoot,
+						RunAsUser:    &runAsUser,
+						RunAsGroup:   &runAsGroup,
+						FSGroup:      &fsGroup,
+					},
 					Containers: []corev1.Container{
 						{
 							Image:           cr.Spec.DevfileIndexImage,
