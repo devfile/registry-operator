@@ -47,12 +47,6 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
-					SecurityContext: &corev1.PodSecurityContext{
-						RunAsNonRoot: &runAsNonRoot,
-						RunAsUser:    &runAsUser,
-						RunAsGroup:   &runAsGroup,
-						FSGroup:      &fsGroup,
-					},
 					Containers: []corev1.Container{
 						{
 							Image:           cr.Spec.DevfileIndexImage,
@@ -221,6 +215,16 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 			Name:  "REGISTRY_HEADLESS",
 			Value: "true",
 		})
+	}
+
+	// Enables podspec security context if storage is enabled
+	if cr.Spec.Storage.Enabled == nil || *cr.Spec.Storage.Enabled {
+		dep.Spec.Template.Spec.SecurityContext = &corev1.PodSecurityContext{
+			RunAsNonRoot: &runAsNonRoot,
+			RunAsUser:    &runAsUser,
+			RunAsGroup:   &runAsGroup,
+			FSGroup:      &fsGroup,
+		}
 	}
 
 	// Set DevfileRegistry instance as the owner and controller
