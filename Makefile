@@ -2,7 +2,7 @@
 VERSION ?= `cat VERSION`
 # Default bundle image tag
 BUNDLE_IMG ?= quay.io/devfile/registry-operator-bundle:$(VERSION)
-CERT_MANAGER_VERSION ?= v1.8.0
+CERT_MANAGER_VERSION ?= v1.11.0
 ENABLE_WEBHOOKS ?= true
 
 # Options for 'bundle-build'
@@ -17,10 +17,8 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # Image URL to use all building/pushing image targets
 IMG ?= quay.io/devfile/registry-operator:next
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
-ENVTEST_K8S_VERSION = 1.21
+ENVTEST_K8S_VERSION = 1.22
 
-# Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
-CRD_OPTIONS ?= "crd"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -158,7 +156,7 @@ ifeq (, $(shell which controller-gen))
 	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	GOFLAGS="" go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.8.0 ;\
+	GOFLAGS="" go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.10.0 ;\
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
 CONTROLLER_GEN=$(GOBIN)/controller-gen

@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import (
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	"github.com/devfile/registry-operator/pkg/registry"
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/prometheus/common/log"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
@@ -81,7 +80,7 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 	}
 
 	if needsUpdating {
-		log.Info("Updating the DevfileRegistry deployment")
+		r.Log.Info("Updating the DevfileRegistry deployment")
 		return r.Update(ctx, dep)
 	}
 	return nil
@@ -168,15 +167,15 @@ func (r *DevfileRegistryReconciler) deleteOldPVCIfNeeded(ctx context.Context, cr
 				return nil
 			} else {
 				// Some other error occurred when listing PVCs, so log and return an error
-				log.Error(err, "Error listing PersistentVolumeClaims")
+				r.Log.Error(err, "Error listing PersistentVolumeClaims")
 				return err
 			}
 		} else {
 			// PVC found despite storage being disable, so delete it
-			log.Info(err, "Old PersistentVolumeClaim", pvc.Name, "found. Deleting it as storage has been disabled.")
+			r.Log.Info("Old PersistentVolumeClaim " + pvc.Name + " found. Deleting it as storage has been disabled.")
 			err = r.Delete(ctx, pvc)
 			if err != nil {
-				log.Error(err, "Error deleting PersistentVolumeClaim", pvc.Name)
+				r.Log.Error(err, "Error deleting PersistentVolumeClaim", pvc.Name)
 				return err
 			}
 		}

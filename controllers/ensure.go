@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,39 +20,37 @@ import (
 	"context"
 	"reflect"
 
-	"k8s.io/apimachinery/pkg/runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	"github.com/devfile/registry-operator/pkg/registry"
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/prometheus/common/log"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 func (r *DevfileRegistryReconciler) ensure(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, resource client.Object, labels map[string]string, ingressDomain string) (*reconcile.Result, error) {
 	resourceType := reflect.TypeOf(resource).Elem().Name()
 	resourceName := getResourceName(resource, cr.Name)
-
+	//use the controller log
 	// Check to see if the requested resource exists on the cluster. If it doesn't exist, create it and return.
 	err := r.Get(ctx, types.NamespacedName{Name: resourceName, Namespace: cr.Namespace}, resource)
 	if err != nil && errors.IsNotFound(err) {
 		generatedResource := r.generateResourceObject(cr, resource, labels, ingressDomain)
-		log.Info("Creating a new "+resourceType, resourceType+".Namespace", cr.Namespace+".Name", resourceName)
+		r.Log.Info("Creating a new resource ", resourceType, resourceType+".Namespace", cr.Namespace+".Name", resourceName)
 		err = r.Create(ctx, generatedResource)
 		if err != nil {
-			log.Error(err, "Failed to create new "+resourceType, resourceType+".Namespace", cr.Namespace, "Service.Name", cr.Namespace+".Name", resourceName)
+			r.Log.Error(err, "Failed to create new ", resourceType, resourceType+".Namespace", cr.Namespace, "Service.Name", cr.Namespace+".Name", resourceName)
 			return &ctrl.Result{}, err
 		}
 		return nil, nil
 	} else if err != nil {
-		log.Error(err, "Failed to get "+resourceType)
+		r.Log.Error(err, "Failed to get "+resourceType)
 		return &ctrl.Result{}, err
 	}
 
@@ -70,7 +68,7 @@ func (r *DevfileRegistryReconciler) ensure(ctx context.Context, cr *registryv1al
 		err = r.updateIngress(ctx, cr, ingressDomain, ingress)
 	}
 	if err != nil {
-		log.Error(err, "Failed to update "+resourceType)
+		r.Log.Error(err, "Failed to update "+resourceType)
 		return &ctrl.Result{}, err
 	}
 	return nil, nil

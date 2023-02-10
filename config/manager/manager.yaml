@@ -39,6 +39,11 @@ spec:
         name: manager
         securityContext:
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: "RuntimeDefault"
         livenessProbe:
           httpGet:
             path: /healthz

@@ -10,6 +10,13 @@ spec:
     spec:
       containers:
       - name: kube-rbac-proxy
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: "RuntimeDefault"
         image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
         args:
         - "--secure-listen-address=0.0.0.0:8443"
