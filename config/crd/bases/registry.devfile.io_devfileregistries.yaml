@@ -95,6 +95,12 @@ spec:
                     description: The registry name (can be any string) that is used
                       as identifier for devfile telemetry.
                     type: string
+                  registryViewerWriteKey:
+                    description: Specify a telemetry write key for the registry viewer
+                      component to allow data to be sent to a client's own Segment
+                      analytics source. If the write key is specified then telemetry
+                      for the registry viewer component will be enabled
+                    type: string
                 type: object
               tls:
                 description: DevfileRegistrySpecTLS defines the desired state for

@@ -30,6 +30,7 @@ GOBIN=$(shell go env GOBIN)
 endif
 
 # Check if oc or kubectl are installed and determine which of the two to use
+ifeq ($(K8S_CLI),)
 ifeq (,$(shell which kubectl))
 ifeq (,$(shell which oc))
 $(error oc or kubectl is required to proceed)
@@ -38,6 +39,7 @@ K8S_CLI := oc
 endif
 else
 K8S_CLI := kubectl
+endif
 endif
 
 

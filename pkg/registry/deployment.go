@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,6 +30,11 @@ import (
 
 func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme, labels map[string]string) *appsv1.Deployment {
 	replicas := int32(1)
+	allowPrivilegeEscalation := false
+	runAsNonRoot := true
+	runAsUser := int64(1001)
+	runAsGroup := int64(2001)
+	fsGroup := int64(3001)
 
 	dep := &appsv1.Deployment{
 		ObjectMeta: generateObjectMeta(cr.Name, cr.Namespace, labels),
@@ -48,6 +53,16 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							Image:           cr.Spec.DevfileIndexImage,
 							ImagePullPolicy: corev1.PullAlways,
 							Name:            "devfile-registry",
+							SecurityContext: &corev1.SecurityContext{
+								AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+								RunAsNonRoot:             &runAsNonRoot,
+								Capabilities: &corev1.Capabilities{
+									Drop: []corev1.Capability{"ALL"},
+								},
+								SeccompProfile: &corev1.SeccompProfile{
+									Type: "RuntimeDefault",
+								},
+							},
 							Ports: []corev1.ContainerPort{{
 								ContainerPort: DevfileIndexPort,
 							}},
@@ -68,6 +83,9 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
+								InitialDelaySeconds: 15,
+								PeriodSeconds:       10,
+								TimeoutSeconds:      3,
 							},
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
@@ -76,6 +94,9 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 										Port: intstr.FromInt(DevfileIndexPort),
 									},
 								},
+								InitialDelaySeconds: 15,
+								PeriodSeconds:       10,
+								TimeoutSeconds:      3,
 							},
 							Env: []corev1.EnvVar{
 								{
@@ -91,6 +112,16 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 						{
 							Image: GetOCIRegistryImage(cr),
 							Name:  "oci-registry",
+							SecurityContext: &corev1.SecurityContext{
+								AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+								RunAsNonRoot:             &runAsNonRoot,
+								Capabilities: &corev1.Capabilities{
+									Drop: []corev1.Capability{"ALL"},
+								},
+								SeccompProfile: &corev1.SeccompProfile{
+									Type: "RuntimeDefault",
+								},
+							},
 							Resources: corev1.ResourceRequirements{
 								Requests: corev1.ResourceList{
 									corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -100,6 +131,28 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 									corev1.ResourceCPU:    resource.MustParse("500m"),
 									corev1.ResourceMemory: resource.MustParse("256Mi"),
 								},
+							},
+							LivenessProbe: &corev1.Probe{
+								Handler: corev1.Handler{
+									HTTPGet: &corev1.HTTPGetAction{
+										Path: "/v2",
+										Port: intstr.FromInt(OCIServerPort),
+									},
+								},
+								InitialDelaySeconds: 30,
+								PeriodSeconds:       10,
+								TimeoutSeconds:      3,
+							},
+							ReadinessProbe: &corev1.Probe{
+								Handler: corev1.Handler{
+									HTTPGet: &corev1.HTTPGetAction{
+										Path: "/v2",
+										Port: intstr.FromInt(OCIServerPort),
+									},
+								},
+								InitialDelaySeconds: 3,
+								PeriodSeconds:       10,
+								TimeoutSeconds:      3,
 							},
 							VolumeMounts: []corev1.VolumeMount{
 								{
@@ -143,10 +196,31 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 
 	// Set Registry Viewer if headless is false, else run headless mode
 	if !IsHeadlessEnabled(cr) {
+		dep.Spec.Template.Spec.Containers[0].StartupProbe = &corev1.Probe{
+			Handler: corev1.Handler{
+				HTTPGet: &corev1.HTTPGetAction{
+					Path: "/viewer",
+					Port: intstr.FromInt(RegistryViewerPort),
+				},
+			},
+			InitialDelaySeconds: 30,
+			PeriodSeconds:       10,
+			TimeoutSeconds:      3,
+		}
 		dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
 			Image:           GetRegistryViewerImage(cr),
 			ImagePullPolicy: corev1.PullAlways,
 			Name:            "registry-viewer",
+			SecurityContext: &corev1.SecurityContext{
+				AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+				RunAsNonRoot:             &runAsNonRoot,
+				Capabilities: &corev1.Capabilities{
+					Drop: []corev1.Capability{"ALL"},
+				},
+				SeccompProfile: &corev1.SeccompProfile{
+					Type: "RuntimeDefault",
+				},
+			},
 			Resources: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
 					corev1.ResourceCPU:    resource.MustParse("250m"),
@@ -157,35 +231,11 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					corev1.ResourceMemory: resource.MustParse("256Mi"),
 				},
 			},
-			LivenessProbe: &corev1.Probe{
-				Handler: corev1.Handler{
-					HTTPGet: &corev1.HTTPGetAction{
-						Path: "/viewer",
-						Port: intstr.FromInt(RegistryViewerPort),
-					},
-				},
-			},
-			ReadinessProbe: &corev1.Probe{
-				Handler: corev1.Handler{
-					HTTPGet: &corev1.HTTPGetAction{
-						Path: "/viewer",
-						Port: intstr.FromInt(RegistryViewerPort),
-					},
-				},
-			},
-			StartupProbe: &corev1.Probe{
-				Handler: corev1.Handler{
-					HTTPGet: &corev1.HTTPGetAction{
-						Path: "/viewer",
-						Port: intstr.FromInt(RegistryViewerPort),
-					},
-				},
-			},
 			VolumeMounts: []corev1.VolumeMount{
 				{
 					Name:      "viewer-env-file",
-					MountPath: "/app/apps/registry-viewer/.env.local",
-					SubPath:   ".env.local",
+					MountPath: "/app/.env.production",
+					SubPath:   ".env.production",
 				},
 			},
 		})
@@ -199,7 +249,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					Items: []corev1.KeyToPath{
 						{
 							Key:  ".env.registry-viewer",
-							Path: ".env.local",
+							Path: ".env.production",
 						},
 					},
 				},
@@ -211,6 +261,16 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 			Name:  "REGISTRY_HEADLESS",
 			Value: "true",
 		})
+	}
+
+	// Enables podspec security context if storage is enabled
+	if cr.Spec.Storage.Enabled == nil || *cr.Spec.Storage.Enabled {
+		dep.Spec.Template.Spec.SecurityContext = &corev1.PodSecurityContext{
+			RunAsNonRoot: &runAsNonRoot,
+			RunAsUser:    &runAsUser,
+			RunAsGroup:   &runAsGroup,
+			FSGroup:      &fsGroup,
+		}
 	}
 
 	// Set DevfileRegistry instance as the owner and controller
