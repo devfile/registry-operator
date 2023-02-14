@@ -51,7 +51,7 @@ http:
       path: /metrics`
 
 	viewerEnvfile := fmt.Sprintf(`
-ANALYTICS_WRITE_KEY=%s
+NEXT_PUBLIC_ANALYTICS_WRITE_KEY=%s
 DEVFILE_REGISTRIES=[{"name":"Community","url":"http://localhost:8080","fqdn":"%s"}]`,
 		cr.Spec.Telemetry.RegistryViewerWriteKey, cr.Status.URL)
 

@@ -235,7 +235,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 			},
 			Env: []corev1.EnvVar{
 				{
-					Name:  "ANALYTICS_WRITE_KEY",
+					Name:  "NEXT_PUBLIC_ANALYTICS_WRITE_KEY",
 					Value: cr.Spec.Telemetry.RegistryViewerWriteKey,
 				},
 				{
