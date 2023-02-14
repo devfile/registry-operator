@@ -100,7 +100,7 @@ check_fmt:
 	  $(error "goimports must be installed for this rule" && exit 1)
   endif
   ifeq ($(shell command -v addlicense 2> /dev/null),)
-	  $(error "error addlicense must be installed for this rule: go get -u github.com/google/addlicense")
+	  $(error "error addlicense must be installed for this rule: go install github.com/google/addlicense")
   endif
 
 	  if [[ $$(find . -not -path '*/\.*' -not -name '*zz_generated*.go' -name '*.go' -exec goimports -l {} \;) != "" ]]; then \
@@ -120,7 +120,7 @@ ifneq ($(shell command -v addlicense 2> /dev/null),)
 	@echo 'addlicense -v -f license_header.txt **/*.go'
 	@addlicense -v -f license_header.txt $$(find . -name '*.go')
 else
-	$(error addlicense must be installed for this rule: go get -u github.com/google/addlicense)
+	$(error addlicense must be installed for this rule: go install github.com/google/addlicense)
 endif
 
 .PHONY: vet
@@ -193,7 +193,7 @@ ifeq (, $(shell which kustomize))
 	KUSTOMIZE_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$KUSTOMIZE_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	GOFLAGS="" go get sigs.k8s.io/kustomize/kustomize/v3@v3.8.7 ;\
+	GOFLAGS="" go install sigs.k8s.io/kustomize/kustomize/v4@v4.5.2 ;\
 	go mod vendor ;\
 	rm -rf $$KUSTOMIZE_GEN_TMP_DIR ;\
 	}
@@ -207,7 +207,7 @@ ENVTEST = $(shell pwd)/bin/setup-envtest
 envtest: ## Download envtest-setup locally if necessary.
 	$(call go-get-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest@latest)
 
-# go-get-tool will 'go get' any package $2 and install it to $1.
+# go-get-tool will 'go install' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 define go-get-tool
 @[ -f $(1) ] || { \
