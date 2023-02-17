@@ -39,6 +39,10 @@ spec:
         name: manager
         securityContext:
           allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: "RuntimeDefault"
         livenessProbe:
           httpGet:
             path: /healthz
@@ -60,4 +64,5 @@ spec:
           requests:
             cpu: 100m
             memory: 20Mi
+      serviceAccountName: default
       terminationGracePeriodSeconds: 10

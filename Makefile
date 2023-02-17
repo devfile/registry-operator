@@ -2,7 +2,7 @@
 VERSION ?= `cat VERSION`
 # Default bundle image tag
 BUNDLE_IMG ?= quay.io/devfile/registry-operator-bundle:$(VERSION)
-CERT_MANAGER_VERSION ?= v1.8.0
+CERT_MANAGER_VERSION ?= v1.11.0
 ENABLE_WEBHOOKS ?= true
 
 # Options for 'bundle-build'
@@ -17,10 +17,8 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # Image URL to use all building/pushing image targets
 IMG ?= quay.io/devfile/registry-operator:next
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
-ENVTEST_K8S_VERSION = 1.21
+ENVTEST_K8S_VERSION = 1.22
 
-# Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
-CRD_OPTIONS ?= "crd"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -94,15 +92,13 @@ run: manifests generate fmt vet ## Run a controller from your host.
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
-
-
 ### check_fmt: Checks the formatting on files in repo
 check_fmt:
   ifeq ($(shell command -v goimports 2> /dev/null),)
 	  $(error "goimports must be installed for this rule" && exit 1)
   endif
   ifeq ($(shell command -v addlicense 2> /dev/null),)
-	  $(error "error addlicense must be installed for this rule: go get -u github.com/google/addlicense")
+	  $(error "error addlicense must be installed for this rule: go install github.com/google/addlicense")
   endif
 
 	  if [[ $$(find . -not -path '*/\.*' -not -name '*zz_generated*.go' -name '*.go' -exec goimports -l {} \;) != "" ]]; then \
@@ -122,7 +118,7 @@ ifneq ($(shell command -v addlicense 2> /dev/null),)
 	@echo 'addlicense -v -f license_header.txt **/*.go'
 	@addlicense -v -f license_header.txt $$(find . -name '*.go')
 else
-	$(error addlicense must be installed for this rule: go get -u github.com/google/addlicense)
+	$(error addlicense must be installed for this rule: go install github.com/google/addlicense)
 endif
 
 .PHONY: vet
@@ -158,7 +154,7 @@ ifeq (, $(shell which controller-gen))
 	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	GOFLAGS="" go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.8.0 ;\
+	GOFLAGS="" go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.10.0 ;\
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
 CONTROLLER_GEN=$(GOBIN)/controller-gen
@@ -195,7 +191,7 @@ ifeq (, $(shell which kustomize))
 	KUSTOMIZE_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$KUSTOMIZE_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	GOFLAGS="" go get sigs.k8s.io/kustomize/kustomize/v3@v3.8.7 ;\
+	GOFLAGS="" go install sigs.k8s.io/kustomize/kustomize/v4@v4.5.5 ;\
 	go mod vendor ;\
 	rm -rf $$KUSTOMIZE_GEN_TMP_DIR ;\
 	}
@@ -209,7 +205,7 @@ ENVTEST = $(shell pwd)/bin/setup-envtest
 envtest: ## Download envtest-setup locally if necessary.
 	$(call go-get-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest@latest)
 
-# go-get-tool will 'go get' any package $2 and install it to $1.
+# go-get-tool will 'go install' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 define go-get-tool
 @[ -f $(1) ] || { \
