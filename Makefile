@@ -92,8 +92,6 @@ run: manifests generate fmt vet ## Run a controller from your host.
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
-
-
 ### check_fmt: Checks the formatting on files in repo
 check_fmt:
   ifeq ($(shell command -v goimports 2> /dev/null),)
@@ -193,7 +191,7 @@ ifeq (, $(shell which kustomize))
 	KUSTOMIZE_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$KUSTOMIZE_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	GOFLAGS="" go install sigs.k8s.io/kustomize/kustomize/v4@v4.5.2 ;\
+	GOFLAGS="" go install sigs.k8s.io/kustomize/kustomize/v4@v4.5.5 ;\
 	go mod vendor ;\
 	rm -rf $$KUSTOMIZE_GEN_TMP_DIR ;\
 	}

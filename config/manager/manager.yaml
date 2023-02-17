@@ -39,7 +39,6 @@ spec:
         name: manager
         securityContext:
           allowPrivilegeEscalation: false
-          runAsNonRoot: true
           capabilities:
             drop: ["ALL"]
           seccompProfile:
@@ -65,4 +64,5 @@ spec:
           requests:
             cpu: 100m
             memory: 20Mi
+      serviceAccountName: default
       terminationGracePeriodSeconds: 10
