@@ -233,6 +233,28 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					corev1.ResourceMemory: resource.MustParse("256Mi"),
 				},
 			},
+			LivenessProbe: &corev1.Probe{
+				ProbeHandler: corev1.ProbeHandler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path: "/viewer",
+						Port: intstr.FromInt(RegistryViewerPort),
+					},
+				},
+				InitialDelaySeconds: 15,
+				PeriodSeconds:       10,
+				TimeoutSeconds:      3,
+			},
+			ReadinessProbe: &corev1.Probe{
+				ProbeHandler: corev1.ProbeHandler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path: "/viewer",
+						Port: intstr.FromInt(RegistryViewerPort),
+					},
+				},
+				InitialDelaySeconds: 15,
+				PeriodSeconds:       10,
+				TimeoutSeconds:      3,
+			},
 			Env: []corev1.EnvVar{
 				{
 					Name:  "NEXT_PUBLIC_ANALYTICS_WRITE_KEY",
