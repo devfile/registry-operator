@@ -243,11 +243,11 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					Value: fmt.Sprintf(`
 					[
 						{
-							"name": "Community",
+							"name": "%s",
 							"url": "http://localhost:8080",
 							"fqdn": "%s"
 						}
-					]`, cr.Status.URL),
+					]`, cr.ObjectMeta.Name, cr.Status.URL),
 				},
 			},
 			VolumeMounts: []corev1.VolumeMount{

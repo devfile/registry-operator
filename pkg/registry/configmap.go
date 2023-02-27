@@ -52,8 +52,8 @@ http:
 
 	viewerEnvfile := fmt.Sprintf(`
 NEXT_PUBLIC_ANALYTICS_WRITE_KEY=%s
-DEVFILE_REGISTRIES=[{"name":"Community","url":"http://localhost:8080","fqdn":"%s"}]`,
-		cr.Spec.Telemetry.RegistryViewerWriteKey, cr.Status.URL)
+DEVFILE_REGISTRIES=[{"name":"%s","url":"http://localhost:8080","fqdn":"%s"}]`,
+		cr.Spec.Telemetry.RegistryViewerWriteKey, cr.ObjectMeta.Name, cr.Status.URL)
 
 	configMapData["registry-config.yml"] = registryConfig
 	configMapData[".env.registry-viewer"] = viewerEnvfile
