@@ -45,7 +45,10 @@ func GenerateRoute(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme,
 	}
 
 	if IsTLSEnabled(cr) {
-		route.Spec.TLS = &routev1.TLSConfig{Termination: routev1.TLSTerminationEdge}
+		route.Spec.TLS = &routev1.TLSConfig{
+			Termination:                   routev1.TLSTerminationEdge,
+			InsecureEdgeTerminationPolicy: routev1.InsecureEdgeTerminationPolicyRedirect,
+		}
 	}
 
 	// Set DevfileRegistry instance as the owner and controller
