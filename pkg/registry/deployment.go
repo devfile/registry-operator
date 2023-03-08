@@ -207,7 +207,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 			},
 			InitialDelaySeconds: 30,
 			PeriodSeconds:       10,
-			TimeoutSeconds:      3,
+			TimeoutSeconds:      20,
 		}
 		dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
 			Image:           GetRegistryViewerImage(cr),
@@ -242,7 +242,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 				},
 				InitialDelaySeconds: 15,
 				PeriodSeconds:       10,
-				TimeoutSeconds:      3,
+				TimeoutSeconds:      20,
 			},
 			ReadinessProbe: &corev1.Probe{
 				ProbeHandler: corev1.ProbeHandler{
@@ -253,7 +253,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 				},
 				InitialDelaySeconds: 15,
 				PeriodSeconds:       10,
-				TimeoutSeconds:      3,
+				TimeoutSeconds:      20,
 			},
 			Env: []corev1.EnvVar{
 				{
