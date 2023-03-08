@@ -277,6 +277,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					Name:      "viewer-env-file",
 					MountPath: "/app/.env.production",
 					SubPath:   ".env.production",
+					ReadOnly:  true,
 				},
 			},
 		})
