@@ -27,6 +27,11 @@ const (
 	DefaultRegistryViewerImage = "quay.io/devfile/registry-viewer:next"
 	DefaultOCIRegistryImage    = "quay.io/devfile/oci-registry:next"
 
+	// Default image pull policies
+	DefaultDevfileIndexImagePullPolicy   = corev1.PullAlways
+	DefaultRegistryViewerImagePullPolicy = corev1.PullAlways
+	DefaultOCIRegistryImagePullPolicy    = corev1.PullAlways
+
 	// Defaults/constants for devfile registry storages
 	DefaultDevfileRegistryVolumeSize = "1Gi"
 	DevfileRegistryVolumeEnabled     = true
@@ -48,25 +53,58 @@ const (
 	RegistryViewerPort          = 3000
 )
 
+// GetRegistryViewerImage returns the container image for the registry viewer to be deployed on the Devfile Registry.
+// Default: "quay.io/devfile/registry-viewer:next"
 func GetRegistryViewerImage(cr *registryv1alpha1.DevfileRegistry) string {
-	if cr.Spec.RegistryViewerImage != "" {
-		return cr.Spec.RegistryViewerImage
+	if cr.Spec.RegistryViewer.Image != "" {
+		return cr.Spec.RegistryViewer.Image
 	}
 	return DefaultRegistryViewerImage
 }
 
+// GetRegistryViewerImagePullPolicy returns the image pull policy for the registry viewer container.
+// Default: "Always"
+func GetRegistryViewerImagePullPolicy(cr *registryv1alpha1.DevfileRegistry) corev1.PullPolicy {
+	if cr.Spec.RegistryViewer.ImagePullPolicy != "" {
+		return cr.Spec.RegistryViewer.ImagePullPolicy
+	}
+	return DefaultRegistryViewerImagePullPolicy
+}
+
+// GetOCIRegistryImage returns the container image for the OCI registry to be deployed on the Devfile Registry.
+// Default: "quay.io/devfile/oci-registry:next"
 func GetOCIRegistryImage(cr *registryv1alpha1.DevfileRegistry) string {
-	if cr.Spec.OciRegistryImage != "" {
-		return cr.Spec.OciRegistryImage
+	if cr.Spec.OciRegistry.Image != "" {
+		return cr.Spec.OciRegistry.Image
 	}
 	return DefaultOCIRegistryImage
 }
 
+// GetOCIRegistryImagePullPolicy returns the image pull policy for the OCI registry container.
+// Default: "Always"
+func GetOCIRegistryImagePullPolicy(cr *registryv1alpha1.DevfileRegistry) corev1.PullPolicy {
+	if cr.Spec.OciRegistry.ImagePullPolicy != "" {
+		return cr.Spec.OciRegistry.ImagePullPolicy
+	}
+	return DefaultOCIRegistryImagePullPolicy
+}
+
+// GetDevfileIndexImage returns the container image for the devfile index server to be deployed on the Devfile Registry.
+// Default: "quay.io/devfile/devfile-index:next"
 func GetDevfileIndexImage(cr *registryv1alpha1.DevfileRegistry) string {
-	if cr.Spec.DevfileIndexImage != "" {
-		return cr.Spec.DevfileIndexImage
+	if cr.Spec.DevfileIndex.Image != "" {
+		return cr.Spec.DevfileIndex.Image
 	}
 	return DefaultDevfileIndexImage
+}
+
+// GetDevfileIndexImagePullPolicy returns the image pull policy for the devfile index container.
+// Default: "Always"
+func GetDevfileIndexImagePullPolicy(cr *registryv1alpha1.DevfileRegistry) corev1.PullPolicy {
+	if cr.Spec.DevfileIndex.ImagePullPolicy != "" {
+		return cr.Spec.DevfileIndex.ImagePullPolicy
+	}
+	return DefaultDevfileIndexImagePullPolicy
 }
 
 func getDevfileRegistryVolumeSize(cr *registryv1alpha1.DevfileRegistry) string {

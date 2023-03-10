@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -26,23 +27,33 @@ import (
 
 // DevfileRegistrySpec defines the desired state of DevfileRegistry
 type DevfileRegistrySpec struct {
-	// Sets the container image containing devfile stacks to be deployed on the Devfile Registry
-	DevfileIndexImage string `json:"devfileIndexImage,omitempty"`
+	// Sets the devfile index container spec to be deployed on the Devfile Registry
+	// +optional
+	DevfileIndex DevfileRegistrySpecContainer `json:"devfileIndex,omitempty"`
+	// Sets the OCI registry container spec to be deployed on the Devfile Registry
+	// +optional
+	OciRegistry DevfileRegistrySpecContainer `json:"ociRegistry,omitempty"`
+	// Sets the registry viewer container spec to be deployed on the Devfile Registry
+	// +optional
+	RegistryViewer DevfileRegistrySpecContainer `json:"registryViewer,omitempty"`
 
-	// Overrides the container image used for the OCI registry.
-	// Recommended to leave blank and default to the image specified by the operator.
-	// +optional
-	OciRegistryImage string `json:"ociRegistryImage,omitempty"`
-	// Overrides the container image used for the registry viewer.
-	// +optional
-	RegistryViewerImage string                       `json:"registryViewerImage,omitempty"`
-	Storage             DevfileRegistrySpecStorage   `json:"storage,omitempty"`
-	TLS                 DevfileRegistrySpecTLS       `json:"tls,omitempty"`
-	K8s                 DevfileRegistrySpecK8sOnly   `json:"k8s,omitempty"`
-	Telemetry           DevfileRegistrySpecTelemetry `json:"telemetry,omitempty"`
+	Storage   DevfileRegistrySpecStorage   `json:"storage,omitempty"`
+	TLS       DevfileRegistrySpecTLS       `json:"tls,omitempty"`
+	K8s       DevfileRegistrySpecK8sOnly   `json:"k8s,omitempty"`
+	Telemetry DevfileRegistrySpecTelemetry `json:"telemetry,omitempty"`
 	// Sets the registry server deployment to run under headless mode
 	// +optional
 	Headless *bool `json:"headless,omitempty"`
+}
+
+// DevfileRegistrySpecContainer defines the desired state of a container for the DevfileRegistry
+type DevfileRegistrySpecContainer struct {
+	// Sets the container image
+	// +optional
+	Image string `json:"image,omitempty"`
+	// Sets the image pull policy for the container
+	// +optional
+	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty"`
 }
 
 // DevfileRegistrySpecStorage defines the desired state of the storage for the DevfileRegistry
