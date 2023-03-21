@@ -66,6 +66,9 @@ func (r *DevfileRegistryReconciler) ensure(ctx context.Context, cr *registryv1al
 	case *networkingv1.Ingress:
 		ingress, _ := resource.(*networkingv1.Ingress)
 		err = r.updateIngress(ctx, cr, ingressDomain, ingress)
+	case *corev1.ConfigMap:
+		configMap, _ := resource.(*corev1.ConfigMap)
+		err = r.updateConfigMap(ctx, cr, configMap)
 	}
 	if err != nil {
 		r.Log.Error(err, "Failed to update "+resourceType)

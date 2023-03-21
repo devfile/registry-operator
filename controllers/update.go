@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	"github.com/devfile/registry-operator/pkg/registry"
@@ -181,4 +182,17 @@ func (r *DevfileRegistryReconciler) deleteOldPVCIfNeeded(ctx context.Context, cr
 		}
 	}
 	return nil
+}
+
+func (r *DevfileRegistryReconciler) updateConfigMap(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, configMap *corev1.ConfigMap) error {
+
+	viewerEnvfile := fmt.Sprintf(`
+NEXT_PUBLIC_ANALYTICS_WRITE_KEY=%s
+DEVFILE_REGISTRIES=[{"name":"%s","url":"http://localhost:8080","fqdn":"%s"}]`,
+		cr.Spec.Telemetry.RegistryViewerWriteKey, cr.ObjectMeta.Name, cr.Status.URL)
+
+	configMap.Data[".env.registry-viewer"] = viewerEnvfile
+
+	return r.Update(ctx, configMap)
+
 }
