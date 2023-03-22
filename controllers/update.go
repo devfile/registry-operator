@@ -54,12 +54,23 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 			indexImageContainer.Env[1].Value = registryKey
 			needsUpdating = true
 		}
+
+		if indexImagePullPolicy := registry.GetDevfileIndexImagePullPolicy(cr); indexImageContainer.ImagePullPolicy != indexImagePullPolicy {
+			indexImageContainer.ImagePullPolicy = indexImagePullPolicy
+			needsUpdating = true
+		}
 	}
 
 	ociImage := registry.GetOCIRegistryImage(cr)
-	if dep.Spec.Template.Spec.Containers[1].Image != ociImage {
-		dep.Spec.Template.Spec.Containers[1].Image = ociImage
+	ociImageContainer := dep.Spec.Template.Spec.Containers[1]
+	if ociImageContainer.Image != ociImage {
+		ociImageContainer.Image = ociImage
 		needsUpdating = true
+	} else {
+		if ociImagePullPolicy := registry.GetOCIRegistryImagePullPolicy(cr); ociImageContainer.ImagePullPolicy != ociImagePullPolicy {
+			ociImageContainer.ImagePullPolicy = ociImagePullPolicy
+			needsUpdating = true
+		}
 	}
 
 	if registry.IsStorageEnabled(cr) {
@@ -74,10 +85,18 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 		}
 	}
 
-	viewerImage := registry.GetRegistryViewerImage(cr)
-	if len(dep.Spec.Template.Spec.Containers) > 2 && dep.Spec.Template.Spec.Containers[2].Image != viewerImage {
-		dep.Spec.Template.Spec.Containers[2].Image = viewerImage
-		needsUpdating = true
+	if len(dep.Spec.Template.Spec.Containers) > 2 {
+		viewerImage := registry.GetRegistryViewerImage(cr)
+		viewerImageContainer := dep.Spec.Template.Spec.Containers[2]
+		if viewerImageContainer.Image != viewerImage {
+			viewerImageContainer.Image = viewerImage
+			needsUpdating = true
+		} else {
+			if viewerImagePullPolicy := registry.GetRegistryViewerImagePullPolicy(cr); viewerImageContainer.ImagePullPolicy != viewerImagePullPolicy {
+				viewerImageContainer.ImagePullPolicy = viewerImagePullPolicy
+				needsUpdating = true
+			}
+		}
 	}
 
 	if needsUpdating {
