@@ -37,6 +37,21 @@ type DevfileRegistrySpec struct {
 	// +optional
 	RegistryViewer DevfileRegistrySpecContainer `json:"registryViewer,omitempty"`
 
+	// Sets the container image containing devfile stacks to be deployed on the Devfile Registry
+	// +optional
+	// +deprecated
+	DevfileIndexImage string `json:"devfileIndexImage,omitempty"`
+
+	// Overrides the container image used for the OCI registry.
+	// Recommended to leave blank and default to the image specified by the operator.
+	// +optional
+	// +deprecated
+	OciRegistryImage string `json:"ociRegistryImage,omitempty"`
+	// Overrides the container image used for the registry viewer.
+	// +optional
+	// +deprecated
+	RegistryViewerImage string `json:"registryViewerImage,omitempty"`
+
 	Storage   DevfileRegistrySpecStorage   `json:"storage,omitempty"`
 	TLS       DevfileRegistrySpecTLS       `json:"tls,omitempty"`
 	K8s       DevfileRegistrySpecK8sOnly   `json:"k8s,omitempty"`

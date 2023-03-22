@@ -58,6 +58,8 @@ const (
 func GetRegistryViewerImage(cr *registryv1alpha1.DevfileRegistry) string {
 	if cr.Spec.RegistryViewer.Image != "" {
 		return cr.Spec.RegistryViewer.Image
+	} else if cr.Spec.RegistryViewerImage != "" {
+		return cr.Spec.RegistryViewerImage
 	}
 	return DefaultRegistryViewerImage
 }
@@ -76,6 +78,8 @@ func GetRegistryViewerImagePullPolicy(cr *registryv1alpha1.DevfileRegistry) core
 func GetOCIRegistryImage(cr *registryv1alpha1.DevfileRegistry) string {
 	if cr.Spec.OciRegistry.Image != "" {
 		return cr.Spec.OciRegistry.Image
+	} else if cr.Spec.OciRegistryImage != "" {
+		return cr.Spec.OciRegistryImage
 	}
 	return DefaultOCIRegistryImage
 }
@@ -94,6 +98,8 @@ func GetOCIRegistryImagePullPolicy(cr *registryv1alpha1.DevfileRegistry) corev1.
 func GetDevfileIndexImage(cr *registryv1alpha1.DevfileRegistry) string {
 	if cr.Spec.DevfileIndex.Image != "" {
 		return cr.Spec.DevfileIndex.Image
+	} else if cr.Spec.DevfileIndexImage != "" {
+		return cr.Spec.DevfileIndexImage
 	}
 	return DefaultDevfileIndexImage
 }

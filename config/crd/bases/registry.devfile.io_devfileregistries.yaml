@@ -54,6 +54,10 @@ spec:
                     description: Sets the image pull policy for the container
                     type: string
                 type: object
+              devfileIndexImage:
+                description: Sets the container image containing devfile stacks to
+                  be deployed on the Devfile Registry
+                type: string
               headless:
                 description: Sets the registry server deployment to run under headless
                   mode
@@ -78,6 +82,11 @@ spec:
                     description: Sets the image pull policy for the container
                     type: string
                 type: object
+              ociRegistryImage:
+                description: Overrides the container image used for the OCI registry.
+                  Recommended to leave blank and default to the image specified by
+                  the operator.
+                type: string
               registryViewer:
                 description: Sets the registry viewer container spec to be deployed
                   on the Devfile Registry
@@ -89,6 +98,9 @@ spec:
                     description: Sets the image pull policy for the container
                     type: string
                 type: object
+              registryViewerImage:
+                description: Overrides the container image used for the registry viewer.
+                type: string
               storage:
                 description: DevfileRegistrySpecStorage defines the desired state
                   of the storage for the DevfileRegistry
