@@ -52,8 +52,8 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
-							Image:           cr.Spec.DevfileIndexImage,
-							ImagePullPolicy: corev1.PullAlways,
+							Image:           GetDevfileIndexImage(cr),
+							ImagePullPolicy: GetDevfileIndexImagePullPolicy(cr),
 							Name:            "devfile-registry",
 							SecurityContext: &corev1.SecurityContext{
 								AllowPrivilegeEscalation: &allowPrivilegeEscalation,
@@ -112,8 +112,9 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							},
 						},
 						{
-							Image: GetOCIRegistryImage(cr),
-							Name:  "oci-registry",
+							Image:           GetOCIRegistryImage(cr),
+							ImagePullPolicy: GetOCIRegistryImagePullPolicy(cr),
+							Name:            "oci-registry",
 							SecurityContext: &corev1.SecurityContext{
 								AllowPrivilegeEscalation: &allowPrivilegeEscalation,
 								RunAsNonRoot:             &runAsNonRoot,
@@ -211,7 +212,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 		}
 		dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
 			Image:           GetRegistryViewerImage(cr),
-			ImagePullPolicy: corev1.PullAlways,
+			ImagePullPolicy: GetRegistryViewerImagePullPolicy(cr),
 			Name:            "registry-viewer",
 			SecurityContext: &corev1.SecurityContext{
 				AllowPrivilegeEscalation: &allowPrivilegeEscalation,

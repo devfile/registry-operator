@@ -43,6 +43,17 @@ spec:
           spec:
             description: DevfileRegistrySpec defines the desired state of DevfileRegistry
             properties:
+              devfileIndex:
+                description: Sets the devfile index container spec to be deployed
+                  on the Devfile Registry
+                properties:
+                  image:
+                    description: Sets the container image
+                    type: string
+                  imagePullPolicy:
+                    description: Sets the image pull policy for the container
+                    type: string
+                type: object
               devfileIndexImage:
                 description: Sets the container image containing devfile stacks to
                   be deployed on the Devfile Registry
@@ -60,11 +71,33 @@ spec:
                       be explicitly specified on Kubernetes. There are no defaults
                     type: string
                 type: object
+              ociRegistry:
+                description: Sets the OCI registry container spec to be deployed on
+                  the Devfile Registry
+                properties:
+                  image:
+                    description: Sets the container image
+                    type: string
+                  imagePullPolicy:
+                    description: Sets the image pull policy for the container
+                    type: string
+                type: object
               ociRegistryImage:
                 description: Overrides the container image used for the OCI registry.
                   Recommended to leave blank and default to the image specified by
                   the operator.
                 type: string
+              registryViewer:
+                description: Sets the registry viewer container spec to be deployed
+                  on the Devfile Registry
+                properties:
+                  image:
+                    description: Sets the container image
+                    type: string
+                  imagePullPolicy:
+                    description: Sets the image pull policy for the container
+                    type: string
+                type: object
               registryViewerImage:
                 description: Overrides the container image used for the registry viewer.
                 type: string

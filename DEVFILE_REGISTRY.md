@@ -20,7 +20,8 @@ kind: DevfileRegistry
 metadata:
   name: devfile-registry
 spec:
-  devfileIndexImage: quay.io/devfile/devfile-index:next
+  devfileIndex:
+    image: quay.io/devfile/devfile-index:next
   telemetry:
     registryName: test
 EOF
@@ -40,7 +41,8 @@ kind: DevfileRegistry
 metadata:
   name: devfile-registry
 spec:
-  devfileIndexImage: quay.io/devfile/devfile-index:next
+  devfileIndex:
+    image: quay.io/devfile/devfile-index:next
   tls:
     enabled: false
   k8s:
