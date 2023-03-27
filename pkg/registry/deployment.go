@@ -81,8 +81,9 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							LivenessProbe: &corev1.Probe{
 								ProbeHandler: corev1.ProbeHandler{
 									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/health",
-										Port: intstr.FromInt(DevfileIndexPort),
+										Path:   "/health",
+										Port:   intstr.FromInt(DevfileIndexPort),
+										Scheme: corev1.URISchemeHTTP,
 									},
 								},
 								InitialDelaySeconds: 15,
@@ -92,8 +93,9 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							ReadinessProbe: &corev1.Probe{
 								ProbeHandler: corev1.ProbeHandler{
 									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/health",
-										Port: intstr.FromInt(DevfileIndexPort),
+										Path:   "/health",
+										Port:   intstr.FromInt(DevfileIndexPort),
+										Scheme: corev1.URISchemeHTTP,
 									},
 								},
 								InitialDelaySeconds: 15,
@@ -138,8 +140,9 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							LivenessProbe: &corev1.Probe{
 								ProbeHandler: corev1.ProbeHandler{
 									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/v2",
-										Port: intstr.FromInt(OCIServerPort),
+										Path:   "/v2",
+										Port:   intstr.FromInt(OCIServerPort),
+										Scheme: corev1.URISchemeHTTP,
 									},
 								},
 								InitialDelaySeconds: 30,
@@ -149,8 +152,9 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							ReadinessProbe: &corev1.Probe{
 								ProbeHandler: corev1.ProbeHandler{
 									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/v2",
-										Port: intstr.FromInt(OCIServerPort),
+										Path:   "/v2",
+										Port:   intstr.FromInt(OCIServerPort),
+										Scheme: corev1.URISchemeHTTP,
 									},
 								},
 								InitialDelaySeconds: 3,
@@ -202,13 +206,14 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 		dep.Spec.Template.Spec.Containers[0].StartupProbe = &corev1.Probe{
 			ProbeHandler: corev1.ProbeHandler{
 				HTTPGet: &corev1.HTTPGetAction{
-					Path: "/viewer",
-					Port: intstr.FromInt(RegistryViewerPort),
+					Path:   "/viewer",
+					Port:   intstr.FromInt(RegistryViewerPort),
+					Scheme: corev1.URISchemeHTTP,
 				},
 			},
 			InitialDelaySeconds: 30,
 			PeriodSeconds:       10,
-			TimeoutSeconds:      3,
+			TimeoutSeconds:      20,
 		}
 		dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
 			Image:           GetRegistryViewerImage(cr),
@@ -234,6 +239,30 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					corev1.ResourceMemory: resource.MustParse("256Mi"),
 				},
 			},
+			LivenessProbe: &corev1.Probe{
+				ProbeHandler: corev1.ProbeHandler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path:   "/viewer",
+						Port:   intstr.FromInt(RegistryViewerPort),
+						Scheme: corev1.URISchemeHTTP,
+					},
+				},
+				InitialDelaySeconds: 15,
+				PeriodSeconds:       10,
+				TimeoutSeconds:      20,
+			},
+			ReadinessProbe: &corev1.Probe{
+				ProbeHandler: corev1.ProbeHandler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path:   "/viewer",
+						Port:   intstr.FromInt(RegistryViewerPort),
+						Scheme: corev1.URISchemeHTTP,
+					},
+				},
+				InitialDelaySeconds: 15,
+				PeriodSeconds:       10,
+				TimeoutSeconds:      20,
+			},
 			Env: []corev1.EnvVar{
 				{
 					Name:  "NEXT_PUBLIC_ANALYTICS_WRITE_KEY",
@@ -256,6 +285,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					Name:      "viewer-env-file",
 					MountPath: "/app/.env.production",
 					SubPath:   ".env.production",
+					ReadOnly:  true,
 				},
 			},
 		})
