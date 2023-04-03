@@ -87,3 +87,13 @@ func IsRegistryValid(skipTLSVerify bool, url string) error {
 
 	return nil
 }
+
+// IsNamespaceValid determines if given namespace for deployment
+// is valid.
+func IsNamespaceValid(namespace string) error {
+	if namespace == "default" {
+		return fmt.Errorf("devfile registry deployment namespace should never be 'default'.")
+	}
+
+	return nil
+}
