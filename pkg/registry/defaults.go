@@ -34,7 +34,7 @@ const (
 
 	// Defaults/constants for devfile registry storages
 	DefaultDevfileRegistryVolumeSize = "1Gi"
-	DevfileRegistryVolumeEnabled     = true
+	DevfileRegistryVolumeEnabled     = false
 	DevfileRegistryVolumeName        = "devfile-registry-storage"
 
 	DevfileRegistryTLSEnabled       = true
@@ -133,7 +133,7 @@ func GetDevfileRegistryVolumeSource(cr *registryv1alpha1.DevfileRegistry) corev1
 }
 
 // IsStorageEnabled returns true if storage.enabled is set in the DevfileRegistry CR
-// If it's not set, it returns true by default.
+// If it's not set, it returns false by default.
 func IsStorageEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
 	if cr.Spec.Storage.Enabled != nil {
 		return *cr.Spec.Storage.Enabled

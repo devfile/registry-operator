@@ -107,8 +107,7 @@ spec:
                 properties:
                   enabled:
                     description: Instructs the operator to deploy the DevfileRegistry
-                      with persistent storage Enabled by default. Disabling is only
-                      recommended for development or test.
+                      with persistent storage Disabled by default.
                     type: boolean
                   ociRegistryImage:
                     description: Configures the size of the devfile registry's persistent
