@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -107,11 +107,11 @@ func TestIsStorageEnabled(t *testing.T) {
 			want: false,
 		},
 		{
-			name: "Case 3: Storage not set, default set to true",
+			name: "Case 3: Storage not set, default set to false",
 			cr: registryv1alpha1.DevfileRegistry{
 				Spec: registryv1alpha1.DevfileRegistrySpec{},
 			},
-			want: true,
+			want: false,
 		},
 	}
 	for _, tt := range tests {
@@ -168,18 +168,14 @@ func TestGetDevfileRegistryVolumeSource(t *testing.T) {
 			want: corev1.VolumeSource{},
 		},
 		{
-			name: "Case 3: Storage not set, default set to true",
+			name: "Case 3: Storage not set, default set to false",
 			cr: registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: crName,
 				},
 				Spec: registryv1alpha1.DevfileRegistrySpec{},
 			},
-			want: corev1.VolumeSource{
-				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-					ClaimName: PVCName(crName),
-				},
-			},
+			want: corev1.VolumeSource{},
 		},
 	}
 	for _, tt := range tests {

@@ -314,7 +314,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 	}
 
 	// Enables podspec security context if storage is enabled
-	if cr.Spec.Storage.Enabled == nil || *cr.Spec.Storage.Enabled {
+	if IsStorageEnabled(cr) {
 		dep.Spec.Template.Spec.SecurityContext = &corev1.PodSecurityContext{
 			RunAsNonRoot: &runAsNonRoot,
 			RunAsUser:    &runAsUser,

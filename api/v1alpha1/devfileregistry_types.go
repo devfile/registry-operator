@@ -74,7 +74,7 @@ type DevfileRegistrySpecContainer struct {
 // DevfileRegistrySpecStorage defines the desired state of the storage for the DevfileRegistry
 type DevfileRegistrySpecStorage struct {
 	// Instructs the operator to deploy the DevfileRegistry with persistent storage
-	// Enabled by default. Disabling is only recommended for development or test.
+	// Disabled by default.
 	// +optional
 	Enabled *bool `json:"enabled,omitempty"`
 
