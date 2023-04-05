@@ -16,7 +16,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2023-03-23T21:23:04Z"
+    createdAt: "2023-04-05T22:05:49Z"
     operators.operatorframework.io/builder: operator-sdk-v1.28.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: registry-operator.v0.0.1
@@ -412,6 +412,26 @@ spec:
     containerPort: 443
     deploymentName: registry-operator-controller-manager
     failurePolicy: Fail
+    generateName: mdevfileregistry.kb.io
+    rules:
+    - apiGroups:
+      - registry.devfile.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - devfileregistries
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-registry-devfile-io-v1alpha1-devfileregistry
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: registry-operator-controller-manager
+    failurePolicy: Fail
     generateName: vclusterdevfileregistrieslist.kb.io
     rules:
     - apiGroups:
@@ -447,3 +467,23 @@ spec:
     targetPort: 9443
     type: ValidatingAdmissionWebhook
     webhookPath: /validate-registry-devfile-io-v1alpha1-devfileregistrieslist
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: registry-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vdevfileregistry.kb.io
+    rules:
+    - apiGroups:
+      - registry.devfile.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - devfileregistries
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-registry-devfile-io-v1alpha1-devfileregistry
