@@ -25,9 +25,10 @@ import (
 )
 
 const (
-	dupRegName      = "Duplicate registry name %s in registries list.  Ensure name is unique \n"
-	dupURLName      = "Duplicate registry URL %s in registries list.  Ensure URL is unique \n"
-	InvalidRegistry = "Devfile %s Registry is either invalid or unavailable, unable to add to the DevfileRegistryService list. Ensure you provide a valid Devfile Registry URL \n"
+	dupRegName       = "duplicate registry name %s in registries list.  Ensure name is unique"
+	dupURLName       = "duplicate registry URL %s in registries list.  Ensure URL is unique"
+	InvalidRegistry  = "devfile %s Registry is either invalid or unavailable, unable to add to the DevfileRegistryService list. Ensure you provide a valid Devfile Registry URL"
+	InvalidNamespace = "the namespace 'default' is forbidden for the devfile registry deployment. Retry the deployment using a non-default namespace"
 )
 
 func validateURLs(devfileRegistries []DevfileRegistryService) (errors error) {
@@ -92,10 +93,7 @@ func IsRegistryValid(skipTLSVerify bool, url string) error {
 // is valid.
 func IsNamespaceValid(namespace string) error {
 	if namespace == "default" {
-		return fmt.Errorf("%s. %s",
-			"The namespace 'default' is forbidden for the devfile registry deployment",
-			"Retry the deployment using a non-default namespace",
-		)
+		return fmt.Errorf("%s", InvalidNamespace)
 	}
 
 	return nil
