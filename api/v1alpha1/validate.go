@@ -1,5 +1,5 @@
 /*
-Copyright 2022 Red Hat, Inc.
+Copyright 2022-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -92,7 +92,10 @@ func IsRegistryValid(skipTLSVerify bool, url string) error {
 // is valid.
 func IsNamespaceValid(namespace string) error {
 	if namespace == "default" {
-		return fmt.Errorf("devfile registry deployment namespace should never be 'default'.")
+		return fmt.Errorf("%s. %s",
+			"The namespace 'default' is forbidden for the devfile registry deployment",
+			"Retry the deployment using a non-default namespace",
+		)
 	}
 
 	return nil
