@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -54,8 +54,8 @@ var ctx context.Context
 var cancel context.CancelFunc
 
 const (
-	devfileRegistriesListName  = "default-namespace-list"
-	devfileRegistriesNamespace = "default"
+	devfileRegistriesListName  = "main-namespace-list"
+	devfileRegistriesNamespace = "main"
 	devfileStagingRegistryName = "StagingRegistry"
 	devfileStagingRegistryURL  = "https://registry.stage.devfile.io"
 	localRegistryName          = "localRegistry"
