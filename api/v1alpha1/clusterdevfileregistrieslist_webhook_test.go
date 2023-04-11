@@ -72,7 +72,7 @@ var _ = Describe("ClusterDevfileRegistriesList validation webhook", func() {
 		})
 	})
 
-	Context("Create a second ClusterDevfileRegistry CR with valid values in same namespace", func() {
+	Context("Create a second ClusterDevfileRegistriesList CR with valid values in same namespace", func() {
 		It("Should fail to create a new CR and return an error message", func() {
 			ctx := context.Background()
 			err := k8sClient.Create(ctx, getClusterDevfileRegistriesListCR(devfileRegistriesListName+"2", devfileRegistriesNamespace,
@@ -81,7 +81,7 @@ var _ = Describe("ClusterDevfileRegistriesList validation webhook", func() {
 		})
 	})
 
-	Context("Create a second ClusterDevfileRegistry CR with valid fields in a different namespace", func() {
+	Context("Create a second ClusterDevfileRegistriesList CR with valid fields in a different namespace", func() {
 		It("Should fail to create a new CR and return an error message", func() {
 			ctx := context.Background()
 			err := k8sClient.Create(ctx, getClusterDevfileRegistriesListCR(devfileRegistriesListName, testNs.Name,
