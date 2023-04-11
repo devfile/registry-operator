@@ -42,7 +42,7 @@ func (r *ClusterDevfileRegistriesList) SetupWebhookWithManager(mgr ctrl.Manager)
 
 var _ webhook.Defaulter = &ClusterDevfileRegistriesList{}
 
-const multiCRError = "A ClusterDevfileRegistriesList instance already exists. Only one instance can exist in a cluster"
+const multiCRError = "a ClusterDevfileRegistriesList instance already exists, only one instance can exist in a cluster"
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *ClusterDevfileRegistriesList) Default() {
@@ -63,7 +63,7 @@ func (r *ClusterDevfileRegistriesList) ValidateCreate() error {
 	}
 
 	if err := kubeClient.List(context.TODO(), clusterDevfileRegistriesList, listOpts...); err != nil {
-		return fmt.Errorf("Error listing clusterDevfileRegistriesList custom resources: %v", err)
+		return fmt.Errorf("error listing clusterDevfileRegistriesList custom resources: %v", err)
 	}
 
 	if len(clusterDevfileRegistriesList.Items) == 1 {

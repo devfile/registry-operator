@@ -64,11 +64,11 @@ func (r *DevfileRegistriesList) ValidateCreate() error {
 	}
 
 	if err := kubeClient.List(context.TODO(), devfileRegistriesList, listOpts...); err != nil {
-		return fmt.Errorf("Error listing devfileRegistriesList custom resources: %v", err)
+		return fmt.Errorf("error listing devfileRegistriesList custom resources: %v", err)
 	}
 
 	if len(devfileRegistriesList.Items) == 1 {
-		return fmt.Errorf("A DevfileRegistriesList instance already exists. Only one instance can exist on a namespace")
+		return fmt.Errorf("a DevfileRegistriesList instance already exists. Only one instance can exist on a namespace")
 	}
 
 	if err := validateURLs(r.Spec.DevfileRegistries); err != nil {
