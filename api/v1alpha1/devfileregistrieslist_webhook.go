@@ -1,5 +1,5 @@
 /*
-Copyright 2022 Red Hat, Inc.
+Copyright 2022-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -71,7 +71,11 @@ func (r *DevfileRegistriesList) ValidateCreate() error {
 		return fmt.Errorf("A DevfileRegistriesList instance already exists. Only one instance can exist on a namespace")
 	}
 
-	return validateURLs(r.Spec.DevfileRegistries)
+	if err := validateURLs(r.Spec.DevfileRegistries); err != nil {
+		return err
+	}
+
+	return IsNamespaceValid(r.Namespace)
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
