@@ -50,25 +50,13 @@ var _ webhook.Validator = &DevfileRegistry{}
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *DevfileRegistry) ValidateCreate() error {
 	devfileregistrylog.Info("validate create", "name", r.Name)
-
 	return IsNamespaceValid(r.Namespace)
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (r *DevfileRegistry) ValidateUpdate(old runtime.Object) error {
 	devfileregistrylog.Info("validate update", "name", r.Name)
-
-	// Validate if namespace is valid
-	if err := IsNamespaceValid(r.Namespace); err != nil {
-		return err
-	}
-
-	//re-validate the entire list to ensure existing URL has not gone stale
-	if r.Spec.TLS.Enabled != nil {
-		return IsRegistryValid(*r.Spec.TLS.Enabled, r.Status.URL)
-	} else {
-		return IsRegistryValid(true, r.Status.URL)
-	}
+	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
