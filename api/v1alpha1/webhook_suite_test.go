@@ -128,6 +128,9 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).NotTo(HaveOccurred())
 
+	err = (&DevfileRegistry{}).SetupWebhookWithManager(mgr)
+	Expect(err).NotTo(HaveOccurred())
+
 	err = (&DevfileRegistriesList{}).SetupWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 
