@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -54,18 +54,25 @@ var ctx context.Context
 var cancel context.CancelFunc
 
 const (
-	devfileRegistriesListName  = "default-namespace-list"
-	devfileRegistriesNamespace = "default"
+	devfileRegistriesListName  = "main-namespace-list"
+	devfileRegistriesNamespace = "main"
 	devfileStagingRegistryName = "StagingRegistry"
 	devfileStagingRegistryURL  = "https://registry.stage.devfile.io"
 	localRegistryName          = "localRegistry"
 )
 
-var testNs = &corev1.Namespace{
-	ObjectMeta: metav1.ObjectMeta{
-		Name: "test",
-	},
-}
+var (
+	devfileRegistriesNs = &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: devfileRegistriesNamespace,
+		},
+	}
+	testNs = &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test",
+		},
+	}
+)
 
 func TestAPIs(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -104,6 +111,8 @@ var _ = BeforeSuite(func() {
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
+	//create devfileregistries namespace
+	Expect(k8sClient.Create(ctx, devfileRegistriesNs)).Should(Succeed())
 	//create test namespace
 	Expect(k8sClient.Create(ctx, testNs)).Should(Succeed())
 
@@ -117,6 +126,9 @@ var _ = BeforeSuite(func() {
 		LeaderElection:     false,
 		MetricsBindAddress: "0",
 	})
+	Expect(err).NotTo(HaveOccurred())
+
+	err = (&DevfileRegistry{}).SetupWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 
 	err = (&DevfileRegistriesList{}).SetupWebhookWithManager(mgr)
@@ -149,6 +161,8 @@ var _ = BeforeSuite(func() {
 }, 60)
 
 var _ = AfterSuite(func() {
+	// delete the devfileregistries namespace
+	Expect(k8sClient.Delete(ctx, devfileRegistriesNs)).Should(Succeed())
 	// delete the test namespace
 	Expect(k8sClient.Delete(ctx, testNs)).Should(Succeed())
 	cancel()

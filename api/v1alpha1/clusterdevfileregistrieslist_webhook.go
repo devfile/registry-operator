@@ -1,5 +1,5 @@
 /*
-Copyright 2022 Red Hat, Inc.
+Copyright 2022-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ func (r *ClusterDevfileRegistriesList) SetupWebhookWithManager(mgr ctrl.Manager)
 
 var _ webhook.Defaulter = &ClusterDevfileRegistriesList{}
 
-const multiCRError = "A ClusterDevfileRegistriesList instance already exists. Only one instance can exist in a cluster"
+const multiCRError = "a ClusterDevfileRegistriesList instance already exists, only one instance can exist in a cluster"
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *ClusterDevfileRegistriesList) Default() {
@@ -63,15 +63,18 @@ func (r *ClusterDevfileRegistriesList) ValidateCreate() error {
 	}
 
 	if err := kubeClient.List(context.TODO(), clusterDevfileRegistriesList, listOpts...); err != nil {
-		return fmt.Errorf("Error listing clusterDevfileRegistriesList custom resources: %v", err)
+		return fmt.Errorf("error listing clusterDevfileRegistriesList custom resources: %v", err)
 	}
 
 	if len(clusterDevfileRegistriesList.Items) == 1 {
 		return fmt.Errorf(multiCRError)
 	}
 
-	return validateURLs(r.Spec.DevfileRegistries)
+	if err := validateURLs(r.Spec.DevfileRegistries); err != nil {
+		return err
+	}
 
+	return IsNamespaceValid(r.Namespace)
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type

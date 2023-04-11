@@ -1,5 +1,5 @@
 /*
-Copyright 2022 Red Hat, Inc.
+Copyright 2022-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -102,6 +102,36 @@ func TestDevfileRegistriesValidateURL(t *testing.T) {
 				}
 			} else {
 				assert.Equal(t, nil, err, "Error should be nil")
+			}
+		})
+	}
+}
+
+func TestIsNamespaceValid(t *testing.T) {
+	tests := []struct {
+		name      string
+		namespace string
+		wantErr   string
+	}{
+		{
+			name:      "Registry deployment to non-default namespace",
+			namespace: "test",
+		},
+		{
+			name:      "Registry deployment to default namespace",
+			namespace: "default",
+			wantErr:   InvalidNamespace,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := IsNamespaceValid(tt.namespace); err != nil && tt.wantErr != "" {
+				assert.Equal(t, len(tt.wantErr), len(err.Error()), fmt.Sprintf("Errors do not match = %v, want %v", err, tt.wantErr))
+			} else if err != nil && tt.wantErr == "" {
+				assert.Fail(t, "Error should be nil")
+			} else if err == nil && tt.wantErr != "" {
+				assert.Fail(t, "Error should not be nil")
 			}
 		})
 	}

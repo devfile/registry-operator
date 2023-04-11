@@ -45,6 +45,26 @@ webhooks:
     resources:
     - devfileregistrieslists
   sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-registry-devfile-io-v1alpha1-devfileregistry
+  failurePolicy: Fail
+  name: mdevfileregistry.kb.io
+  rules:
+  - apiGroups:
+    - registry.devfile.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - devfileregistries
+  sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
@@ -91,4 +111,24 @@ webhooks:
     - UPDATE
     resources:
     - devfileregistrieslists
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-registry-devfile-io-v1alpha1-devfileregistry
+  failurePolicy: Fail
+  name: vdevfileregistry.kb.io
+  rules:
+  - apiGroups:
+    - registry.devfile.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - devfileregistries
   sideEffects: None

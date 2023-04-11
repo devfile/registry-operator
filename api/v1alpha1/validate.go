@@ -1,5 +1,5 @@
 /*
-Copyright 2022 Red Hat, Inc.
+Copyright 2022-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,9 +25,10 @@ import (
 )
 
 const (
-	dupRegName      = "Duplicate registry name %s in registries list.  Ensure name is unique \n"
-	dupURLName      = "Duplicate registry URL %s in registries list.  Ensure URL is unique \n"
-	InvalidRegistry = "Devfile %s Registry is either invalid or unavailable, unable to add to the DevfileRegistryService list. Ensure you provide a valid Devfile Registry URL \n"
+	dupRegName       = "duplicate registry name %s in registries list.  Ensure name is unique"
+	dupURLName       = "duplicate registry URL %s in registries list.  Ensure URL is unique"
+	InvalidRegistry  = "devfile %s Registry is either invalid or unavailable, unable to add to the DevfileRegistryService list. Ensure you provide a valid Devfile Registry URL"
+	InvalidNamespace = "the namespace 'default' is forbidden for the devfile registry deployment. Retry the deployment using a non-default namespace"
 )
 
 func validateURLs(devfileRegistries []DevfileRegistryService) (errors error) {
@@ -83,6 +84,16 @@ func IsRegistryValid(skipTLSVerify bool, url string) error {
 			err := fmt.Errorf(InvalidRegistry, url)
 			return err
 		}
+	}
+
+	return nil
+}
+
+// IsNamespaceValid determines if given namespace for deployment
+// is valid.
+func IsNamespaceValid(namespace string) error {
+	if namespace == "default" {
+		return fmt.Errorf("%s", InvalidNamespace)
 	}
 
 	return nil
