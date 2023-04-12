@@ -10,6 +10,16 @@ The Devfile Registry operator manages the lifecycle of the following custom reso
 
 Issue tracking repo: https://github.com/devfile/api with label area/registry
 
+## Deployment Requirements
+
+Deployment cluster must meet one of the following criteria:
+
+- OpenShift Container Platform (OCP) 4.12.x
+- Kubernetes 1.25.x-1.26.x
+
+Deployments made by the devfile registry operator must *never* target the default namespace due to incompatibility with 
+security setups.
+
 ## Running the controller in a cluster
 
 Install cert-manager to provision self-signed certificates for the validating webhooks which are used specifically for the `ClusterDevfileRegistriesList` and `DevfileRegistriesList` CRs.  Cert manager needs to be installed in order for the controller manager to start.
