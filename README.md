@@ -10,7 +10,7 @@ The Devfile Registry operator manages the lifecycle of the following custom reso
 
 Issue tracking repo: https://github.com/devfile/api with label area/registry
 
-## Deployment Requirements
+## Requirements
 
 Deployment cluster must meet one of the following criteria:
 
@@ -19,6 +19,12 @@ Deployment cluster must meet one of the following criteria:
 
 Deployments made by the devfile registry operator must *never* target the default namespace due to incompatibility with 
 security setups.
+
+### Development
+
+- Go 1.19.x
+- Docker / Podman
+- Operator SDK 1.28.x
 
 ## Running the controller in a cluster
 
