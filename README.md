@@ -17,6 +17,9 @@ Deployment cluster must meet one of the following criteria:
 - OpenShift Container Platform (OCP) 4.12.x
 - Kubernetes 1.25.x-1.26.x
 
+More on the support of container orchestration systems can be 
+found [here](CLUSTER_SUPPORT.md).
+
 Deployments made by the devfile registry operator must *never* target the default namespace due to incompatibility with 
 security setups.
 
