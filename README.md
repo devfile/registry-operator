@@ -29,6 +29,8 @@ security setups.
 - Docker / Podman
 - Operator SDK 1.28.x
 
+See [Upgrade SDK Version](https://sdk.operatorframework.io/docs/upgrading-sdk-version/) for a guide on updating the Operator SDK. Ensure the Operator SDK version and the version of Kubernetes APIs match each other when updating by checking [CLUSTER_SUPPORT.md](CLUSTER_SUPPORT.md).
+
 ## Running the controller in a cluster
 
 Install cert-manager to provision self-signed certificates for the validating webhooks which are used specifically for the `ClusterDevfileRegistriesList` and `DevfileRegistriesList` CRs.  Cert manager needs to be installed in order for the controller manager to start.

@@ -9,3 +9,7 @@ Kubernetes.
 |:-----------------:|:----------------:|
 | Kubernetes 1.25.x |        X         |
 | Kubernetes 1.26.x |        X         |
+
+## Operator SDK
+
+Current version in use by the Registry Operator is [Operator SDK v1.28.0](https://sdk.operatorframework.io/docs/upgrading-sdk-version/v1.28.0/).
