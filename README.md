@@ -10,6 +10,27 @@ The Devfile Registry operator manages the lifecycle of the following custom reso
 
 Issue tracking repo: https://github.com/devfile/api with label area/registry
 
+## Requirements
+
+Deployment cluster must meet one of the following criteria:
+
+- OpenShift Container Platform (OCP) 4.12.x
+- Kubernetes 1.25.x-1.26.x
+
+More on the support of container orchestration systems can be 
+found [here](CLUSTER_SUPPORT.md).
+
+Deployments made by the devfile registry operator must *never* target the default namespace due to incompatibility with 
+security setups.
+
+### Development
+
+- Go 1.19.x
+- Docker / Podman
+- Operator SDK 1.28.x
+
+See [Upgrade SDK Version](https://sdk.operatorframework.io/docs/upgrading-sdk-version/) for a guide on updating the Operator SDK. Ensure the Operator SDK version and the version of Kubernetes APIs match each other when updating by checking [CLUSTER_SUPPORT.md](CLUSTER_SUPPORT.md).
+
 ## Running the controller in a cluster
 
 Install cert-manager to provision self-signed certificates for the validating webhooks which are used specifically for the `ClusterDevfileRegistriesList` and `DevfileRegistriesList` CRs.  Cert manager needs to be installed in order for the controller manager to start.
