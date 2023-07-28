@@ -23,7 +23,7 @@ import (
 	"github.com/devfile/registry-operator/pkg/util"
 	"github.com/devfile/registry-operator/tests/integration/pkg/client"
 	"github.com/devfile/registry-operator/tests/integration/pkg/config"
-	"github.com/onsi/ginkgo"
+	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 )
 
