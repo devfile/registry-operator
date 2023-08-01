@@ -31,7 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
-	"github.com/devfile/registry-operator/controllers"
+	"github.com/devfile/registry-operator/internal/controller"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -78,7 +78,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.DevfileRegistryReconciler{
+	if err = (&controller.DevfileRegistryReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DevfileRegistry"),
 		Scheme: mgr.GetScheme(),
@@ -86,7 +86,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DevfileRegistry")
 		os.Exit(1)
 	}
-	if err = (&controllers.DevfileRegistriesListReconciler{
+	if err = (&controller.DevfileRegistriesListReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DevfileRegistriesList"),
 		Scheme: mgr.GetScheme(),
@@ -94,7 +94,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DevfileRegistriesList")
 		os.Exit(1)
 	}
-	if err = (&controllers.ClusterDevfileRegistriesListReconciler{
+	if err = (&controller.ClusterDevfileRegistriesListReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("ClusterDevfileRegistriesList"),
 		Scheme: mgr.GetScheme(),
