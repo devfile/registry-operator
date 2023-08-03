@@ -3,7 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: registry-operator-system/registry-operator-serving-cert
-    controller-gen.kubebuilder.io/version: v0.10.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   name: devfileregistrieslists.registry.devfile.io
 spec:
@@ -13,7 +13,7 @@ spec:
       clientConfig:
         service:
           name: webhook-service
-          namespace: registry-operator-system
+          namespace: system
           path: /convert
       conversionReviewVersions:
       - v1
