@@ -29,6 +29,8 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - command:
         - /manager
@@ -40,9 +42,8 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
-            drop: ["ALL"]
-          seccompProfile:
-            type: "RuntimeDefault"
+            drop:
+              - "ALL"
         livenessProbe:
           httpGet:
             path: /healthz
