@@ -18,9 +18,9 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 
 #### First Time Setup
 1. Install prerequisites:
-   - Go 1.13 or higher
+   - Go 1.18 or higher
    - Docker or Podman
-   - Operator-SDK 1.11.0 or higher (including `controller-gen` 0.6.0 or higher)
+   - Operator-SDK 1.28.0 or higher (including `controller-gen` 0.10.0 or higher)
 
 2. Fork and clone this repository.
 
@@ -55,7 +55,7 @@ To run these tests, run the following commands :
 
 ```bash
 export IMG=<your-built-operator-image>
-make test_integration
+make test-integration
 ```
 
 
