@@ -120,6 +120,5 @@ make install
 4. Run the controller
 
 ```bash
-export NAMESPACE=devfileregistry-operator 
 make run ENABLE_WEBHOOKS=false
 ```
