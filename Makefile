@@ -80,7 +80,7 @@ $(LOCALBIN):
 ## Tool binaries
 KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
-ENVTEST ?= $(LOCALBIN)/envtest
+ENVTEST ?= $(LOCALBIN)/setup-envtest
 
 ##@ Development
 
