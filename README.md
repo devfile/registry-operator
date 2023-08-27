@@ -63,8 +63,8 @@ Some of the rules supported by the makefile:
 | controller-gen | install the controll-gen tool, used by other commands |
 | kustomize | install the kustomize tool, used by other commands |
 | docker-build | build registry operator docker image |
-| docker-buildx | build registry operator docker image for target architecture |
 | docker-push | push registry operator docker image |
+| docker-buildx | build & push registry operator docker image for all supported architectures \(**does not work with podman**\) |
 | deploy | deploy operator to cluster |
 | undeploy | undeploy operator from cluster |
 | install | create the devfile registry CRDs on the cluster |

@@ -147,23 +147,6 @@ vet: ## Run go vet against code
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
-# PLATFORMS defines the target platforms for the manager image be build to provide support to multiple
-# architectures. (i.e. make docker-buildx IMG=quay.io/devfile/registry-operator:next). To use this option you need to:
-# - able to use docker buildx . More info: https://docs.docker.com/build/buildx/
-# - have enable BuildKit, More info: https://docs.docker.com/develop/develop-images/build_enhancements/
-# - be able to push the image for your registry (i.e. if you do not inform a valid value via IMG=quay.io/<user>/registry-operator:next than the export will fail)
-# To properly provided solutions that supports more than one platform you should use this option.
-PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
-.PHONY: docker-buildx
-docker-buildx: test ## Build and push docker image for the manager for cross-platform support
-# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
-	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
-	- docker buildx create --name registry-operator
-	docker buildx use registry-operator
-	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross
-	- docker buildx rm registry-operator
-	rm Dockerfile.cross
-
 # Build the docker image
 .PHONY: docker-build
 docker-build:
@@ -173,6 +156,24 @@ docker-build:
 .PHONY: docker-push
 docker-push:
 	docker push ${IMG}
+
+# PLATFORMS defines the target platforms for the manager image be build to provide support to multiple
+# architectures. (i.e. make docker-buildx IMG=quay.io/devfile/registry-operator:next). To use this option you need to:
+# - able to use docker buildx . More info: https://docs.docker.com/build/buildx/
+# - have enable BuildKit, More info: https://docs.docker.com/develop/develop-images/build_enhancements/
+# - be able to push the image for your registry (i.e. if you do not inform a valid value via IMG=quay.io/<user>/registry-operator:next than the export will fail)
+# To properly provided solutions that supports more than one platform you should use this option.
+# **docker-buildx does not work with podman**
+PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
+.PHONY: docker-buildx
+docker-buildx: test ## Build and push docker image for the manager for cross-platform support
+# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
+	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
+	- docker buildx create --name registry-operator-builder
+	docker buildx use registry-operator-builder
+	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross $(shell pwd)
+	- docker buildx rm registry-operator-builder
+	rm Dockerfile.cross
 
 .PHONY: install-cert
 install-cert: ## Install cert manager for webhooks
