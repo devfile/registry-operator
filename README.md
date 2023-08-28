@@ -10,6 +10,10 @@ The Devfile Registry operator manages the lifecycle of the following custom reso
 
 Issue tracking repo: https://github.com/devfile/api with label area/registry
 
+## Changelog
+
+Access the [CHANGELOG.md](CHANGELOG.md) here.
+
 ## Requirements
 
 Deployment cluster must meet one of the following criteria:
