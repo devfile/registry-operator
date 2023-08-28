@@ -67,8 +67,12 @@ spec:
   - name: Devfile Registry Operator GitHub
     url: https://github.com/devfile/registry-operator
   maintainers:
+  - email: mvaldron@redhat.com
+    name: Michael Valdron
   - email: jcollier@redhat.com
     name: John Collier
+  - email: ktsao@redhat.com
+    name: Kim Tsao
   maturity: alpha
   provider:
     name: Red Hat
