@@ -16,7 +16,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2023-08-03T00:23:16Z"
+    createdAt: "2023-08-28T17:33:21Z"
     operators.operatorframework.io/builder: operator-sdk-v1.28.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: registry-operator.v0.0.1
@@ -199,7 +199,7 @@ spec:
           - subjectaccessreviews
           verbs:
           - create
-        serviceAccountName: registry-operator-default
+        serviceAccountName: registry-operator-service-account
       deployments:
       - label:
           app.kubernetes.io/name: devfileregistry-operator
@@ -291,7 +291,7 @@ spec:
                 runAsNonRoot: true
                 seccompProfile:
                   type: RuntimeDefault
-              serviceAccountName: registry-operator-default
+              serviceAccountName: registry-operator-service-account
               terminationGracePeriodSeconds: 10
               volumes:
               - name: cert
@@ -331,7 +331,7 @@ spec:
           verbs:
           - create
           - patch
-        serviceAccountName: registry-operator-default
+        serviceAccountName: registry-operator-service-account
     strategy: deployment
   installModes:
   - supported: false
