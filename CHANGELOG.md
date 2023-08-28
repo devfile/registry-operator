@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
  
-## [Unreleased] - yyyy-mm-dd
+## [Unreleased]
  
 ### Added
 - [devfile/api#1106](https://github.com/devfile/api/issues/1106)
