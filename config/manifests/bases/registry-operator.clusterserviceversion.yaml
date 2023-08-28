@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-  name: registry-operator.v0.0.1
+  name: registry-operator.v0.1.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -73,8 +73,8 @@ spec:
     name: John Collier
   - email: ktsao@redhat.com
     name: Kim Tsao
-  maturity: alpha
+  maturity: beta
   provider:
     name: Red Hat
     url: https://redhat.com
-  version: 0.0.1
+  version: 0.1.0
