@@ -37,7 +37,7 @@ var _ = Describe("ClusterDevfileRegistriesList validation webhook", func() {
 		})
 	})
 
-	Context("Create ClusterDevfileRegistriesList CR with valid values", func() {
+	Context("Create ClusterDevfileRegistriesList CR in forbidden default namespaces", func() {
 		It("Should fail to create a new CR in the default namespace", func() {
 			ctx := context.Background()
 			Expect(k8sClient.Create(ctx, getClusterDevfileRegistriesListCR("default-namespace-list", "default",
