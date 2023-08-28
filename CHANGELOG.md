@@ -25,4 +25,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - [devfile/api#1106](https://github.com/devfile/api/issues/1106)
   Registry operator should be in sync with operator SDK releases
-  - Registry operator service account changed from `default` to `sa` to fix permissions error for creating leader election leases
+  - Registry operator service account changed from `default` to `service-account` to fix permissions error for creating leader election leases
