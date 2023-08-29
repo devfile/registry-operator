@@ -1,5 +1,5 @@
 /*
-Copyright 2022 Red Hat, Inc.
+Copyright 2022-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import (
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.status",description="The status for the Cluster Devfile Registries List"
 
 // ClusterDevfileRegistriesList is a custom resource where cluster admins can add a list of Devfile Registries to allow devfiles to be visible
-// at the cluster level.  In order to be added to the list, the Devfile Registries must be reachable and support the Devfile v2.0 spec and above.
+// at the cluster level.  In order to be added to the list, the Devfile Registries must be reachable, supports the Devfile v2.0 spec and above,
+// and is not using the default namespace.
 type ClusterDevfileRegistriesList struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

@@ -128,7 +128,9 @@ type DevfileRegistryStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// DevfileRegistry is the Schema for the devfileregistries API
+// DevfileRegistry is a custom resource where namespace users can add a Devfile Registry to allow devfiles to be visible at the
+// namespace level.  In order to be added to the namespace, the Devfile Registry must be reachable, supports the Devfile v2.0 spec
+// and above, and is not using the default namespace.
 // +kubebuilder:resource:path=devfileregistries,shortName=devreg;dr
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="URL",type="string",JSONPath=".status.url",description="The URL for the Devfile Registry"
