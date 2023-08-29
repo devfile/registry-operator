@@ -140,7 +140,7 @@ The Devfile stacks are stored in OCI images served by the OCI registry container
 
 You can ask the operator to create a Persistent Volume and to mount it into the `oci-registry` container's filesystem, so the OCI images are stored into this persistent volume, by setting the field `spec.storage.enabled` to `true`.
 
-By default, the requested size for the Persistent Volume will be `1Gi`. You can ask to set a specific size with the field `spec.storage.ociRegistryImage`
+By default, the requested size for the Persistent Volume will be `1Gi`. You can ask to set a specific size with the field `spec.storage.registryVolumeSize`
 
 ```bash
 $ cat <<EOF | oc apply -f -
@@ -155,7 +155,7 @@ spec:
     registryName: test
   storage:
     enabled: true
-    ociRegistryImage: 2Gi
+    registryVolumeSize: 2Gi
 EOF
 ```
 
@@ -185,7 +185,7 @@ EOF
 ```
 
 You can ask the operator to configure the TLS with a specific certificate, by specifying a secret
-containing the certificate and the associated private key using the field `spec.tls.ociRegistryImage`:
+containing the certificate and the associated private key using the field `spec.tls.secretName`:
 
 ```bash
 $ kubectl create secret tls my-tls-secret --key=certs/ingress-tls.key --cert=certs/ingress-tls.crt
@@ -202,7 +202,7 @@ spec:
     registryName: test
   tls:
     enabled: true
-    ociRegistryImage: my-tls-secret
+    secretName: my-tls-secret
 EOF
 ```
 

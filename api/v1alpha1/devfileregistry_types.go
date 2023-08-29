@@ -81,7 +81,7 @@ type DevfileRegistrySpecStorage struct {
 	// Configures the size of the devfile registry's persistent volume, if enabled.
 	// Defaults to 1Gi.
 	// +optional
-	RegistryVolumeSize string `json:"ociRegistryImage,omitempty"`
+	RegistryVolumeSize string `json:"registryVolumeSize,omitempty"`
 }
 
 // DevfileRegistrySpecTLS defines the desired state for TLS in the DevfileRegistry
@@ -93,7 +93,7 @@ type DevfileRegistrySpecTLS struct {
 
 	// Name of an optional, pre-existing TLS secret to use for TLS termination on ingress/route resources.
 	// +optional
-	SecretName string `json:"ociRegistryImage,omitempty"`
+	SecretName string `json:"secretName,omitempty"`
 }
 
 // DevfileRegistrySpecK8sOnly defines the desired state of the kubernetes-only fields of the DevfileRegistry
