@@ -134,31 +134,6 @@ spec:
 EOF
 ```
 
-## Using a Persistent Volume to store OCI images
-
-The Devfile stacks are stored in OCI images served by the OCI registry container. By default, an Ephemeral volume is created and used to store these images.
-
-You can ask the operator to create a Persistent Volume and to mount it into the `oci-registry` container's filesystem, so the OCI images are stored into this persistent volume, by setting the field `spec.storage.enabled` to `true`.
-
-By default, the requested size for the Persistent Volume will be `1Gi`. You can ask to set a specific size with the field `spec.storage.registryVolumeSize`
-
-```bash
-$ cat <<EOF | oc apply -f -
-apiVersion: registry.devfile.io/v1alpha1
-kind: DevfileRegistry
-metadata:
-  name: devfile-registry
-spec:
-  devfileIndex:
-    image: quay.io/devfile/devfile-index:next
-  telemetry:
-    registryName: test
-  storage:
-    enabled: true
-    registryVolumeSize: 2Gi
-EOF
-```
-
 ## Configuring TLS for Ingress/Route resource
 
 The operator creates a Route resource (on OpenShift) or an Ingress resources (on Kubernetes)
