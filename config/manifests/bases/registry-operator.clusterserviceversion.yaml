@@ -19,11 +19,10 @@ spec:
       kind: ClusterDevfileRegistriesList
       name: clusterdevfileregistrieslists.registry.devfile.io
       version: v1alpha1
-    - description: DevfileRegistry is a custom resource where namespace users
-        can add a Devfile Registry to allow devfiles to be visible at the
-        namespace level.  In order to be added to the namespace, the Devfile Registry
-        must be reachable, supports the Devfile v2.0 spec and above, and is not using
-        the default namespace.
+    - description: DevfileRegistry is a custom resource where namespace users can
+        add a Devfile Registry to allow devfiles to be visible at the namespace level.  In
+        order to be added to the namespace, the Devfile Registry must be reachable,
+        supports the Devfile v2.0 spec and above, and is not using the default namespace.
       displayName: Devfile Registry
       kind: DevfileRegistry
       name: devfileregistries.registry.devfile.io
