@@ -60,6 +60,8 @@ Some of the rules supported by the makefile:
 
 |rule|purpose|
 |---|---|
+| controller-gen | install the controll-gen tool, used by other commands |
+| kustomize | install the kustomize tool, used by other commands |
 | docker-build | build registry operator docker image |
 | docker-push | push registry operator docker image |
 | deploy | deploy operator to cluster |
@@ -71,8 +73,12 @@ Some of the rules supported by the makefile:
 | manifests | Generate manifests e.g. CRD, RBAC etc. |
 | generate | Generate the API type definitions. Must be run after modifying the DevfileRegistry type. |
 | bundle | Generate bundle manifests and metadata, then validate generated files. |
-| test_integration | Run the integration tests for the operator. |
+| test-integration | Run the integration tests for the operator. |
 | test | Run the unit tests for the operator. |
+| fmt | Check code formatting |
+| fmt_license | Ensure license header is set on all files |
+| vet | Check suspicious constructs into code |
+| gosec | Check for security problems in non-test source files |
 
 To see all rules supported by the makefile, run `make help`
 
@@ -80,25 +86,39 @@ To see all rules supported by the makefile, run `make help`
 
 To run integration tests for the operator, run `make test-integration`. 
 
-By default, the tests will use the default image for the operator, `quay.io/devfile/registry-operator:next`. To use your own image, run:
+The `oc` executable must be accessible.
+
+By default, the tests will use the default image for the operator, `quay.io/devfile/registry-operator:next`.
+
+You can use `make docker-build` to build your own image, `make docker-push` to publish it. Then, to use your own image, run:
 
 ```
-export IMG=<your-operator-image>
-make test-integration
+IMG=<your-operator-image> make test-integration
 ```
 
 ### Run operator locally
 It's possible to run an instance of the operator locally while communicating with a cluster. 
 
-1. Build the binary
+1. You may need to install the `controller-gen` tool before, used when building the binary:
+
+```bash
+make controller-gen
+```
+
+2. Build the binary
 
 ```bash
 make manager
 ```
 
-2. Run the controller
+3. Deploy the CRDs
 
 ```bash
-export NAMESPACE=devfileregistry-operator
+make install
+```
+
+4. Run the controller
+
+```bash
 make run ENABLE_WEBHOOKS=false
 ```

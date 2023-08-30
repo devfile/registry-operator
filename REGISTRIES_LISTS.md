@@ -1,13 +1,13 @@
 # Registries Lists
 
-The Cluster/Devfile Registries Lists allow admins to specify multiple devfile registries to expose devfiles from various sources for use within the cluster or namespace.  In order to be added to the list, the devfile registries must be reachable and support the Devfile v2.0 spec and above.
+The Devfile Registries Lists allow admins to specify multiple devfile registries to expose devfiles from various sources for use within the cluster or namespace.  In order to be added to the list, the devfile registries must be reachable and support the Devfile v2.0 spec and above.
 
 >**ClusterDevfileRegistriesList** is a custom resource where cluster admins can add a list of devfile registries to allow devfiles to be visible at the cluster level.  
 
 
 > **DevfileRegistriesList** is a custom resource where cluster admins can add a list of devfile registries to allow devfiles to be visible at the namespace level.  Registries in this list will take precedence over the ones in the ClusterDevfileRegistriesList if there is a conflict.
 
-## Deploying a Cluster or Devfile Registries List
+## Deploying a Cluster or Namespaced Devfile Registries List
 
 Note the following limitations when deploying a new list type:
 * Only one ClusterDevfileRegistriesList can be installed per cluster.  If there is an existing list, you will encounter a validation error.
@@ -49,7 +49,41 @@ spec:
 EOF
 ```
 
+#### Skipping the TLS Verification
 
+The operator contacts each Devfile Registry of the list, to check its validity.
+
+In a non-production environment, you may want the operator to Skip the TLS Verification during this call, by setting the field `skipTLSVerify` for the Devfile Registry:
+
+```bash
+$ cat <<EOF | kubectl apply -f -
+apiVersion: registry.devfile.io/v1alpha1
+kind: ClusterDevfileRegistriesList
+metadata:
+  name: cluster-list
+spec:
+  devfileRegistries:
+    - name: devfile-staging
+      url: 'https://registry.stage.devfile.io'
+      skipTLSVerify: true
+EOF
+```
+ 
+ or
+
+```bash
+$ cat <<EOF | kubectl apply -f -
+apiVersion: registry.devfile.io/v1alpha1
+kind: DevfileRegistriesList
+metadata:
+  name: namespace-list
+spec:
+  devfileRegistries:
+    - name: devfile-staging
+      url: 'https://registry.stage.devfile.io'
+      skipTLSVerify: true
+EOF
+```
 
 ## Updating the Cluster or Devfile Registries List
 

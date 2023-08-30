@@ -108,7 +108,7 @@ spec:
                     description: Instructs the operator to deploy the DevfileRegistry
                       with persistent storage Disabled by default.
                     type: boolean
-                  ociRegistryImage:
+                  registryVolumeSize:
                     description: Configures the size of the devfile registry's persistent
                       volume, if enabled. Defaults to 1Gi.
                     type: string
@@ -142,7 +142,7 @@ spec:
                       with TLS enabled. Enabled by default. Disabling is only recommended
                       for development or test.
                     type: boolean
-                  ociRegistryImage:
+                  secretName:
                     description: Name of an optional, pre-existing TLS secret to use
                       for TLS termination on ingress/route resources.
                     type: string
