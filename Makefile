@@ -92,6 +92,8 @@ test: manifests generate fmt vet envtest ## Run tests.
 .PHONY: test-integration
 test-integration:
 	CGO_ENABLED=0 go test -v -c -o $(LOCALBIN)/devfileregistry-operator-integration ./tests/integration/cmd/devfileregistry_test.go
+# Create junit report output file if does not exist
+	touch /tmp/artifacts/junit-devfileregistry-operator.xml
 	$(LOCALBIN)/devfileregistry-operator-integration -ginkgo.fail-fast --ginkgo.junit-report=/tmp/artifacts/junit-devfileregistry-operator.xml
 
 ##@ Build
