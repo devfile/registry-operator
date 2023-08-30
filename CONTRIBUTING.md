@@ -17,10 +17,7 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 ### Development
 
 #### First Time Setup
-1. Install prerequisites:
-   - Go 1.18 or higher
-   - Docker or Podman
-   - Operator-SDK 1.28.0 or higher (including `controller-gen` 0.10.0 or higher)
+1. Install prerequisites: see [Requirements section in README](README.md#requirements).
 
 2. Fork and clone this repository.
 
@@ -35,9 +32,11 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 
 4. Run `make docker-push` to push the devfile registry operator image.
 
-5. Run `make install` to install the CRDs
+5. Run `make install-cert` to install the cert-manager.
 
-6. Run `make deploy` to deploy the operator.
+6. Run `make install` to install the CRDs.
+
+7. Run `make deploy` to deploy the operator.
 
 ### Testing your Changes
 
