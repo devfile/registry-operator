@@ -32,11 +32,13 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 
 4. Run `make docker-push` to push the devfile registry operator image.
 
-5. Run `make install-cert` to install the cert-manager.
+5. (Optional, **docker only**) Run `make docker-buildx` to build and push the devfile registry operator multi-architecture image
 
-6. Run `make install` to install the CRDs.
+6. Run `make install-cert` to install the cert-manager.
 
-7. Run `make deploy` to deploy the operator.
+7. Run `make install` to install the CRDs.
+
+8. Run `make deploy` to deploy the operator.
 
 ### Testing your Changes
 

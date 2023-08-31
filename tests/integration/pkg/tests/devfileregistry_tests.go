@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import (
 	"github.com/devfile/registry-operator/pkg/util"
 	"github.com/devfile/registry-operator/tests/integration/pkg/client"
 	"github.com/devfile/registry-operator/tests/integration/pkg/config"
-	"github.com/onsi/ginkgo"
+	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 )
 

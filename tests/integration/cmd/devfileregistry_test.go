@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/devfile/registry-operator/tests/integration/pkg/config"
@@ -27,19 +26,11 @@ import (
 	"github.com/devfile/registry-operator/tests/integration/pkg/tests"
 
 	"github.com/devfile/registry-operator/tests/integration/pkg/client"
-	_ "github.com/devfile/registry-operator/tests/integration/pkg/tests"
-	"github.com/onsi/ginkgo"
-	"github.com/onsi/ginkgo/reporters"
+	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 )
 
 // Integration/e2e test logic based on https://github.com/devfile/devworkspace-operator/tree/master/test/e2e
-
-// Create Constant file
-const (
-	testResultsDirectory = "/tmp/artifacts"
-	jUnitOutputFilename  = "junit-devfileregistry-operator.xml"
-)
 
 // SynchronizedBeforeSuite blocks is executed before run all test suites
 var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
@@ -86,10 +77,6 @@ var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 func TestDevfileRegistryController(t *testing.T) {
 	gomega.RegisterFailHandler(ginkgo.Fail)
 
-	fmt.Println("Creating ginkgo reporter for Test Harness: Junit and Debug Detail reporter")
-	var r []ginkgo.Reporter
-	r = append(r, reporters.NewJUnitReporter(filepath.Join(testResultsDirectory, jUnitOutputFilename)))
-
 	fmt.Println("Running Devfile Registry integration tests...")
-	ginkgo.RunSpecsWithDefaultAndCustomReporters(t, "Devfile Registry Operator Tests", r)
+	ginkgo.RunSpecs(t, "Devfile Registry Operator Tests")
 }

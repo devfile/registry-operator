@@ -18,7 +18,10 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 IMG ?= quay.io/devfile/registry-operator:next
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.26
-
+# Controller tools version number
+CONTROLLER_TOOLS_VERSION ?= v0.9.2
+# Kustomize version number
+KUSTOMIZE_VERSION ?= v3.8.7
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -67,32 +70,48 @@ all: build
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
+##@ Build Dependencies
+
+## Local binary path
+LOCALBIN ?= $(shell pwd)/bin
+$(LOCALBIN):
+	mkdir -p $(LOCALBIN)
+
+## Tool binaries
+KUSTOMIZE ?= $(LOCALBIN)/kustomize
+CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
+ENVTEST ?= $(LOCALBIN)/setup-envtest
+
 ##@ Development
 
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test `go list ./... | grep -v /tests/` -coverprofile cover.out -v
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test -timeout=1h `go list ./... | grep -v /tests/` -coverprofile cover.out -v
 
 ### test-integration: runs integration tests on the cluster set in context.
+.PHONY: test-integration
 test-integration:
-	CGO_ENABLED=0 go test -v -c -o bin/devfileregistry-operator-integration ./tests/integration/cmd/devfileregistry_test.go
-	./bin/devfileregistry-operator-integration
+	CGO_ENABLED=0 go test -v -c -o $(LOCALBIN)/devfileregistry-operator-integration ./tests/integration/cmd/devfileregistry_test.go
+# Create junit report output file if does not exist
+	mkdir -p /tmp/artifacts && touch /tmp/artifacts/junit-devfileregistry-operator.xml
+	$(LOCALBIN)/devfileregistry-operator-integration -ginkgo.fail-fast --ginkgo.junit-report=/tmp/artifacts/junit-devfileregistry-operator.xml
 
 ##@ Build
 
-.PHONY: build
-manager: generate fmt vet ## Build manager binary.
-	go build -o bin/manager main.go
+.PHONY: build manager
+manager: manifests generate fmt vet ## Build manager binary.
+	go build -o $(LOCALBIN)/manager ./cmd/main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./main.go
+	go run ./cmd/main.go
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 ### check_fmt: Checks the formatting on files in repo
+.PHONY: check_fmt
 check_fmt:
   ifeq ($(shell command -v goimports 2> /dev/null),)
 	  $(error "goimports must be installed for this rule" && exit 1)
@@ -113,6 +132,7 @@ fmt: ## Run go fmt against code.
 	go fmt ./...
 
 ### fmt_license: ensure license header is set on all files
+.PHONY: fmt_license
 fmt_license:
 ifneq ($(shell command -v addlicense 2> /dev/null),)
 	@echo 'addlicense -v -f license_header.txt **/*.go'
@@ -139,30 +159,39 @@ docker-build:
 docker-push:
 	docker push ${IMG}
 
+# PLATFORMS defines the target platforms for the manager image be build to provide support to multiple
+# architectures. (i.e. make docker-buildx IMG=quay.io/devfile/registry-operator:next). To use this option you need to:
+# - able to use docker buildx . More info: https://docs.docker.com/build/buildx/
+# - have enable BuildKit, More info: https://docs.docker.com/develop/develop-images/build_enhancements/
+# - be able to push the image for your registry (i.e. if you do not inform a valid value via IMG=quay.io/<user>/registry-operator:next than the export will fail)
+# To properly provided solutions that supports more than one platform you should use this option.
+# **docker-buildx does not work with podman**
+PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
+.PHONY: docker-buildx
+docker-buildx: test ## Build and push docker image for the manager for cross-platform support
+# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
+	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
+	- docker buildx create --name registry-operator-builder
+	docker buildx use registry-operator-builder
+	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross $(shell pwd)
+	- docker buildx rm registry-operator-builder
+	rm Dockerfile.cross
+
+.PHONY: install-cert
 install-cert: ## Install cert manager for webhooks
 	$(K8S_CLI) apply -f https://github.com/cert-manager/cert-manager/releases/download/$(CERT_MANAGER_VERSION)/cert-manager.yaml
 
+.PHONY: uninstall-cert
 uninstall-cert:
 	$(K8S_CLI) delete -f https://github.com/cert-manager/cert-manager/releases/download/$(CERT_MANAGER_VERSION)/cert-manager.yaml
 
 # find or download controller-gen
 # download controller-gen if necessary
-controller-gen:
-ifeq (, $(shell which controller-gen))
-	@{ \
-	set -e ;\
-	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
-	cd $$CONTROLLER_GEN_TMP_DIR ;\
-	go mod init tmp ;\
-	GOFLAGS="" go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.10.0 ;\
-	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
-	}
-CONTROLLER_GEN=$(GOBIN)/controller-gen
-else
-CONTROLLER_GEN=$(shell which controller-gen)
-endif
-
-
+.PHONY: controller-gen
+controller-gen: $(CONTROLLER_GEN)
+$(CONTROLLER_GEN): $(LOCALBIN)
+	test -s $(LOCALBIN)/controller-gen && $(LOCALBIN)/controller-gen --version | grep -q $(CONTROLLER_TOOLS_VERSION) || \
+GOBIN=$(LOCALBIN) GOFLAGS="" go install sigs.k8s.io/controller-tools/cmd/controller-gen@$(CONTROLLER_TOOLS_VERSION)
 
 ##@ Deployment
 
@@ -183,41 +212,16 @@ deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/default | $(K8S_CLI) delete -f -
 
+KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
+.PHONY: kustomize
+kustomize: $(KUSTOMIZE)
+$(KUSTOMIZE): $(LOCALBIN)
+	test -s $(LOCALBIN)/kustomize || { curl -s $(KUSTOMIZE_INSTALL_SCRIPT) | bash -s -- $(subst v,,$(KUSTOMIZE_VERSION)) $(LOCALBIN); }
 
-kustomize:
-ifeq (, $(shell which kustomize))
-	@{ \
-	set -e ;\
-	KUSTOMIZE_GEN_TMP_DIR=$$(mktemp -d) ;\
-	cd $$KUSTOMIZE_GEN_TMP_DIR ;\
-	go mod init tmp ;\
-	GOFLAGS="" go install sigs.k8s.io/kustomize/kustomize/v4@v4.5.5 ;\
-	go mod vendor ;\
-	rm -rf $$KUSTOMIZE_GEN_TMP_DIR ;\
-	}
-KUSTOMIZE=$(GOBIN)/kustomize
-else
-KUSTOMIZE=$(shell which kustomize)
-endif
-
-ENVTEST = $(shell pwd)/bin/setup-envtest
 .PHONY: envtest
-envtest: ## Download envtest-setup locally if necessary.
-	$(call go-get-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest@latest)
-
-# go-get-tool will 'go install' any package $2 and install it to $1.
-PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
-define go-get-tool
-@[ -f $(1) ] || { \
-set -e ;\
-TMP_DIR=$$(mktemp -d) ;\
-cd $$TMP_DIR ;\
-go mod init tmp ;\
-echo "Downloading $(2)" ;\
-GOBIN=$(PROJECT_DIR)/bin go install $(2) ;\
-rm -rf $$TMP_DIR ;\
-}
-endef
+envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
+$(ENVTEST): $(LOCALBIN)
+	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) GOFLAGS="" go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 
 # Generate bundle manifests and metadata, then validate generated files.
 .PHONY: bundle

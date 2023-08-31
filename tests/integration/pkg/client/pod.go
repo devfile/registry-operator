@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-// WaitForPodRunningByLabel waits for the pod matching the specified label to become running
+// WaitForPodRunningByLabelWithNamespace waits for the pod matching the specified label in a specified namespace to become running
 // An error is returned if the pod does not exist or the timeout is reached
-func (w *K8sClient) WaitForPodRunningByLabel(label string) (deployed bool, err error) {
+func (w *K8sClient) WaitForPodRunningByLabelWithNamespace(label string, namespace string) (deployed bool, err error) {
 	timeout := time.After(6 * time.Minute)
 	tick := time.Tick(1 * time.Second)
 
@@ -40,12 +40,18 @@ func (w *K8sClient) WaitForPodRunningByLabel(label string) (deployed bool, err e
 		case <-timeout:
 			return false, errors.New("timed out")
 		case <-tick:
-			err := w.WaitForRunningPodBySelector(config.Namespace, label, 3*time.Minute)
+			err := w.WaitForRunningPodBySelector(namespace, label, 3*time.Minute)
 			if err == nil {
 				return true, nil
 			}
 		}
 	}
+}
+
+// WaitForPodRunningByLabel waits for the pod matching the specified label to become running
+// An error is returned if the pod does not exist or the timeout is reached
+func (w *K8sClient) WaitForPodRunningByLabel(label string) (deployed bool, err error) {
+	return w.WaitForPodRunningByLabelWithNamespace(label, config.Namespace)
 }
 
 // WaitForRunningPodBySelector waits up to timeout seconds for all pods in 'namespace' with given 'selector' to enter running state.

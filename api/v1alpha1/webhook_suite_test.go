@@ -30,7 +30,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
@@ -158,7 +158,7 @@ var _ = BeforeSuite(func() {
 		return nil
 	}).Should(Succeed())
 
-}, 60)
+})
 
 var _ = AfterSuite(func() {
 	// delete the devfileregistries namespace

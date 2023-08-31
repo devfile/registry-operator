@@ -26,4 +26,12 @@ make controller-gen
 make install-cert
 # wait one minute for cert manager to get set up
 sleep 60
+# need to deploy the registry operator to run tests
+# ToDo: Remove later after the addition of readiness check, integration tests can deploy the operator however tests fail if 
+# pod is not ready in time.
+make install && make deploy
+# wait 15 seconds for registry operator to get set up
+sleep 15
+
+# run integration test suite
 make test-integration

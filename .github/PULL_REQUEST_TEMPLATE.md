@@ -8,6 +8,8 @@ Fixes #?
 
 **PR acceptance criteria**:
 
+- [ ] Change Log
+    - Are all your changes documented under the [upcoming release](../CHANGELOG.md#unreleased) entry?
 - [ ] Test Coverage 
     - Are your changes sufficiently tested, and are any applicable test cases added or updated to cover your changes?
 - [ ] Gosec scans 

@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2022 Red Hat, Inc.
+Copyright 2020-2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import (
 	"github.com/devfile/registry-operator/tests/integration/pkg/config"
 )
 
+const OperatorNamespace = "registry-operator-system"
+
 // CreateNamespace ensures that the namespace that the tests will run in already exiss
 func (w *Deployment) CreateNamespace() error {
 	_, err := w.kubeClient.Kube().CoreV1().Namespaces().Create(context.TODO(), &corev1.Namespace{
@@ -54,7 +56,7 @@ func (w *Deployment) DeployDevfileRegistryOperator() error {
 		return err
 	}
 
-	deploy, err := w.kubeClient.WaitForPodRunningByLabel(label)
+	deploy, err := w.kubeClient.WaitForPodRunningByLabelWithNamespace(label, OperatorNamespace)
 	fmt.Println("Devfile Registry pod to be ready")
 	if !deploy || err != nil {
 		fmt.Println("Devfile Registry not deployed")
