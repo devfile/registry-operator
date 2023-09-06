@@ -1,10 +1,12 @@
 # Devfile Registry
 
-The Devfile Registry custom resource allows you to create and manage your own index server and registry viewer.
+DevfileRegistry is a custom resource allows you to create and manage your own index server and registry viewer. In order to be added, the Devfile 
+Registry must be reachable, supports the Devfile v2.0 spec and above, and is not using the default namespace.
 
 ## Deploying a Devfile Registry
 
-Once the Devfile Registry operator has been deployed to a cluster, you can deploy a Devfile Registry by creating custom resources. The following samples below showcase how the registry can be deployed on to an OpenShift or Kubernetes cluster.
+Once the Devfile Registry operator has been deployed to a cluster, you can deploy a Devfile Registry by creating custom resources. The following 
+samples below showcase how the registry can be deployed on to an OpenShift or Kubernetes cluster.
 
 In addition to the examples below, the `samples/` folder in this repo provides some example devfile registry yaml files for convenience.
 
