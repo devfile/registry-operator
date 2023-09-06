@@ -1,6 +1,8 @@
 apiVersion: registry.devfile.io/v1alpha1
-kind: clusterDevfileRegistriesList
+kind: ClusterDevfileRegistriesList
 metadata:
-  name: clusterdevfileregistrieslist-sample
+  name: sample-clusterdevfileregistrieslist
 spec:
-  # TODO(user): Add fields here
+  devfileRegistries:
+    - name: devfile-staging
+      url: https://registry.stage.devfile.io
