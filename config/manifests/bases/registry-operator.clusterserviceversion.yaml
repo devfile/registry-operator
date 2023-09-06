@@ -2,8 +2,55 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
   annotations:
-    alm-examples: '[]'
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "registry.devfile.io/v1alpha1",
+          "kind": "DevfileRegistry",
+          "metadata": {
+            "name": "sample-devfileregistry"
+          },
+          "spec": {
+            "devfileIndexImage": "quay.io/devfile/devfile-index:next"
+          }
+        },
+        {
+          "apiVersion": "registry.devfile.io/v1alpha1",
+          "kind": "DevfileRegistriesList",
+          "metadata": {
+            "name": "sample-devfileregistrieslist"
+          },
+          "spec": {
+            "devfileRegistries": [
+              {
+                "name": "devfile-staging",
+                "url": "https://registry.stage.devfile.io"
+              }
+            ]
+          }
+        },
+        {
+          "apiVersion": "registry.devfile.io/v1alpha1",
+          "kind": "ClusterDevfileRegistriesList",
+          "metadata": {
+            "name": "sample-clusterdevfileregistrieslist"
+          },
+          "spec": {
+            "devfileRegistries": [
+              {
+                "name": "devfile-staging",
+                "url": "https://registry.stage.devfile.io"
+              }
+            ]
+          }
+        },
+      ]
     capabilities: Basic Install
+    catagories: OpenShift Optional,Developer Tools
+    containerImage: quay.io/devfile/registry-operator:v0.1.0
+    createdAt: "2023-09-06T19:45:06Z"
+    repository: https://github.com/devfile/registry-operator
+    support: Red Hat
   name: registry-operator.v0.1.0
   namespace: placeholder
 spec:
@@ -19,10 +66,10 @@ spec:
       kind: ClusterDevfileRegistriesList
       name: clusterdevfileregistrieslists.registry.devfile.io
       version: v1alpha1
-    - description: DevfileRegistry is a custom resource where namespace users can
-        add a Devfile Registry to allow devfiles to be visible at the namespace level.  In
-        order to be added to the namespace, the Devfile Registry must be reachable,
-        supports the Devfile v2.0 spec and above, and is not using the default namespace.
+    - description: DevfileRegistry is a custom resource allows you to create and manage
+        your own index server and registry viewer. In order to be added, the Devfile
+        Registry must be reachable, supports the Devfile v2.0 spec and above, and
+        is not using the default namespace.
       displayName: Devfile Registry
       kind: DevfileRegistry
       name: devfileregistries.registry.devfile.io
@@ -62,15 +109,18 @@ spec:
   - cloud-native
   - stack
   - odo
+  - che
   - openshift
   - microservice
   links:
   - name: Devfile
     url: https://devfile.io
-  - name: Devfile Registry GitHub
-    url: https://github.com/devfile/registry
   - name: Devfile Registry Operator GitHub
     url: https://github.com/devfile/registry-operator
+  - name: Devfile Registry Support Services GitHub
+    url: https://github.com/devfile/registry-support
+  - name: Devfile Community Registry GitHub
+    url: https://github.com/devfile/registry
   maintainers:
   - email: mvaldron@redhat.com
     name: Michael Valdron
