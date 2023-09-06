@@ -48,7 +48,7 @@ metadata:
     capabilities: Full Lifecycle
     catagories: OpenShift Optional,Developer Tools
     containerImage: quay.io/devfile/registry-operator:v0.1.0
-    createdAt: "2023-09-06T22:31:23Z"
+    createdAt: "2023-09-06T22:35:05Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
     operators.operatorframework.io/builder: operator-sdk-v1.28.0
@@ -87,10 +87,7 @@ spec:
       kind: DevfileRegistriesList
       name: devfileregistrieslists.registry.devfile.io
       version: v1alpha1
-  description: |2-
-
-    # Devfile Registry Operator
-
+  description: |-
     A devfile registry is a service that stores and provides devfile stacks to Kubernetes developer tools like `odo`, Eclipse Che, and the OpenShift Developer Console. Using this
     operator you can deploy and manage devfile registries on Kubernetes and OpenShift.
 
@@ -105,7 +102,7 @@ spec:
       ```
 
     For more on setup and usage see our [README](https://github.com/devfile/registry-operator/blob/main/README.md).
-  displayName: Devfile Registry
+  displayName: Devfile Registry Operator
   icon:
   - base64data: iVBORw0KGgoAAAANSUhEUgAAALEAAACxCAYAAACLKVzFAAAlXElEQVR4nOydCZjbVbn/v+/5Zabb
       JJlWWqACsheZNkkZriyKlEVkES+LLbIptM2kLJYd5f4Fq/deLyC7lDbJFKSAQFFxQeHKUhRcWEon
