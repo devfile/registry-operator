@@ -11,7 +11,9 @@ metadata:
             "name": "sample-devfileregistry"
           },
           "spec": {
-            "devfileIndexImage": "quay.io/devfile/devfile-index:next"
+            "devfileIndex": {
+              "image": "quay.io/devfile/devfile-index:next"
+            }
           }
         },
         {
@@ -48,7 +50,7 @@ metadata:
     capabilities: Full Lifecycle
     catagories: OpenShift Optional,Developer Tools
     containerImage: quay.io/devfile/registry-operator:v0.1.0
-    createdAt: "2023-09-06T22:35:05Z"
+    createdAt: "2023-09-06T22:43:40Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
     operators.operatorframework.io/builder: operator-sdk-v1.28.0
@@ -87,21 +89,13 @@ spec:
       kind: DevfileRegistriesList
       name: devfileregistrieslists.registry.devfile.io
       version: v1alpha1
-  description: |-
-    A devfile registry is a service that stores and provides devfile stacks to Kubernetes developer tools like `odo`, Eclipse Che, and the OpenShift Developer Console. Using this
-    operator you can deploy and manage devfile registries on Kubernetes and OpenShift.
-
-    Basic usage:
-      ```
-      apiVersion: registry.devfile.io/v1alpha1
-      kind: DevfileRegistry
-      metadata:
-        name: sample-devfileregistry
-      spec:
-        devfileIndexImage: quay.io/devfile/devfile-index:next
-      ```
-
-    For more on setup and usage see our [README](https://github.com/devfile/registry-operator/blob/main/README.md).
+  description: "A devfile registry is a service that stores and provides devfile stacks
+    to Kubernetes developer tools like `odo`, Eclipse Che, and the OpenShift Developer
+    Console. Using this\noperator you can deploy and manage devfile registries on
+    Kubernetes and OpenShift.\n\nBasic usage:\n  ```\n  apiVersion: registry.devfile.io/v1alpha1\n
+    \ kind: DevfileRegistry\n  metadata:\n    name: sample-devfileregistry\n  spec:\n
+    \   devfileIndex: \n      image: quay.io/devfile/devfile-index:next\n  ```\n\nFor
+    more on setup and usage see our [README](https://github.com/devfile/registry-operator/blob/main/README.md)."
   displayName: Devfile Registry Operator
   icon:
   - base64data: iVBORw0KGgoAAAANSUhEUgAAALEAAACxCAYAAACLKVzFAAAlXElEQVR4nOydCZjbVbn/v+/5Zabb
