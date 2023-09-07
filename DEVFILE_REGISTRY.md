@@ -1,7 +1,7 @@
 # Devfile Registry
 
-DevfileRegistry is a custom resource allows you to create and manage your own index server and registry viewer. In order to be added, the Devfile 
-Registry must be reachable, supports the Devfile v2.0 spec and above, and is not using the default namespace.
+DevfileRegistry is a custom resource allowing you to create and manage your own index server and registry viewer. In order to be added, the 
+Devfile Registry must be reachable, must support the Devfile v2.0 spec and above, and cannot be deployed to the default namespace.
 
 ## Deploying a Devfile Registry
 

@@ -16,6 +16,6 @@ Fixes #?
   - Fix all MEDIUM and higher findings and/or annotate a finding per gosec instructions: https://github.com/securego/gosec#annotating-code to address why a finding is not a security issue
 
 Documentation
-- [ ] Does the registry operator documentation need to updated with your changes?
+- [ ] Does the registry operator documentation need to be updated with your changes?
 
 **How to test changes / Special notes to the reviewer**:
