@@ -26,7 +26,10 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DevfileRegistry is the Schema for the devfileregistries API
+        description: DevfileRegistry is a custom resource allows you to create and
+          manage your own index server and registry viewer. In order to be added,
+          the Devfile Registry must be reachable, supports the Devfile v2.0 spec and
+          above, and is not using the default namespace.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation

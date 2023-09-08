@@ -1,6 +1,8 @@
 apiVersion: registry.devfile.io/v1alpha1
 kind: DevfileRegistriesList
 metadata:
-  name: devfileregistrieslist-sample
+  name: sample-devfileregistrieslist
 spec:
-  # TODO(user): Add fields here
+  devfileRegistries:
+    - name: devfile-staging
+      url: https://registry.stage.devfile.io

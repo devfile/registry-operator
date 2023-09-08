@@ -36,7 +36,8 @@ spec:
         description: ClusterDevfileRegistriesList is a custom resource where cluster
           admins can add a list of Devfile Registries to allow devfiles to be visible
           at the cluster level.  In order to be added to the list, the Devfile Registries
-          must be reachable and support the Devfile v2.0 spec and above.
+          must be reachable, supports the Devfile v2.0 spec and above, and is not
+          using the default namespace.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation

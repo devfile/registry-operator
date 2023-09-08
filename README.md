@@ -1,6 +1,11 @@
 
 # Devfile Registry Operator
 
+<div id="header">
+
+[![Apache2.0 License](https://img.shields.io/badge/license-Apache2.0-brightgreen.svg)](LICENSE)
+</div>
+
 The Devfile Registry operator manages the lifecycle of the following custom resources:
 1. [Devfile Registry](DEVFILE_REGISTRY.md)
 2. [Devfile Registries List](REGISTRIES_LISTS.md)
@@ -127,3 +132,7 @@ make install
 ```bash
 make run ENABLE_WEBHOOKS=false
 ```
+
+## Contributing
+
+Please see our [contributing.md](./CONTRIBUTING.md).
