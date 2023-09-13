@@ -50,7 +50,7 @@ metadata:
     capabilities: Full Lifecycle
     catagories: OpenShift Optional,Developer Tools
     containerImage: quay.io/devfile/registry-operator:v0.1.0
-    createdAt: "2023-09-13T21:50:02Z"
+    createdAt: "2023-09-13T23:38:32Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
     operators.operatorframework.io/builder: operator-sdk-v1.28.0
