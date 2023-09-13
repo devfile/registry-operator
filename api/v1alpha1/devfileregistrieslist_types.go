@@ -29,18 +29,22 @@ type DevfileRegistriesListSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// DevfileRegistries is a list of devfile registry services
-	//+optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +optional
 	DevfileRegistries []DevfileRegistryService `json:"devfileRegistries"`
 }
 
 // DevfileRegistryService represents the properties used to identify a devfile registry service.
 type DevfileRegistryService struct {
-	//Name is the unique Name of the devfile registry.
+	// Name is the unique Name of the devfile registry.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Name string `json:"name"`
-	//URL is the unique URL of the devfile registry.
+	// URL is the unique URL of the devfile registry.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	URL string `json:"url"`
-	//SkipTLSVerify defaults to false.  Set to true in a non-production environment to bypass certificate checking
-	//+optional
+	// SkipTLSVerify defaults to false.  Set to true in a non-production environment to bypass certificate checking
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +optional
 	SkipTLSVerify bool `json:"skipTLSVerify"`
 }
 
@@ -48,13 +52,16 @@ type DevfileRegistryService struct {
 type DevfileRegistriesListStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	//Status shows the state of this CR's devfile registry list.  If registries are no longer reachable, they will be listed here
+
+	// Status shows the state of this CR's devfile registry list.  If registries are no longer reachable, they will be listed here
+	// +operator-sdk:csv:customresourcedefinitions:type=status
 	Status string `json:"status"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.status",description="The status for the Devfile Registries List"
+// +operator-sdk:csv:customresourcedefinitions:resources={{Deployment,v1,devfileregistrieslist-deployment}}
 
 // DevfileRegistriesList is a custom resource where namespace users can add a list of Devfile Registries to allow devfiles to be visible
 // at the namespace level.  In order to be added to the list, the Devfile Registries must be reachable, supports the Devfile v2.0 spec

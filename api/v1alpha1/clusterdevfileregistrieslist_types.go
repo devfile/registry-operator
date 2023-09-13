@@ -24,6 +24,7 @@ import (
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.status",description="The status for the Cluster Devfile Registries List"
+// +operator-sdk:csv:customresourcedefinitions:resources={{Deployment,v1,clusterdevfileregistrieslist-deployment}}
 
 // ClusterDevfileRegistriesList is a custom resource where cluster admins can add a list of Devfile Registries to allow devfiles to be visible
 // at the cluster level.  In order to be added to the list, the Devfile Registries must be reachable, supports the Devfile v2.0 spec and above,

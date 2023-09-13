@@ -71,11 +71,9 @@ spec:
               DevfileRegistriesList
             properties:
               status:
-                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                  of cluster Important: Run "make" to regenerate code after modifying
-                  this file Status shows the state of this CR''s devfile registry
+                description: Status shows the state of this CR's devfile registry
                   list.  If registries are no longer reachable, they will be listed
-                  here'
+                  here
                 type: string
             required:
             - status
