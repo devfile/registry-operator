@@ -22,6 +22,7 @@ import (
 
 	. "github.com/devfile/registry-operator/api/v1alpha1"
 	. "github.com/devfile/registry-operator/pkg/test"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -202,10 +203,18 @@ func validateStatus(lookupKey types.NamespacedName, lType ListType, expectedStat
 	Eventually(func() string {
 		if lType == NamespaceListType {
 			k8sClient.Get(ctx, lookupKey, &nl)
-			status = nl.Status.Status
+			if condition := meta.FindStatusCondition(nl.Status.Conditions, typeAvailableDevfileRegistriesList); condition != nil {
+				status = condition.Message
+			} else {
+				status = ""
+			}
 		} else {
 			k8sClient.Get(ctx, lookupKey, &cl)
-			status = cl.Status.Status
+			if condition := meta.FindStatusCondition(cl.Status.Conditions, typeAvailableDevfileRegistriesList); condition != nil {
+				status = condition.Message
+			} else {
+				status = ""
+			}
 		}
 		return status
 	}, Timeout, Interval).Should(ContainSubstring(expectedStatus))

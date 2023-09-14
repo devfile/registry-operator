@@ -53,9 +53,9 @@ type DevfileRegistriesListStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Status shows the state of this CR's devfile registry list.  If registries are no longer reachable, they will be listed here
+	// Conditions shows the state of this CR's devfile registry list.  If registries are no longer reachable, they will be listed here
 	// +operator-sdk:csv:customresourcedefinitions:type=status
-	Status string `json:"status"`
+	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
 }
 
 // +kubebuilder:object:root=true

@@ -50,7 +50,7 @@ metadata:
     capabilities: Full Lifecycle
     catagories: OpenShift Optional,Developer Tools
     containerImage: quay.io/devfile/registry-operator:v0.1.0
-    createdAt: "2023-09-13T23:38:32Z"
+    createdAt: "2023-09-14T05:26:54Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
     operators.operatorframework.io/builder: operator-sdk-v1.28.0
@@ -90,10 +90,10 @@ spec:
         displayName: URL
         path: devfileRegistries[0].url
       statusDescriptors:
-      - description: Status shows the state of this CR's devfile registry list.  If
+      - description: Conditions shows the state of this CR's devfile registry list.  If
           registries are no longer reachable, they will be listed here
-        displayName: Status
-        path: status
+        displayName: Conditions
+        path: conditions
       version: v1alpha1
     - description: DevfileRegistry is a custom resource allows you to create and manage
         your own index server and registry viewer. In order to be added, the Devfile
@@ -228,10 +228,10 @@ spec:
         displayName: URL
         path: devfileRegistries[0].url
       statusDescriptors:
-      - description: Status shows the state of this CR's devfile registry list.  If
+      - description: Conditions shows the state of this CR's devfile registry list.  If
           registries are no longer reachable, they will be listed here
-        displayName: Status
-        path: status
+        displayName: Conditions
+        path: conditions
       version: v1alpha1
   description: "A devfile registry is a service that stores and provides devfile stacks
     to Kubernetes developer tools like `odo`, Eclipse Che, and the OpenShift Developer
@@ -612,7 +612,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: quay.io/devfile/registry-operator:next
+                image: quay.io/mvaldron/registry-operator:olm
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:

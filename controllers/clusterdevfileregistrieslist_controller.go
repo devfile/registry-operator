@@ -18,9 +18,12 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/go-logr/logr"
 
@@ -28,6 +31,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+const (
+	typeAvailableClusterDevfileRegistriesList = "Available"
+	typeDegradedClusterDevfileRegistriesList  = "Degraded"
 )
 
 // ClusterDevfileRegistriesListReconciler reconciles a ClusterDevfileRegistriesList object
@@ -68,10 +76,43 @@ func (r *ClusterDevfileRegistriesListReconciler) Reconcile(ctx context.Context, 
 		return ctrl.Result{}, err
 	}
 
+	if clusterDevfileRegistriesList.Status.Conditions == nil || len(clusterDevfileRegistriesList.Status.Conditions) == 0 {
+		meta.SetStatusCondition(&clusterDevfileRegistriesList.Status.Conditions, metav1.Condition{
+			Type:    typeAvailableClusterDevfileRegistriesList,
+			Status:  metav1.ConditionUnknown,
+			Reason:  "Reconciling",
+			Message: "Starting reconciliation",
+		})
+		if err = r.Status().Update(ctx, clusterDevfileRegistriesList); err != nil {
+			log.Error(err, "Failed to update ClusterDevfileRegistriesList status")
+			return ctrl.Result{}, err
+		}
+
+		// re-fetch the Custom Resource after update the status
+		// so that we have the latest state of the resource on the cluster and we will avoid
+		// raise the issue "the object has been modified, please apply
+		// your changes to the latest version and try again" which would re-trigger the reconciliation
+		if err := r.Get(ctx, req.NamespacedName, clusterDevfileRegistriesList); err != nil {
+			log.Error(err, "Failed to re-fetch ClusterDevfileRegistriesList")
+			return ctrl.Result{}, err
+		}
+	}
+
 	clusterDevfileRegistries := clusterDevfileRegistriesList.Spec.DevfileRegistries
-	clusterDevfileRegistriesList.Status.Status = validateDevfileRegistries(clusterDevfileRegistries)
-	err = r.Status().Update(ctx, clusterDevfileRegistriesList)
-	if err != nil {
+	validateMessage := validateDevfileRegistries(clusterDevfileRegistries)
+	newCondition := metav1.Condition{
+		Type:    typeAvailableClusterDevfileRegistriesList,
+		Reason:  "Reconciling",
+		Message: validateMessage,
+	}
+	if validateMessage != allRegistriesReachable {
+		newCondition.Status = metav1.ConditionFalse
+	} else {
+		newCondition.Status = metav1.ConditionTrue
+	}
+	log.Info(fmt.Sprintf("Status is being updated %s ", newCondition.Message))
+	meta.SetStatusCondition(&clusterDevfileRegistriesList.Status.Conditions, newCondition)
+	if err = r.Status().Update(ctx, clusterDevfileRegistriesList); err != nil {
 		log.Error(err, "Failed to update ClusterDevfileRegistriesList status")
 		return ctrl.Result{Requeue: true}, err
 	}
