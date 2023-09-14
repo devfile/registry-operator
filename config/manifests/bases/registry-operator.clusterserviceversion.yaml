@@ -194,6 +194,9 @@ spec:
         displayName: Secret Name
         path: tls.secretName
       statusDescriptors:
+      - description: Conditions shows the state devfile registries.
+        displayName: Conditions
+        path: conditions
       - description: URL is the exposed URL for the Devfile Registry, and is set in
           the status after the registry has become available.
         displayName: URL

@@ -50,7 +50,7 @@ metadata:
     capabilities: Full Lifecycle
     catagories: OpenShift Optional,Developer Tools
     containerImage: quay.io/devfile/registry-operator:v0.1.0
-    createdAt: "2023-09-14T05:26:54Z"
+    createdAt: "2023-09-14T19:01:02Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
     operators.operatorframework.io/builder: operator-sdk-v1.28.0
@@ -196,6 +196,9 @@ spec:
         displayName: Secret Name
         path: tls.secretName
       statusDescriptors:
+      - description: Conditions shows the state devfile registries.
+        displayName: Conditions
+        path: conditions
       - description: URL is the exposed URL for the Devfile Registry, and is set in
           the status after the registry has become available.
         displayName: URL
@@ -612,7 +615,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: quay.io/mvaldron/registry-operator:olm
+                image: quay.io/devfile/registry-operator:next
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:

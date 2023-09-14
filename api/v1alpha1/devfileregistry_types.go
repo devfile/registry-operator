@@ -145,6 +145,10 @@ type DevfileRegistryStatus struct {
 	// URL is the exposed URL for the Devfile Registry, and is set in the status after the registry has become available.
 	// +operator-sdk:csv:customresourcedefinitions:type=status
 	URL string `json:"url"`
+
+	// Conditions shows the state devfile registries.
+	// +operator-sdk:csv:customresourcedefinitions:type=status
+	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
 }
 
 // +kubebuilder:object:root=true
