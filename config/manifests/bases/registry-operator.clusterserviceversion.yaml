@@ -453,6 +453,7 @@ spec:
   - email: ktsao@redhat.com
     name: Kim Tsao
   maturity: beta
+  minKubeVersion: 1.25.0
   provider:
     name: Red Hat
     url: https://redhat.com
