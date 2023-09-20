@@ -162,13 +162,6 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			log.Error(err, "Failed to update DevfileRegistry status")
 			return ctrl.Result{Requeue: true}, err
 		}
-
-		//update the config map
-		result, err = r.ensure(ctx, devfileRegistry, &corev1.ConfigMap{}, labels, "")
-		if result != nil {
-			return *result, err
-		}
-
 	}
 
 	return ctrl.Result{}, nil
@@ -187,8 +180,7 @@ func (r *DevfileRegistryReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.Service{}).
 		Owns(&corev1.PersistentVolumeClaim{}).
-		Owns(&networkingv1.Ingress{}).
-		Owns(&corev1.ConfigMap{})
+		Owns(&networkingv1.Ingress{})
 
 	// If on OpenShift, mark routes as owned by the controller
 	if config.ControllerCfg.IsOpenShift() {

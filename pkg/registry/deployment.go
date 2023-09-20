@@ -280,30 +280,6 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					]`, cr.ObjectMeta.Name, cr.Status.URL),
 				},
 			},
-			VolumeMounts: []corev1.VolumeMount{
-				{
-					Name:      "viewer-env-file",
-					MountPath: "/app/.env.production",
-					SubPath:   ".env.production",
-					ReadOnly:  true,
-				},
-			},
-		})
-		dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes, corev1.Volume{
-			Name: "viewer-env-file",
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: ConfigMapName(cr.Name),
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  ".env.registry-viewer",
-							Path: ".env.production",
-						},
-					},
-				},
-			},
 		})
 	} else {
 		// Set environment variable to run index server in headless mode

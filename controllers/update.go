@@ -88,6 +88,23 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 	if len(dep.Spec.Template.Spec.Containers) > 2 {
 		viewerImage := registry.GetRegistryViewerImage(cr)
 		viewerImageContainer := dep.Spec.Template.Spec.Containers[2]
+
+		//determine if the NEXT_PUBLIC_ANALYTICS_WRITE_KEY env needs updating
+		viewerKey := cr.Spec.Telemetry.RegistryViewerWriteKey
+		if viewerImageContainer.Env[0].Value != viewerKey {
+			r.Log.Info("Updating NEXT_PUBLIC_ANALYTICS_WRITE_KEY ", "value", viewerKey)
+			viewerImageContainer.Env[0].Value = viewerKey
+			needsUpdating = true
+		}
+
+		//determine if the DEVFILE_REGISTRIES env needs updating.  This will only occur on initial deployment since object name is unique
+		newDRValue := fmt.Sprintf(`[{"name": "%s","url": "http://localhost:8080","fqdn": "%s"}]`, cr.ObjectMeta.Name, cr.Status.URL)
+		if viewerImageContainer.Env[1].Value != newDRValue {
+			r.Log.Info("Updating DEVFILE_REGISTRIES ", "value", newDRValue)
+			viewerImageContainer.Env[1].Value = newDRValue
+			needsUpdating = true
+		}
+
 		if viewerImageContainer.Image != viewerImage {
 			viewerImageContainer.Image = viewerImage
 			needsUpdating = true
@@ -203,7 +220,7 @@ func (r *DevfileRegistryReconciler) deleteOldPVCIfNeeded(ctx context.Context, cr
 	return nil
 }
 
-func (r *DevfileRegistryReconciler) updateConfigMap(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, configMap *corev1.ConfigMap) error {
+/*func (r *DevfileRegistryReconciler) updateConfigMap(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, configMap *corev1.ConfigMap) error {
 
 	viewerEnvfile := fmt.Sprintf(`
 NEXT_PUBLIC_ANALYTICS_WRITE_KEY=%s
@@ -214,4 +231,4 @@ DEVFILE_REGISTRIES=[{"name":"%s","url":"http://localhost:8080","fqdn":"%s"}]`,
 
 	return r.Update(ctx, configMap)
 
-}
+}*/
