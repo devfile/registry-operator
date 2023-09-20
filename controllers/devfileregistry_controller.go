@@ -1,18 +1,18 @@
-/*
-Copyright 2020-2023 Red Hat, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+//
+//
+// Copyright Red Hat
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package controllers
 
@@ -30,6 +30,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -38,11 +39,6 @@ import (
 	"github.com/devfile/registry-operator/pkg/config"
 	"github.com/devfile/registry-operator/pkg/registry"
 	"github.com/devfile/registry-operator/pkg/util"
-)
-
-const (
-	typeAvailableDevfileRegistry = "Available"
-	typeDegradedDevfileRegistry  = "Degraded"
 )
 
 // DevfileRegistryReconciler reconciles a DevfileRegistry object
@@ -80,23 +76,19 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	if devfileRegistry.Status.Conditions == nil || len(devfileRegistry.Status.Conditions) == 0 {
-		meta.SetStatusCondition(&devfileRegistry.Status.Conditions, metav1.Condition{
-			Type:    typeAvailableDevfileRegistry,
-			Status:  metav1.ConditionUnknown,
-			Reason:  "Reconciling",
-			Message: "Starting reconciliation",
-		})
-		if err = r.Status().Update(ctx, devfileRegistry); err != nil {
-			log.Error(err, "Failed to update DevfileRegistry status")
-			return ctrl.Result{}, err
-		}
+		err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+			meta.SetStatusCondition(&devfileRegistry.Status.Conditions, metav1.Condition{
+				Type:    typeUpdateDevfileRegistry,
+				Status:  metav1.ConditionUnknown,
+				Reason:  "NotReady",
+				Message: "Starting reconciliation",
+			})
 
-		// re-fetch the Custom Resource after update the status
-		// so that we have the latest state of the resource on the cluster and we will avoid
-		// raise the issue "the object has been modified, please apply
-		// your changes to the latest version and try again" which would re-trigger the reconciliation
-		if err := r.Get(ctx, req.NamespacedName, devfileRegistry); err != nil {
-			log.Error(err, "Failed to re-fetch DevfileRegistry")
+			return r.Status().Update(ctx, devfileRegistry)
+		})
+
+		if err != nil {
+			log.Error(err, "Failed to update DevfileRegistriesList status")
 			return ctrl.Result{}, err
 		}
 	}
@@ -201,23 +193,18 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	// Update condition status
-	meta.SetStatusCondition(&devfileRegistry.Status.Conditions, metav1.Condition{
-		Type:    typeAvailableDevfileRegistry,
-		Status:  metav1.ConditionTrue,
-		Reason:  "Reconciling",
-		Message: "Devfile Registry deployed",
+	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		meta.SetStatusCondition(&devfileRegistry.Status.Conditions, metav1.Condition{
+			Type:    typeUpdateDevfileRegistry,
+			Status:  metav1.ConditionTrue,
+			Reason:  "Ready",
+			Message: "Devfile Registry deployed",
+		})
+		return r.Status().Update(ctx, devfileRegistry)
 	})
-	if err = r.Status().Update(ctx, devfileRegistry); err != nil {
-		log.Error(err, "Failed to update DevfileRegistry status")
-		return ctrl.Result{}, err
-	}
 
-	// re-fetch the Custom Resource after update the status
-	// so that we have the latest state of the resource on the cluster and we will avoid
-	// raise the issue "the object has been modified, please apply
-	// your changes to the latest version and try again" which would re-trigger the reconciliation
-	if err := r.Get(ctx, req.NamespacedName, devfileRegistry); err != nil {
-		log.Error(err, "Failed to re-fetch DevfileRegistry")
+	if err != nil {
+		log.Error(err, "Failed to update DevfileRegistry status")
 		return ctrl.Result{}, err
 	}
 

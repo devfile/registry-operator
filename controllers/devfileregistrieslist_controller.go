@@ -1,40 +1,35 @@
-/*
-Copyright 2022-2023 Red Hat, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+//
+//
+// Copyright Red Hat
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package controllers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/util/retry"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-)
-
-const (
-	typeAvailableDevfileRegistriesList = "Available"
-	typeDegradedDevfileRegistriesList  = "Degraded"
 )
 
 // DevfileRegistriesListReconciler reconciles a DevfileRegistriesList object
@@ -75,45 +70,26 @@ func (r *DevfileRegistriesListReconciler) Reconcile(ctx context.Context, req ctr
 	}
 
 	if devfileRegistriesList.Status.Conditions == nil || len(devfileRegistriesList.Status.Conditions) == 0 {
-		meta.SetStatusCondition(&devfileRegistriesList.Status.Conditions, metav1.Condition{
-			Type:    typeAvailableDevfileRegistriesList,
-			Status:  metav1.ConditionUnknown,
-			Reason:  "Reconciling",
-			Message: "Starting reconciliation",
+		err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+			meta.SetStatusCondition(&devfileRegistriesList.Status.Conditions, metav1.Condition{
+				Type:    typeUpdateDevfileRegistries,
+				Status:  metav1.ConditionUnknown,
+				Reason:  "NotReady",
+				Message: "Starting reconciliation",
+			})
+
+			return r.Status().Update(ctx, devfileRegistriesList)
 		})
-		if err = r.Status().Update(ctx, devfileRegistriesList); err != nil {
+
+		if err != nil {
 			log.Error(err, "Failed to update DevfileRegistriesList status")
 			return ctrl.Result{}, err
 		}
-
-		// re-fetch the Custom Resource after update the status
-		// so that we have the latest state of the resource on the cluster and we will avoid
-		// raise the issue "the object has been modified, please apply
-		// your changes to the latest version and try again" which would re-trigger the reconciliation
-		if err := r.Get(ctx, req.NamespacedName, devfileRegistriesList); err != nil {
-			log.Error(err, "Failed to re-fetch DevfileRegistriesList")
-			return ctrl.Result{}, err
-		}
 	}
 
-	// check the list of registries and report on the state
-	devfileRegistries := devfileRegistriesList.Spec.DevfileRegistries
-	validateMessage := validateDevfileRegistries(devfileRegistries)
-	newCondition := metav1.Condition{
-		Type:    typeAvailableDevfileRegistriesList,
-		Reason:  "Reconciling",
-		Message: validateMessage,
-	}
-	if validateMessage != allRegistriesReachable {
-		newCondition.Status = metav1.ConditionFalse
-	} else {
-		newCondition.Status = metav1.ConditionTrue
-	}
-	log.Info(fmt.Sprintf("Status is being updated %s ", newCondition.Message))
-	meta.SetStatusCondition(&devfileRegistriesList.Status.Conditions, newCondition)
-	if err = r.Status().Update(ctx, devfileRegistriesList); err != nil {
+	if err = r.SetValidateDevfileRegistriesConditionAndUpdateCR(ctx, req, devfileRegistriesList, nil); err != nil {
 		log.Error(err, "Failed to update DevfileRegistriesList status")
-		return ctrl.Result{Requeue: true}, err
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{RequeueAfter: time.Hour}, nil
