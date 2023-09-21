@@ -17,7 +17,6 @@ limitations under the License.
 package controllers
 
 import (
-	routev1 "github.com/openshift/api/route/v1"
 	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme"
 	"path/filepath"
 	"testing"
@@ -30,8 +29,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	appsv1 "k8s.io/api/apps/v1"
-	"k8s.io/api/networking/v1"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -60,8 +57,6 @@ const (
 	devfileStagingRegistryName       = "StagingRegistry"
 	devfileStagingRegistryURL        = "https://registry.stage.devfile.io"
 	localRegistryName                = "LocalRegistry"
-	devfileRegistryName              = "devfile-registry-name"
-	image                            = "quay.io/devfile/devfile-index:next"
 )
 
 func TestAPIs(t *testing.T) {
@@ -75,8 +70,7 @@ var _ = BeforeSuite(func() {
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths: []string{filepath.Join("..", "config", "crd", "bases"),
-			filepath.Join("..", "hack", "routecrd")}, //known hack to add the "external" openshift Route API to the test environment
+		CRDDirectoryPaths:     []string{filepath.Join("..", "config", "crd", "bases")},
 		ErrorIfCRDPathMissing: true,
 	}
 
@@ -85,15 +79,6 @@ var _ = BeforeSuite(func() {
 	Expect(cfg).NotTo(BeNil())
 
 	err = v1alpha1.AddToScheme(scheme.Scheme)
-	Expect(err).NotTo(HaveOccurred())
-
-	err = routev1.AddToScheme(scheme.Scheme)
-	Expect(err).NotTo(HaveOccurred())
-
-	err = v1.AddToScheme(scheme.Scheme)
-	Expect(err).NotTo(HaveOccurred())
-
-	err = appsv1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	//+kubebuilder:scaffold:scheme
@@ -116,13 +101,6 @@ var _ = BeforeSuite(func() {
 	err = (&ClusterDevfileRegistriesListReconciler{
 		Client: k8sManager.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("ClusterDevfileRegistriesList"),
-		Scheme: k8sManager.GetScheme(),
-	}).SetupWithManager(k8sManager)
-	Expect(err).ToNot(HaveOccurred())
-
-	err = (&DevfileRegistryReconciler{
-		Client: k8sManager.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DevfileRegistryReconciler"),
 		Scheme: k8sManager.GetScheme(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -188,43 +166,20 @@ func getDevfileRegistriesListCR(name string, namespace string, registryName stri
 
 }
 
-// getDevfileRegistriesListCR returns a minimally populated DevfileRegistry object for testing
-func getDevfileRegistryCR(name string, namespace string, image string) *DevfileRegistry {
-	return &DevfileRegistry{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: ApiVersion,
-			Kind:       string(DevfileRegistryType),
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Spec: DevfileRegistrySpec{
-			DevfileIndex: DevfileRegistrySpecContainer{
-				Image: image,
-			},
-		},
-	}
-}
-
 // deleteCRList removes the cluster or namespace CR list from the cluster
 func deleteCRList(drlLookupKey types.NamespacedName, f ListType) {
 
 	cl := &ClusterDevfileRegistriesList{}
 	nl := &DevfileRegistriesList{}
-	dl := &DevfileRegistry{}
 
 	// Delete
 	Eventually(func() error {
 		if f == ClusterListType {
 			k8sClient.Get(context.Background(), drlLookupKey, cl)
 			return k8sClient.Delete(context.Background(), cl)
-		} else if f == NamespaceListType {
+		} else {
 			k8sClient.Get(context.Background(), drlLookupKey, nl)
 			return k8sClient.Delete(context.Background(), nl)
-		} else {
-			k8sClient.Get(context.Background(), drlLookupKey, dl)
-			return k8sClient.Delete(context.Background(), dl)
 		}
 	}, Timeout, Interval).Should(Succeed())
 
@@ -232,8 +187,6 @@ func deleteCRList(drlLookupKey types.NamespacedName, f ListType) {
 	Eventually(func() error {
 		if f == ClusterListType {
 			return k8sClient.Get(context.Background(), drlLookupKey, cl)
-		} else if f == NamespaceListType {
-			return k8sClient.Get(context.Background(), drlLookupKey, nl)
 		} else {
 			return k8sClient.Get(context.Background(), drlLookupKey, nl)
 		}

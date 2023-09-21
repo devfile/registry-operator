@@ -68,10 +68,6 @@ jobs:
       name: Check CRD manifest generation
       run: make manifests
     -
-      name: Create mock kube config
-      run: .github/mock_kube_config.sh
-      shell: bash
-    -
       name: Run unit tests
       run: make test
     - 
