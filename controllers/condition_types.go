@@ -14,16 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package deploy
+package controllers
 
-import (
-	"github.com/devfile/registry-operator/tests/integration/pkg/client"
+const (
+	typeValidateDevfileRegistries = "ValidateDevfileRegistries"
+	typeUpdateDevfileRegistries   = "UpdateDevfileRegistries"
+	typeUpdateDevfileRegistry     = "UpdateDevfileRegistry"
 )
-
-type Deployment struct {
-	kubeClient *client.K8sClient
-}
-
-func NewDeployment(kubeClient *client.K8sClient) *Deployment {
-	return &Deployment{kubeClient: kubeClient}
-}

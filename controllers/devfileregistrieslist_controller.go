@@ -1,28 +1,30 @@
-/*
-Copyright 2022-2023 Red Hat, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+//
+//
+// Copyright Red Hat
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package controllers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/util/retry"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -52,8 +54,8 @@ type DevfileRegistriesListReconciler struct {
 func (r *DevfileRegistriesListReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("devfileregistrieslist", req.NamespacedName)
 	// Fetch the DevfileRegistriesList instance
-	devfileRegistriesList := registryv1alpha1.DevfileRegistriesList{}
-	err := r.Get(ctx, req.NamespacedName, &devfileRegistriesList)
+	devfileRegistriesList := &registryv1alpha1.DevfileRegistriesList{}
+	err := r.Get(ctx, req.NamespacedName, devfileRegistriesList)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
@@ -67,14 +69,27 @@ func (r *DevfileRegistriesListReconciler) Reconcile(ctx context.Context, req ctr
 		return ctrl.Result{}, err
 	}
 
-	// check the list of registries and report on the state
-	devfileRegistries := devfileRegistriesList.Spec.DevfileRegistries
-	devfileRegistriesList.Status.Status = validateDevfileRegistries(devfileRegistries)
-	log.Info(fmt.Sprintf("Status is being updated %s ", devfileRegistriesList.Status.Status))
-	err = r.Status().Update(ctx, &devfileRegistriesList)
-	if err != nil {
+	if devfileRegistriesList.Status.Conditions == nil || len(devfileRegistriesList.Status.Conditions) == 0 {
+		err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+			meta.SetStatusCondition(&devfileRegistriesList.Status.Conditions, metav1.Condition{
+				Type:    typeUpdateDevfileRegistries,
+				Status:  metav1.ConditionUnknown,
+				Reason:  "NotReady",
+				Message: "Starting reconciliation",
+			})
+
+			return r.Status().Update(ctx, devfileRegistriesList)
+		})
+
+		if err != nil {
+			log.Error(err, "Failed to update DevfileRegistriesList status")
+			return ctrl.Result{}, err
+		}
+	}
+
+	if err = r.SetValidateDevfileRegistriesConditionAndUpdateCR(ctx, req, devfileRegistriesList, nil); err != nil {
 		log.Error(err, "Failed to update DevfileRegistriesList status")
-		return ctrl.Result{Requeue: true}, err
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{RequeueAfter: time.Hour}, nil

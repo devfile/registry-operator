@@ -47,17 +47,17 @@ metadata:
           }
         }
       ]
-    capabilities: Full Lifecycle
+    capabilities: Basic Install
     catagories: OpenShift Optional,Developer Tools
-    containerImage: quay.io/devfile/registry-operator:v0.1.0
-    createdAt: "2023-09-06T22:43:40Z"
+    containerImage: quay.io/devfile/registry-operator:v0.1.1
+    createdAt: "2023-09-19T02:26:46Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
     operators.operatorframework.io/builder: operator-sdk-v1.28.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/devfile/registry-operator
     support: Red Hat
-  name: registry-operator.v0.1.0
+  name: registry-operator.v0.1.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -71,6 +71,29 @@ spec:
       displayName: Cluster Devfile Registries List
       kind: ClusterDevfileRegistriesList
       name: clusterdevfileregistrieslists.registry.devfile.io
+      resources:
+      - kind: Deployment
+        name: clusterdevfileregistrieslist-deployment
+        version: v1
+      specDescriptors:
+      - description: DevfileRegistries is a list of devfile registry services
+        displayName: Devfile Registries
+        path: devfileRegistries
+      - description: Name is the unique Name of the devfile registry.
+        displayName: Name
+        path: devfileRegistries[0].name
+      - description: SkipTLSVerify defaults to false.  Set to true in a non-production
+          environment to bypass certificate checking
+        displayName: Skip TLSVerify
+        path: devfileRegistries[0].skipTLSVerify
+      - description: URL is the unique URL of the devfile registry.
+        displayName: URL
+        path: devfileRegistries[0].url
+      statusDescriptors:
+      - description: Conditions shows the state of this CR's devfile registry list.  If
+          registries are no longer reachable, they will be listed here
+        displayName: Conditions
+        path: conditions
       version: v1alpha1
     - description: DevfileRegistry is a custom resource allows you to create and manage
         your own index server and registry viewer. In order to be added, the Devfile
@@ -79,6 +102,107 @@ spec:
       displayName: Devfile Registry
       kind: DevfileRegistry
       name: devfileregistries.registry.devfile.io
+      resources:
+      - kind: Deployment
+        name: devfileregistry-deployment
+        version: v1
+      specDescriptors:
+      - description: Sets the devfile index container spec to be deployed on the Devfile
+          Registry
+        displayName: Devfile Index
+        path: devfileIndex
+      - description: Sets the container image
+        displayName: Image
+        path: devfileIndex.image
+      - description: Sets the image pull policy for the container
+        displayName: Image Pull Policy
+        path: devfileIndex.imagePullPolicy
+      - description: Sets the container image containing devfile stacks to be deployed
+          on the Devfile Registry
+        displayName: Devfile Index Image
+        path: devfileIndexImage
+      - description: Sets the registry server deployment to run under headless mode
+        displayName: Headless
+        path: headless
+      - displayName: K8s
+        path: k8s
+      - description: Ingress domain for a Kubernetes cluster. This MUST be explicitly
+          specified on Kubernetes. There are no defaults
+        displayName: Ingress Domain
+        path: k8s.ingressDomain
+      - description: Sets the OCI registry container spec to be deployed on the Devfile
+          Registry
+        displayName: Oci Registry
+        path: ociRegistry
+      - description: Sets the container image
+        displayName: Image
+        path: ociRegistry.image
+      - description: Sets the image pull policy for the container
+        displayName: Image Pull Policy
+        path: ociRegistry.imagePullPolicy
+      - description: Overrides the container image used for the OCI registry. Recommended
+          to leave blank and default to the image specified by the operator.
+        displayName: Oci Registry Image
+        path: ociRegistryImage
+      - description: Sets the registry viewer container spec to be deployed on the
+          Devfile Registry
+        displayName: Registry Viewer
+        path: registryViewer
+      - description: Sets the container image
+        displayName: Image
+        path: registryViewer.image
+      - description: Sets the image pull policy for the container
+        displayName: Image Pull Policy
+        path: registryViewer.imagePullPolicy
+      - description: Overrides the container image used for the registry viewer.
+        displayName: Registry Viewer Image
+        path: registryViewerImage
+      - displayName: Storage
+        path: storage
+      - description: Instructs the operator to deploy the DevfileRegistry with persistent
+          storage Disabled by default.
+        displayName: Enabled
+        path: storage.enabled
+      - description: Configures the size of the devfile registry's persistent volume,
+          if enabled. Defaults to 1Gi.
+        displayName: Registry Volume Size
+        path: storage.registryVolumeSize
+      - displayName: Telemetry
+        path: telemetry
+      - description: Specify a telemetry key to allow devfile specific data to be
+          sent to a client's own Segment analytics source. If the write key is specified
+          then telemetry will be enabled
+        displayName: Key
+        path: telemetry.key
+      - description: The registry name (can be any string) that is used as identifier
+          for devfile telemetry.
+        displayName: Registry Name
+        path: telemetry.registryName
+      - description: Specify a telemetry write key for the registry viewer component
+          to allow data to be sent to a client's own Segment analytics source. If
+          the write key is specified then telemetry for the registry viewer component
+          will be enabled
+        displayName: Registry Viewer Write Key
+        path: telemetry.registryViewerWriteKey
+      - displayName: TLS
+        path: tls
+      - description: Instructs the operator to deploy the DevfileRegistry with TLS
+          enabled. Enabled by default. Disabling is only recommended for development
+          or test.
+        displayName: Enabled
+        path: tls.enabled
+      - description: Name of an optional, pre-existing TLS secret to use for TLS termination
+          on ingress/route resources.
+        displayName: Secret Name
+        path: tls.secretName
+      statusDescriptors:
+      - description: Conditions shows the state devfile registries.
+        displayName: Conditions
+        path: conditions
+      - description: URL is the exposed URL for the Devfile Registry, and is set in
+          the status after the registry has become available.
+        displayName: URL
+        path: url
       version: v1alpha1
     - description: DevfileRegistriesList is a custom resource where namespace users
         can add a list of Devfile Registries to allow devfiles to be visible at the
@@ -88,6 +212,29 @@ spec:
       displayName: Devfile Registries List
       kind: DevfileRegistriesList
       name: devfileregistrieslists.registry.devfile.io
+      resources:
+      - kind: Deployment
+        name: devfileregistrieslist-deployment
+        version: v1
+      specDescriptors:
+      - description: DevfileRegistries is a list of devfile registry services
+        displayName: Devfile Registries
+        path: devfileRegistries
+      - description: Name is the unique Name of the devfile registry.
+        displayName: Name
+        path: devfileRegistries[0].name
+      - description: SkipTLSVerify defaults to false.  Set to true in a non-production
+          environment to bypass certificate checking
+        displayName: Skip TLSVerify
+        path: devfileRegistries[0].skipTLSVerify
+      - description: URL is the unique URL of the devfile registry.
+        displayName: URL
+        path: devfileRegistries[0].url
+      statusDescriptors:
+      - description: Conditions shows the state of this CR's devfile registry list.  If
+          registries are no longer reachable, they will be listed here
+        displayName: Conditions
+        path: conditions
       version: v1alpha1
   description: "A devfile registry is a service that stores and provides devfile stacks
     to Kubernetes developer tools like `odo`, Eclipse Che, and the OpenShift Developer
@@ -585,10 +732,11 @@ spec:
   - email: ktsao@redhat.com
     name: Kim Tsao
   maturity: beta
+  minKubeVersion: 1.25.0
   provider:
     name: Red Hat
     url: https://redhat.com
-  version: 0.1.0
+  version: 0.1.1
   webhookdefinitions:
   - admissionReviewVersions:
     - v1
