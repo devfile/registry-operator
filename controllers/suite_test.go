@@ -17,6 +17,7 @@
 package controllers
 
 import (
+	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme"
 	"path/filepath"
 	"testing"
 
@@ -29,7 +30,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -126,7 +126,7 @@ func getClusterDevfileRegistriesListCR(name string, namespace string, registryNa
 	return &ClusterDevfileRegistriesList{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: ApiVersion,
-			Kind:       "ClusterDevfileRegistriesList",
+			Kind:       string(ClusterListType),
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
@@ -149,7 +149,7 @@ func getDevfileRegistriesListCR(name string, namespace string, registryName stri
 	return &DevfileRegistriesList{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: ApiVersion,
-			Kind:       "DevfileRegistriesList",
+			Kind:       string(NamespaceListType),
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
@@ -172,6 +172,7 @@ func deleteCRList(drlLookupKey types.NamespacedName, f ListType) {
 
 	cl := &ClusterDevfileRegistriesList{}
 	nl := &DevfileRegistriesList{}
+
 	// Delete
 	Eventually(func() error {
 		if f == ClusterListType {

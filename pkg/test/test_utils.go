@@ -31,11 +31,12 @@ import (
 type ListType string
 
 const (
-	ClusterListType   ListType = "ClusterDevfileRegistriesList"
-	NamespaceListType ListType = "DevfileRegistriesList"
-	ApiVersion                 = "registry.devfile.io/v1alpha1"
-	Timeout                    = time.Second * 10
-	Interval                   = time.Millisecond * 250
+	ClusterListType     ListType = "ClusterDevfileRegistriesList"
+	NamespaceListType   ListType = "DevfileRegistriesList"
+	DevfileRegistryType ListType = "DevfileRegistry"
+	ApiVersion                   = "registry.devfile.io/v1alpha1"
+	Timeout                      = time.Second * 10
+	Interval                     = time.Millisecond * 250
 )
 
 // GetNewUnstartedTestServer is a mock test index server that supports just the v2 index schema

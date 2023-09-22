@@ -9,3 +9,6 @@ spec:
     enabled: false
   tls:
     enabled: true
+  telemetry:
+    key: registry-key
+    registryViewerWriteKey: viewer-key

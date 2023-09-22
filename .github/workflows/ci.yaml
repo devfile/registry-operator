@@ -67,7 +67,7 @@ jobs:
     -
       name: Check CRD manifest generation
       run: make manifests
-    - 
+    -
       name: Run unit tests
       run: make test
     - 
