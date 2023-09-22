@@ -255,6 +255,7 @@ func waitForPodsToFullyStartInUIMode(label string) {
 	Expect(err).NotTo(HaveOccurred())
 }
 
+// validateEnvVariables validates the set environment variables of the devfile registry containers
 func validateEnvVariables(label, registryName, registryURL, viewerWriteKey, telemetryKey string) {
 	//Determine if the viewer pod contains the resolved DevfileRegistryURL
 	newPodList, err := K8sClient.ListPods(config.Namespace, label)
