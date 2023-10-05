@@ -48,9 +48,9 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    catagories: OpenShift Optional,Developer Tools
+    categories: OpenShift Optional,Developer Tools
     containerImage: quay.io/devfile/registry-operator:v0.1.1
-    createdAt: "2023-09-19T02:26:46Z"
+    createdAt: "2023-10-05T20:02:38Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
     operators.operatorframework.io/builder: operator-sdk-v1.28.0
