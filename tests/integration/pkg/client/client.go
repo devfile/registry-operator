@@ -68,9 +68,12 @@ func (c *K8sClient) Kube() kubernetes.Interface {
 
 // findCLI returns the first found CLI compatible with oc/kubectl
 func findCLI() (string, error) {
+	selected := os.Getenv("K8S_CLI")
+	if selected != "" {
+		return selected, nil
+	}
 	for _, cli := range []string{"oc", "kubectl"} {
-		cmd := exec.Command(cli, "version")
-		err := cmd.Run()
+		_, err := exec.LookPath(cli)
 		if err != nil {
 			continue
 		}
