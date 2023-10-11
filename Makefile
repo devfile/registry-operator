@@ -1,7 +1,7 @@
 # Current Operator version
-VERSION ?= `cat VERSION`
+VERSION ?= `cat $(PWD)/VERSION`
 # Default bundle image tag
-BUNDLE_IMG ?= quay.io/devfile/registry-operator-bundle:$(VERSION)
+BUNDLE_IMG ?= quay.io/devfile/registry-operator-bundle:v$(VERSION)
 CERT_MANAGER_VERSION ?= v1.11.0
 ENABLE_WEBHOOKS ?= true
 
