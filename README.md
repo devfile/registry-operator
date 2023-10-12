@@ -96,7 +96,8 @@ To see all rules supported by the makefile, run `make help`
 
 To run integration tests for the operator, run `make test-integration`. 
 
-The `oc` executable must be accessible.
+One of the `oc` or `kubectl` executables must be accessible. If both are present in your path, `oc` will be used, except if you
+define the environment variable `K8S_CLI` with the command you prefer to use.
 
 By default, the tests will use the default image for the operator, `quay.io/devfile/registry-operator:next`.
 
