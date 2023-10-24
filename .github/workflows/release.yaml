@@ -86,63 +86,11 @@ jobs:
       env:
         REGISTRY_OPERATOR: localhost/registry-operator:${{ github.ref_name }}
       run: bash .ci/deploy_minikube_linux.sh
-  deploy-olm-operator-minikube-26:
-    needs: version-check
-    runs-on: ubuntu-latest
-    env:
-      OPERATOR_SDK_DL_URL: https://github.com/operator-framework/operator-sdk/releases/download/v1.28.0
-      OPERATOR_SDK_CLI: ./operator-sdk
-    steps:
-    - name: Checkout registry-operator source code
-      uses: actions/checkout@v2
-    - name: Download operator-sdk
-      run: |
-        export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
-        export OS=$(uname | awk '{print tolower($0)}')
-
-        curl -LO ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH}
-    - name: Verify the downloaded operator-sdk
-      run: |
-        export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
-        export OS=$(uname | awk '{print tolower($0)}')
-        gpg --keyserver keyserver.ubuntu.com --recv-keys 052996E2A20B5C7E;
-        curl -LO ${OPERATOR_SDK_DL_URL}/checksums.txt;
-        curl -LO ${OPERATOR_SDK_DL_URL}/checksums.txt.asc;
-        gpg -u "Operator SDK (release) <cncf-operator-sdk@cncf.io>" --verify checksums.txt.asc;
-        grep operator-sdk_${OS}_${ARCH} checksums.txt | sha256sum -c -
-    - name: Move operator-sdk into path
-      run: |
-        export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
-        export OS=$(uname | awk '{print tolower($0)}')
-        mv operator-sdk_${OS}_${ARCH} ${OPERATOR_SDK_CLI}
-        chmod +x ${OPERATOR_SDK_CLI}
-    - name: Setup Minikube
-      uses: manusa/actions-setup-minikube@3856c6fa039819f1c8e7e248b1fc5a8564e354c9 # v2.9.0
-      with:
-        minikube version: 'v1.31.2'
-        kubernetes version: 'v1.26.2'
-        driver: 'docker'
-        github token: ${{ secrets.GITHUB_TOKEN }}
-        start args: '--memory 4096 --cpus 2'
-    - name: Set manager image pull policy to Never
-      uses: mikefarah/yq@v4.34.2
-      with:
-        cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
-    - name: Cache bundle channels
-      uses: mikefarah/yq@v4.34.2
-      with:
-        cmd: yq '.annotations."operators.operatorframework.io.bundle.channels.v1"' 'bundle/metadata/annotations.yaml' > channels.txt
-    - name: Build & Deploy - Registry Operator Bundle Release Image
-      env:
-        REGISTRY_OPERATOR: localhost/registry-operator:${{ github.ref_name }}
-        REGISTRY_OPERATOR_BUNDLE: localhost/registry-operator-bundle:${{ github.ref_name }}
-      run: REGISTRY_OPERATOR_CHANNELS=$(cat channels.txt) bash .ci/deploy_olm_minikube_linux.sh
   push-operator-image:
     needs: 
       - version-check
       - deploy-operator-minikube-26
       - deploy-operator-minikube-25
-      - deploy-olm-operator-minikube-26
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
@@ -161,7 +109,6 @@ jobs:
       - version-check
       - deploy-operator-minikube-26
       - deploy-operator-minikube-25
-      - deploy-olm-operator-minikube-26
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
