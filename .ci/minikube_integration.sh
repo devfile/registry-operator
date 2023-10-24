@@ -37,8 +37,22 @@ fi
 # Install cert-manager
 make install-cert
 
-# wait one minute for cert manager to get set up
-sleep 60
+# Wait for the cert-manager to become ready
+kubectl wait deploy/cert-manager --namespace cert-manager --for=condition=Available --timeout=600s
+kubectl wait deploy/cert-manager-cainjector --namespace cert-manager --for=condition=Available --timeout=600s
+kubectl wait deploy/cert-manager-webhook --namespace cert-manager --for=condition=Available --timeout=600s
+if [ $? -ne 0 ]; then
+    echo "cert-manager-controller container logs:"
+    kubectl logs -l app=cert-manager --namespace cert-manager --container cert-manager-controller
+    echo "cert-manager-cainjector container logs:"
+    kubectl logs -l app=cainjector --namespace cert-manager --container cert-manager-cainjector
+    echo "cert-manager-webhook container logs:"
+    kubectl logs -l app=webhook --namespace cert-manager --container cert-manager-webhook
+
+    # Return the description of every pod
+    kubectl describe pods --namespace cert-manager
+    exit 1
+fi
 
 # Install CRDs & deploy registry operator
 make install && make deploy
@@ -56,3 +70,5 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# run integration test suite
+make test-integration
