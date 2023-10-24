@@ -58,6 +58,9 @@ K8S_CLI := kubectl
 endif
 endif
 
+# operator-sdk
+OPERATOR_SDK_CLI ?= operator-sdk
+
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # This is a requirement for 'setup-envtest.sh' in the test target.
@@ -241,10 +244,10 @@ $(ENVTEST): $(LOCALBIN)
 # Generate bundle manifests and metadata, then validate generated files.
 .PHONY: bundle
 bundle: manifests
-	operator-sdk generate kustomize manifests -q
+	$(OPERATOR_SDK_CLI) generate kustomize manifests -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
-	$(KUSTOMIZE) build config/manifests | operator-sdk generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
-	operator-sdk bundle validate ./bundle
+	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK_CLI) generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
+	$(OPERATOR_SDK_CLI) bundle validate ./bundle
 
 # Build the bundle image.
 .PHONY: bundle-build
