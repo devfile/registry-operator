@@ -18,6 +18,13 @@
 # NOTE: This script assumes that minikube is installed and running, and using the docker driver on Linux
 # Due to networking issues with the docker driver and ingress on macOS/Windows, this script must be run on Linux
 
+OPERATOR_SDK_CLI=${OPERATOR_SDK_CLI:-operator-sdk}
+if [ -z "$(command -v ${OPERATOR_SDK_CLI})" ]
+then
+    echo "operator-sdk needs to be installed to run this script"
+    exit 1
+fi
+
 # Share docker env with Minikube
 eval $(minikube docker-env)
 
@@ -47,10 +54,10 @@ if [ $? -ne 0 ]; then
 fi
 
 # Install OLM
-operator-sdk olm install
+${OPERATOR_SDK_CLI} olm install
 
 # OLM install registry operator
-operator-sdk run bundle ${BUNDLE_IMG}
+${OPERATOR_SDK_CLI} run bundle ${BUNDLE_IMG}
 
 # Wait for the registry operator to become ready
 kubectl wait deploy/registry-operator-controller-manager --for=condition=Available --timeout=600s
