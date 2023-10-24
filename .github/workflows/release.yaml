@@ -33,7 +33,7 @@ jobs:
         kubernetes version: 'v1.26.2'
         driver: 'docker'
         github token: ${{ secrets.GITHUB_TOKEN }}
-        start args: '--addons=ingress --memory 4096 --cpus 2'
+        start args: '--memory 4096 --cpus 2'
     - name: Set manager image pull policy to Never
       uses: mikefarah/yq@v4.34.2
       with:
@@ -54,7 +54,7 @@ jobs:
         kubernetes version: 'v1.25.15'
         driver: 'docker'
         github token: ${{ secrets.GITHUB_TOKEN }}
-        start args: '--addons=ingress --memory 4096 --cpus 2'
+        start args: '--memory 4096 --cpus 2'
     - name: Set manager image pull policy to Never
       uses: mikefarah/yq@v4.34.2
       with:
