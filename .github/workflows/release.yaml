@@ -21,7 +21,7 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
 
 jobs:
-  deploy-operator:
+  deploy-operator-minikube-26:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
@@ -30,7 +30,28 @@ jobs:
       uses: manusa/actions-setup-minikube@3856c6fa039819f1c8e7e248b1fc5a8564e354c9 # v2.9.0
       with:
         minikube version: 'v1.31.2'
-        kubernetes version: 'v1.26.3'
+        kubernetes version: 'v1.26.2'
+        driver: 'docker'
+        github token: ${{ secrets.GITHUB_TOKEN }}
+        start args: '--addons=ingress --memory 4096 --cpus 2'
+    - name: Set manager image pull policy to Never
+      uses: mikefarah/yq@v4.34.2
+      with:
+        cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
+    - name: Build & Deploy - Registry Operator Release Image
+      env:
+        REGISTRY_OPERATOR: localhost/registry-operator:${{ github.ref_name }}
+      run: bash .ci/deploy_minikube_linux.sh
+  deploy-operator-minikube-25:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout registry-operator source code
+      uses: actions/checkout@v2
+    - name: Setup Minikube
+      uses: manusa/actions-setup-minikube@3856c6fa039819f1c8e7e248b1fc5a8564e354c9 # v2.9.0
+      with:
+        minikube version: 'v1.31.2'
+        kubernetes version: 'v1.25.15'
         driver: 'docker'
         github token: ${{ secrets.GITHUB_TOKEN }}
         start args: '--addons=ingress --memory 4096 --cpus 2'
@@ -43,7 +64,9 @@ jobs:
         REGISTRY_OPERATOR: localhost/registry-operator:${{ github.ref_name }}
       run: bash .ci/deploy_minikube_linux.sh
   push-operator-image:
-    needs: deploy-operator
+    needs: 
+      - deploy-operator-minikube-26
+      - deploy-operator-minikube-25
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
