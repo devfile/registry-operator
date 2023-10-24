@@ -34,12 +34,14 @@ jobs:
     steps:
     - name: Checkout registry-operator source code
       uses: actions/checkout@v2
+    - name: Download yq
+      run: curl -sL https://github.com/mikefarah/yq/releases/download/v4.34.2/yq_linux_amd64 -o yq && chmod +x yq
     - name: Cache version tags
-      uses: mikefarah/yq@v4.34.2
-      with:
-        cmd: mkdir -p .cache && sudo sh .ci/cache_version_tags.sh
+      env:
+        YQ_CLI: ./yq
+      run: mkdir -p .cache && bash .ci/cache_version_tags.sh
     - name: Check if VERSION and version tags match release tag
-      run: bash check_version.sh ${{ github.ref_name }}
+      run: bash check_version.sh ${{ github.ref_name }} true
   deploy-operator-minikube-26:
     needs: version-check
     runs-on: ubuntu-latest

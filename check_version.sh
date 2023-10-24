@@ -54,7 +54,7 @@ then
     export CACHED_MANAGER_IMAGE_TAG
 
     # Read references to release version under project files and cache them for checks
-    sh .ci/cache_version_tags.sh
+    bash .ci/cache_version_tags.sh
     if [ $? -ne 0 ]
     then
         exit 1
