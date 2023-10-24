@@ -81,6 +81,9 @@ jobs:
         dockerfile: Dockerfile
         tags: ${{ github.ref_name }}
   push-operator-bundle:
+    needs: 
+      - deploy-operator-minikube-26
+      - deploy-operator-minikube-25
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
