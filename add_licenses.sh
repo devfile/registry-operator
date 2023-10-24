@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+
 #
 # Copyright Red Hat
 #
