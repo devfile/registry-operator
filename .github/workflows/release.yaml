@@ -34,9 +34,13 @@ jobs:
         driver: 'docker'
         github token: ${{ secrets.GITHUB_TOKEN }}
         start args: '--addons=ingress --memory 4096 --cpus 2'
+    - name: Set manager image pull policy to Never
+      uses: mikefarah/yq@v4.34.2
+      with:
+        cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
     - name: Build & Deploy - Registry Operator Release Image
       env:
-        REGISTRY_OPERATOR: registry-operator:${{ github.ref_name }}
+        REGISTRY_OPERATOR: localhost/registry-operator:${{ github.ref_name }}
       run: bash .ci/deploy_minikube_linux.sh
   push-operator-image:
     needs: deploy-operator
