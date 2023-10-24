@@ -20,9 +20,6 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
 
-env:
-  YQ_ACTION: mikefarah/yq@v4.34.2
-
 jobs:
   version-check:
     runs-on: ubuntu-latest
@@ -38,9 +35,9 @@ jobs:
     - name: Checkout registry-operator source code
       uses: actions/checkout@v2
     - name: Cache version tags
-      uses: ${{ env.YQ_ACTION }}
+      uses: mikefarah/yq@v4.34.2
       with:
-        cmd: mkdir -p .cache && sh .ci/cache_version_tags.sh
+        cmd: mkdir -p .cache && sudo sh .ci/cache_version_tags.sh
     - name: Check if VERSION and version tags match release tag
       run: bash check_version.sh ${{ github.ref_name }}
   deploy-operator-minikube-26:
@@ -58,7 +55,7 @@ jobs:
         github token: ${{ secrets.GITHUB_TOKEN }}
         start args: '--memory 4096 --cpus 2'
     - name: Set manager image pull policy to Never
-      uses: ${{ env.YQ_ACTION }}
+      uses: mikefarah/yq@v4.34.2
       with:
         cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
     - name: Build & Deploy - Registry Operator Release Image
@@ -80,7 +77,7 @@ jobs:
         github token: ${{ secrets.GITHUB_TOKEN }}
         start args: '--memory 4096 --cpus 2'
     - name: Set manager image pull policy to Never
-      uses: ${{ env.YQ_ACTION }}
+      uses: mikefarah/yq@v4.34.2
       with:
         cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
     - name: Build & Deploy - Registry Operator Release Image
@@ -102,11 +99,11 @@ jobs:
         github token: ${{ secrets.GITHUB_TOKEN }}
         start args: '--memory 4096 --cpus 2'
     - name: Set manager image pull policy to Never
-      uses: ${{ env.YQ_ACTION }}
+      uses: mikefarah/yq@v4.34.2
       with:
         cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
     - name: Cache bundle channels
-      uses: ${{ env.YQ_ACTION }}
+      uses: mikefarah/yq@v4.34.2
       with:
         cmd: yq '.annotations."operators.operatorframework.io.bundle.channels.v1"' 'bundle/metadata/annotations.yaml' > channels.txt
     - name: Build & Deploy - Registry Operator Bundle Release Image
