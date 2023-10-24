@@ -70,5 +70,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# wait 15 seconds for registry operator to get set up
+sleep 15
+
 # run integration test suite
 make test-integration
