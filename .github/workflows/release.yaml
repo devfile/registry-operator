@@ -20,8 +20,31 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
 
+env:
+  YQ_ACTION: mikefarah/yq@v4.34.2
+
 jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    env:
+      CACHED_CSV_VERSION: .cache/csv_version.txt
+      CACHED_CSV_CONTAINER_IMAGE_TAG: .cache/csv_container_image_tag.txt
+      CACHED_CSV_NAME_TAG: .cache/csv_name_tag.txt
+      CACHED_BUNDLE_VERSION: .cache/bundle_version.txt
+      CACHED_BUNDLE_CONTAINER_IMAGE_TAG: .cache/bundle_container_image_tag.txt
+      CACHED_BUNDLE_NAME_TAG: .cache/bundle_name_tag.txt
+      CACHED_MANAGER_IMAGE_TAG: .cache/manager_image_tag.txt
+    steps:
+    - name: Checkout registry-operator source code
+      uses: actions/checkout@v2
+    - name: Cache version tags
+      uses: ${{ env.YQ_ACTION }}
+      with:
+        cmd: mkdir -p .cache && sh .ci/cache_version_tags.sh
+    - name: Check if VERSION and version tags match release tag
+      run: bash check_version.sh ${{ github.ref_name }}
   deploy-operator-minikube-26:
+    needs: version-check
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
@@ -35,7 +58,7 @@ jobs:
         github token: ${{ secrets.GITHUB_TOKEN }}
         start args: '--memory 4096 --cpus 2'
     - name: Set manager image pull policy to Never
-      uses: mikefarah/yq@v4.34.2
+      uses: ${{ env.YQ_ACTION }}
       with:
         cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
     - name: Build & Deploy - Registry Operator Release Image
@@ -43,6 +66,7 @@ jobs:
         REGISTRY_OPERATOR: localhost/registry-operator:${{ github.ref_name }}
       run: bash .ci/deploy_minikube_linux.sh
   deploy-operator-minikube-25:
+    needs: version-check
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
@@ -56,7 +80,7 @@ jobs:
         github token: ${{ secrets.GITHUB_TOKEN }}
         start args: '--memory 4096 --cpus 2'
     - name: Set manager image pull policy to Never
-      uses: mikefarah/yq@v4.34.2
+      uses: ${{ env.YQ_ACTION }}
       with:
         cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
     - name: Build & Deploy - Registry Operator Release Image
@@ -64,6 +88,7 @@ jobs:
         REGISTRY_OPERATOR: localhost/registry-operator:${{ github.ref_name }}
       run: bash .ci/deploy_minikube_linux.sh
   deploy-olm-operator-minikube-26:
+    needs: version-check
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
@@ -77,11 +102,11 @@ jobs:
         github token: ${{ secrets.GITHUB_TOKEN }}
         start args: '--memory 4096 --cpus 2'
     - name: Set manager image pull policy to Never
-      uses: mikefarah/yq@v4.34.2
+      uses: ${{ env.YQ_ACTION }}
       with:
         cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
     - name: Cache bundle channels
-      uses: mikefarah/yq@v4.34.2
+      uses: ${{ env.YQ_ACTION }}
       with:
         cmd: yq '.annotations."operators.operatorframework.io.bundle.channels.v1"' 'bundle/metadata/annotations.yaml' > channels.txt
     - name: Build & Deploy - Registry Operator Bundle Release Image
@@ -91,6 +116,7 @@ jobs:
       run: REGISTRY_OPERATOR_CHANNELS=$(cat channels.txt) bash .ci/deploy_olm_minikube_linux.sh
   push-operator-image:
     needs: 
+      - version-check
       - deploy-operator-minikube-26
       - deploy-operator-minikube-25
       - deploy-olm-operator-minikube-26
@@ -109,6 +135,7 @@ jobs:
         tags: ${{ github.ref_name }}
   push-operator-bundle:
     needs: 
+      - version-check
       - deploy-operator-minikube-26
       - deploy-operator-minikube-25
       - deploy-olm-operator-minikube-26
