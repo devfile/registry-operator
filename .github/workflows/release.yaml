@@ -142,8 +142,11 @@ jobs:
       run: bash .ci/minikube_integration.sh
   push-operator-image:
     needs:
-      - k8s-1-26-integration-test
-      - k8s-1-25-integration-test
+      # uncomment and remove version-check when integration testing for k8s has been fixed
+      # https://github.com/devfile/api/issues/1313
+      # - k8s-1-26-integration-test
+      # - k8s-1-25-integration-test
+      - version-check
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
@@ -159,8 +162,11 @@ jobs:
         tags: ${{ github.ref_name }}
   push-operator-bundle:
     needs:
-      - k8s-1-26-integration-test
-      - k8s-1-25-integration-test
+      # uncomment and remove version-check when integration testing for k8s has been fixed
+      # https://github.com/devfile/api/issues/1313
+      # - k8s-1-26-integration-test
+      # - k8s-1-25-integration-test
+      - version-check
     runs-on: ubuntu-latest
     steps:
     - name: Checkout registry-operator source code
