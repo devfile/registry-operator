@@ -24,7 +24,6 @@ CACHED_BUNDLE_NAME_TAG=${CACHED_BUNDLE_NAME_TAG:-'.cache/bundle_name_tag.txt'}
 CACHED_MANAGER_IMAGE_TAG=${CACHED_MANAGER_IMAGE_TAG:-'.cache/manager_image_tag.txt'}
 
 ref_name=$1
-is_ci=${2:-"false"}
 failed="false"
 
 if [ -z ${ref_name} ]
@@ -33,7 +32,7 @@ then
     exit 1
 fi
 
-if [ ${is_ci} != "true" ]
+if [ ${CI} != "true" ]
 then
     if [ -z $(command -v yq) ] && [ -z $(command -v ${YQ_CLI}) ]
     then
