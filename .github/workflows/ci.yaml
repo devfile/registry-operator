@@ -23,14 +23,14 @@ jobs:
     name: Check go sources
     runs-on: ubuntu-latest
     steps:
+    -
+      name: Check out code into the Go module directory
+      uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
     - 
       name: Set up Go 1.x
       uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
       with:
         go-version-file: 'go.mod'
-    -
-      name: Check out code into the Go module directory
-      uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
     -
       name: Cache go modules
       id: cache-mod
