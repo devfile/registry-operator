@@ -32,7 +32,7 @@ then
     exit 1
 fi
 
-if [ ${CI} != "true" ]
+if [ "${CI}" != "true" ]
 then
     if [ -z $(command -v yq) ] && [ -z $(command -v ${YQ_CLI}) ]
     then
