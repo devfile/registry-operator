@@ -23,12 +23,13 @@ CACHED_BUNDLE_CONTAINER_IMAGE_TAG=${CACHED_BUNDLE_CONTAINER_IMAGE_TAG:-'.cache/b
 CACHED_BUNDLE_NAME_TAG=${CACHED_BUNDLE_NAME_TAG:-'.cache/bundle_name_tag.txt'}
 CACHED_MANAGER_IMAGE_TAG=${CACHED_MANAGER_IMAGE_TAG:-'.cache/manager_image_tag.txt'}
 
-ref_name=$1
+version_number=$(cat ./VERSION)
+version_label="v${version_number}"
 failed="false"
 
-if [ -z ${ref_name} ]
+if [[ ! "${version_number}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ ! "${version_number}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]
 then
-    echo "expects release tag (ref_name): bash check_version.sh <ref_name> [is_ci=false]"
+    echo "invalid version '${version_number}' under VERSION file, should be [0-9]+.[0-9]+.[0-9]+ or [0-9]+.[0-9]+.[0-9]+-rc.[0-9]+"
     exit 1
 fi
 
@@ -65,51 +66,45 @@ set -u
 
 ## Check if all references to the release version match ##
 
-if [ "${ref_name}" != "v$(cat ./VERSION)" ]
+if [ "${version_label}" != "v$(cat ${CACHED_CSV_VERSION})" ]
 then
-    echo "Release tag does not match VERSION: release tag = ${ref_name}, VERSION = v$(cat ./VERSION)"
+    echo "Release tag does not match csv version: release tag = ${version_label}, csv version = v$(cat ${CACHED_CSV_VERSION})"
     failed="true"
 fi
 
-if [ "${ref_name}" != "v$(cat ${CACHED_CSV_VERSION})" ]
+if [ "${version_label}" != "$(cat ${CACHED_CSV_CONTAINER_IMAGE_TAG})" ]
 then
-    echo "Release tag does not match csv version: release tag = ${ref_name}, csv version = v$(cat ${CACHED_CSV_VERSION})"
+    echo "Release tag does not match csv container image tag: release tag = ${version_label}, csv container image tag = $(cat ${CACHED_CSV_CONTAINER_IMAGE_TAG})"
     failed="true"
 fi
 
-if [ "${ref_name}" != "$(cat ${CACHED_CSV_CONTAINER_IMAGE_TAG})" ]
+if [ "${version_label}" != "$(cat ${CACHED_CSV_NAME_TAG})" ]
 then
-    echo "Release tag does not match csv container image tag: release tag = ${ref_name}, csv container image tag = $(cat ${CACHED_CSV_CONTAINER_IMAGE_TAG})"
+    echo "Release tag does not match csv name tag: release tag = ${version_label}, csv name tag = $(cat ${CACHED_CSV_NAME_TAG})"
     failed="true"
 fi
 
-if [ "${ref_name}" != "$(cat ${CACHED_CSV_NAME_TAG})" ]
+if [ "${version_label}" != "v$(cat ${CACHED_BUNDLE_VERSION})" ]
 then
-    echo "Release tag does not match csv name tag: release tag = ${ref_name}, csv name tag = $(cat ${CACHED_CSV_NAME_TAG})"
+    echo "Release tag does not match bundle version: release tag = ${version_label}, bundle version = v$(cat ${CACHED_BUNDLE_VERSION})"
     failed="true"
 fi
 
-if [ "${ref_name}" != "v$(cat ${CACHED_BUNDLE_VERSION})" ]
+if [ "${version_label}" != "$(cat ${CACHED_BUNDLE_CONTAINER_IMAGE_TAG})" ]
 then
-    echo "Release tag does not match bundle version: release tag = ${ref_name}, bundle version = v$(cat ${CACHED_BUNDLE_VERSION})"
+    echo "Release tag does not match bundle container image tag: release tag = ${version_label}, bundle container image tag = $(cat ${CACHED_BUNDLE_CONTAINER_IMAGE_TAG})"
     failed="true"
 fi
 
-if [ "${ref_name}" != "$(cat ${CACHED_BUNDLE_CONTAINER_IMAGE_TAG})" ]
+if [ "${version_label}" != "$(cat ${CACHED_BUNDLE_NAME_TAG})" ]
 then
-    echo "Release tag does not match bundle container image tag: release tag = ${ref_name}, bundle container image tag = $(cat ${CACHED_BUNDLE_CONTAINER_IMAGE_TAG})"
+    echo "Release tag does not match bundle name tag: release tag = ${version_label}, bundle name tag = $(cat ${CACHED_BUNDLE_NAME_TAG})"
     failed="true"
 fi
 
-if [ "${ref_name}" != "$(cat ${CACHED_BUNDLE_NAME_TAG})" ]
+if [ "${version_label}" != "$(cat ${CACHED_MANAGER_IMAGE_TAG})" ]
 then
-    echo "Release tag does not match bundle name tag: release tag = ${ref_name}, bundle name tag = $(cat ${CACHED_BUNDLE_NAME_TAG})"
-    failed="true"
-fi
-
-if [ "${ref_name}" != "$(cat ${CACHED_MANAGER_IMAGE_TAG})" ]
-then
-    echo "Release tag does not match manager image tag: release tag = ${ref_name}, manager image tag = $(cat ${CACHED_MANAGER_IMAGE_TAG})"
+    echo "Release tag does not match manager image tag: release tag = ${version_label}, manager image tag = $(cat ${CACHED_MANAGER_IMAGE_TAG})"
     failed="true"
 fi
 

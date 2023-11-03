@@ -63,7 +63,7 @@ jobs:
           YQ_CLI: ./yq
         run: mkdir -p .cache && bash .ci/cache_version_tags.sh
       - name: Check if VERSION and version tags match release tag
-        run: bash check_version.sh ${{ github.ref_name }}
+        run: bash check_version.sh
   k8s-integration-test:
     strategy:
       matrix:
