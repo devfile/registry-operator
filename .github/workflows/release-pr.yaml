@@ -116,6 +116,4 @@ jobs:
         with:
           cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
       - name: Run integration testing on release image
-        env:
-          REGISTRY_OPERATOR: localhost/registry-operator:${{ github.ref_name }}
-        run: bash .ci/minikube_integration.sh
+        run: REGISTRY_OPERATOR=localhost/registry-operator:v$(cat VERSION) bash .ci/minikube_integration.sh
