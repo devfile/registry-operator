@@ -1,0 +1,121 @@
+#
+# Copyright Red Hat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+name: Release PRs
+
+on:
+  pull_request:
+    branches:
+      - release-v0
+
+jobs:
+  gosec:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout registry-operator source code
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Set up Go 1.x
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
+        with:
+          go-version-file: 'go.mod'
+      - name: Run Gosec Security Scanner
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@v2.14.0
+          make gosec
+          if [[ $? != 0 ]]
+          then
+            echo "gosec scanner failed to run "
+            exit 1
+          fi
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@74483a38d39275f33fcff5f35b679b5ca4a26a99 # 2.22.5
+        with:
+          # Path to SARIF file relative to the root of the repository
+          sarif_file: gosec.sarif
+  version-check:
+    runs-on: ubuntu-latest
+    env:
+      CACHED_CSV_VERSION: .cache/csv_version.txt
+      CACHED_CSV_CONTAINER_IMAGE_TAG: .cache/csv_container_image_tag.txt
+      CACHED_CSV_NAME_TAG: .cache/csv_name_tag.txt
+      CACHED_BUNDLE_VERSION: .cache/bundle_version.txt
+      CACHED_BUNDLE_CONTAINER_IMAGE_TAG: .cache/bundle_container_image_tag.txt
+      CACHED_BUNDLE_NAME_TAG: .cache/bundle_name_tag.txt
+      CACHED_MANAGER_IMAGE_TAG: .cache/manager_image_tag.txt
+    steps:
+      - name: Checkout registry-operator source code
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Download yq
+        run: curl -sL https://github.com/mikefarah/yq/releases/download/v4.34.2/yq_linux_amd64 -o yq && chmod +x yq
+      - name: Cache version tags
+        env:
+          YQ_CLI: ./yq
+        run: mkdir -p .cache && bash .ci/cache_version_tags.sh
+      - name: Check if VERSION and version tags match release tag
+        run: bash check_version.sh ${{ github.ref_name }}
+  k8s-integration-test:
+    strategy:
+      matrix:
+        version: [1.25, 1.26]
+    needs: 
+      - version-check
+      - gosec
+    runs-on: ubuntu-latest
+    env:
+      OPERATOR_SDK_DL_URL: https://github.com/operator-framework/operator-sdk/releases/download/v1.28.0
+      OPERATOR_SDK_CLI: ./operator-sdk
+    steps:
+      - name: Checkout registry-operator source code
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Setup Go environment
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
+        with:
+          go-version-file: 'go.mod'
+      - name: Download operator-sdk
+        run: |
+          export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
+          export OS=$(uname | awk '{print tolower($0)}')
+
+          curl -LO ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH}
+      - name: Verify the downloaded operator-sdk
+        run: |
+          export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
+          export OS=$(uname | awk '{print tolower($0)}')
+          gpg --keyserver keyserver.ubuntu.com --recv-keys 052996E2A20B5C7E;
+          curl -LO ${OPERATOR_SDK_DL_URL}/checksums.txt;
+          curl -LO ${OPERATOR_SDK_DL_URL}/checksums.txt.asc;
+          gpg -u "Operator SDK (release) <cncf-operator-sdk@cncf.io>" --verify checksums.txt.asc;
+          grep operator-sdk_${OS}_${ARCH} checksums.txt | sha256sum -c -
+      - name: Setup operator-sdk
+        run: |
+          export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
+          export OS=$(uname | awk '{print tolower($0)}')
+          mv operator-sdk_${OS}_${ARCH} ${OPERATOR_SDK_CLI}
+          chmod +x ${OPERATOR_SDK_CLI}
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@3856c6fa039819f1c8e7e248b1fc5a8564e354c9 # v2.9.0
+        with:
+          minikube version: 'v1.31.2'
+          kubernetes version: "${{ matrix.version }}"
+          driver: 'docker'
+          github token: ${{ secrets.GITHUB_TOKEN }}
+          start args: '--memory 4096 --cpus 2'
+      - name: Set manager image pull policy to Never
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+        with:
+          cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
+      - name: Run integration testing on release image
+        env:
+          REGISTRY_OPERATOR: localhost/registry-operator:${{ github.ref_name }}
+        run: bash .ci/minikube_integration.sh
