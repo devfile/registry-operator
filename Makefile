@@ -118,11 +118,11 @@ test-integration:
 
 .PHONY: build manager
 manager: manifests generate fmt vet ## Build manager binary.
-	go build -o $(LOCALBIN)/manager ./cmd/main.go
+	go build -o $(LOCALBIN)/manager ./main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./cmd/main.go
+	$(LOCALBIN)/manager
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
