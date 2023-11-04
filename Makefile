@@ -19,6 +19,7 @@ VERSION ?= `cat $(PWD)/VERSION`
 BUNDLE_IMG ?= quay.io/devfile/registry-operator-bundle:v$(VERSION)
 CERT_MANAGER_VERSION ?= v1.11.0
 ENABLE_WEBHOOKS ?= true
+ENABLE_WEBHOOK_HTTP2 ?= false
 
 # Options for 'bundle-build'
 ifneq ($(origin CHANNELS), undefined)
@@ -170,7 +171,8 @@ generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and
 # Build the docker image
 .PHONY: docker-build
 docker-build:
-	docker build . -t ${IMG} --build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS}
+	docker build . -t ${IMG} --build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS} \
+--build-arg ENABLE_WEBHOOK_HTTP2=${ENABLE_WEBHOOK_HTTP2}
 
 # Push the docker image
 .PHONY: docker-push
