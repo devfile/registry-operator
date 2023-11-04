@@ -40,6 +40,13 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 
 8. Run `make deploy` to deploy the operator.
 
+##### Enabling HTTP/2 on the Webhook Server
+
+By default, http/2 on the webhook server is disabled due to [CVE-2023-44487](https://github.com/advisories/GHSA-qppj-fm5r-hxr3).
+
+If you want to enable http/2 for the webhook server, build with `ENABLE_WEBHOOK_HTTP2=true make docker-build` or with 
+`ENABLE_WEBHOOK_HTTP2=true make run` if running locally.
+
 ### Testing your Changes
 
 All changes delivered to the Devfile Registry operator are expected to be sufficiently tested. This may include validating that existing tests pass, updating tests, or adding new tests.
