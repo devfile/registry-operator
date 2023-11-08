@@ -69,7 +69,7 @@ Some of the rules supported by the makefile:
 
 |rule|purpose|
 |---|---|
-| controller-gen | install the controll-gen tool, used by other commands |
+| controller-gen | install the controller-gen tool, used by other commands |
 | kustomize | install the kustomize tool, used by other commands |
 | docker-build | build registry operator docker image |
 | docker-push | push registry operator docker image |
