@@ -71,11 +71,11 @@ Some of the rules supported by the makefile:
 |---|---|
 | controller-gen | install the controller-gen tool, used by other commands |
 | kustomize | install the kustomize tool, used by other commands |
-| docker-build | build registry operator docker image |
-| docker-push | push registry operator docker image |
+| docker-build | build registry operator container image using docker |
+| docker-push | push registry operator container image using docker |
 | docker-buildx | build & push registry operator docker image for all supported architectures |
-| podman-build | build registry operator podman image |
-| podman-push | push registry operator podman image |
+| podman-build | build registry operator container image using podman |
+| podman-push | push registry operator container image using podman |
 | deploy | deploy operator to cluster |
 | undeploy | undeploy operator from cluster |
 | install | create the devfile registry CRDs on the cluster |
