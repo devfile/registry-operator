@@ -24,17 +24,18 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 3. Open the folder in the IDE of your choice (VS Code with Go extension, or GoLand is recommended)
 
 #### Build and Run the Operator
+The Makefile currently supports both Docker and Podman. To run the proper command replace `<engine>` with either `podman` or `docker` depending on your container engine.
 1. Log in to an OpenShift or Kubernetes cluster
 
 2. Run `export IMG=<operator-image>` where `<operator-image>` is the image repository to where you would like to push the image (e.g. `quay.io/user/registry-operator:latest`).
 
-3. Run `make docker-build` to build the devfile registry operator.
+3. Run `make <engine>-build` to build the devfile registry operator.
 
-4. Run `make docker-push` to push the devfile registry operator image.
+4. Run `make <engine>-push` to push the devfile registry operator image.
 
-5. (Optional, **docker only**) Run `make docker-buildx` to build and push the devfile registry operator multi-architecture image
+5. (Optional, **docker only**) Run `make docker-buildx` to build and push the devfile registry operator multi-architecture image.
 
-6. Run `make install-cert` to install the cert-manager.
+6. Run `make install-cert` to install the cert-manager. (Allow time for these services to spin up before moving on to step 7 & 8).
 
 7. Run `make install` to install the CRDs.
 
