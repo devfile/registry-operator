@@ -195,6 +195,17 @@ docker-buildx: test ## Build and push docker image for the manager for cross-pla
 	- docker buildx rm registry-operator-builder
 	rm Dockerfile.cross
 
+# Build the podman image
+.PHONY: podman-build
+podman-build:
+	podman build . -t ${IMG} --build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS}
+
+# Push the podman image
+.PHONY: podman-push
+podman-push:
+	podman push ${IMG}
+
+
 .PHONY: install-cert
 install-cert: ## Install cert manager for webhooks
 	$(K8S_CLI) apply -f https://github.com/cert-manager/cert-manager/releases/download/$(CERT_MANAGER_VERSION)/cert-manager.yaml
