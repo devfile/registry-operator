@@ -16,12 +16,13 @@ spec:
             drop: ["ALL"]
           seccompProfile:
             type: "RuntimeDefault"
-        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.13.1
+        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.15.0
         args:
         - "--secure-listen-address=0.0.0.0:8443"
         - "--upstream=http://127.0.0.1:8080/"
         - "--logtostderr=true"
         - "--v=10"
+        - "--http2-disable=true"
         ports:
         - containerPort: 8443
           protocol: TCP

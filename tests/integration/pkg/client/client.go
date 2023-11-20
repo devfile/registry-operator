@@ -17,8 +17,10 @@
 package client
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -28,6 +30,7 @@ import (
 type K8sClient struct {
 	kubeClient       *kubernetes.Clientset
 	controllerClient client.Client
+	cli              string
 }
 
 // NewK8sClient creates kubernetes client wrapper with helper functions and direct access to k8s go client
@@ -49,10 +52,33 @@ func NewK8sClient() (*K8sClient, error) {
 	}
 
 	h := &K8sClient{kubeClient: kubeClient, controllerClient: controllerClient}
+
+	h.cli, err = findCLI()
+	if err != nil {
+		fmt.Println("failed to find oc or kubectl cli")
+		os.Exit(1)
+	}
 	return h, nil
 }
 
 // Kube returns the clientset for Kubernetes upstream.
 func (c *K8sClient) Kube() kubernetes.Interface {
 	return c.kubeClient
+}
+
+// findCLI returns the first found CLI compatible with oc/kubectl
+func findCLI() (string, error) {
+	selected := os.Getenv("K8S_CLI")
+	if selected != "" {
+		return selected, nil
+	}
+	for _, cli := range []string{"oc", "kubectl"} {
+		_, err := exec.LookPath(cli)
+		if err != nil {
+			continue
+		}
+		return cli, nil
+	}
+
+	return "", errors.New("no oc/kubectl CLI found")
 }

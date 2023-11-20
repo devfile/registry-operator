@@ -24,21 +24,29 @@ You can tag Devfile Registry related issues with the `/area registry` text in yo
 3. Open the folder in the IDE of your choice (VS Code with Go extension, or GoLand is recommended)
 
 #### Build and Run the Operator
-1. Log in to an OpenShfit or Kubernetes cluster
+The Makefile currently supports both Docker and Podman. To run the proper command replace `<engine>` with either `podman` or `docker` depending on your container engine.
+1. Log in to an OpenShift or Kubernetes cluster
 
 2. Run `export IMG=<operator-image>` where `<operator-image>` is the image repository to where you would like to push the image (e.g. `quay.io/user/registry-operator:latest`).
 
-3. Run `make docker-build` to build the devfile registry operator.
+3. Run `make <engine>-build` to build the devfile registry operator.
 
-4. Run `make docker-push` to push the devfile registry operator image.
+4. Run `make <engine>-push` to push the devfile registry operator image.
 
-5. (Optional, **docker only**) Run `make docker-buildx` to build and push the devfile registry operator multi-architecture image
+5. (Optional, **docker only**) Run `make docker-buildx` to build and push the devfile registry operator multi-architecture image.
 
-6. Run `make install-cert` to install the cert-manager.
+6. Run `make install-cert` to install the cert-manager. (Allow time for these services to spin up before moving on to step 7 & 8).
 
 7. Run `make install` to install the CRDs.
 
 8. Run `make deploy` to deploy the operator.
+
+##### Enabling HTTP/2 on the Webhook Server
+
+By default, http/2 on the webhook server is disabled due to [CVE-2023-44487](https://github.com/advisories/GHSA-qppj-fm5r-hxr3).
+
+If you want to enable http/2 for the webhook server, build with `ENABLE_WEBHOOK_HTTP2=true make docker-build` or with 
+`ENABLE_WEBHOOK_HTTP2=true make run` if running locally.
 
 ### Testing your Changes
 
@@ -67,7 +75,7 @@ make test-integration
 Signed-off-by: First Lastname <email@email.com>
 ```
 
-You can easily add this footer to your commits by adding `-s` when running `git commit`.When you think the code is ready for review, create a pull request and link the issue associated with it.
+You can easily add this footer to your commits by adding `-s` when running `git commit`. When you think the code is ready for review, create a pull request and link the issue associated with it.
 
 Owners of the repository will watch out for and review new PRs. 
 

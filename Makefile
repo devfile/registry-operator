@@ -1,9 +1,25 @@
+#
+# Copyright Red Hat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Current Operator version
 VERSION ?= `cat $(PWD)/VERSION`
 # Default bundle image tag
 BUNDLE_IMG ?= quay.io/devfile/registry-operator-bundle:v$(VERSION)
 CERT_MANAGER_VERSION ?= v1.11.0
 ENABLE_WEBHOOKS ?= true
+ENABLE_WEBHOOK_HTTP2 ?= false
 
 # Options for 'bundle-build'
 ifneq ($(origin CHANNELS), undefined)
@@ -42,6 +58,9 @@ else
 K8S_CLI := kubectl
 endif
 endif
+
+# operator-sdk
+OPERATOR_SDK_CLI ?= operator-sdk
 
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
@@ -100,11 +119,11 @@ test-integration:
 
 .PHONY: build manager
 manager: manifests generate fmt vet ## Build manager binary.
-	go build -o $(LOCALBIN)/manager ./cmd/main.go
+	go build -o $(LOCALBIN)/manager ./main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./cmd/main.go
+	$(LOCALBIN)/manager
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
@@ -152,7 +171,8 @@ generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and
 # Build the docker image
 .PHONY: docker-build
 docker-build:
-	docker build . -t ${IMG} --build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS}
+	docker build . -t ${IMG} --build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS} \
+--build-arg ENABLE_WEBHOOK_HTTP2=${ENABLE_WEBHOOK_HTTP2}
 
 # Push the docker image
 .PHONY: docker-push
@@ -176,6 +196,17 @@ docker-buildx: test ## Build and push docker image for the manager for cross-pla
 	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross $(shell pwd)
 	- docker buildx rm registry-operator-builder
 	rm Dockerfile.cross
+
+# Build the podman image
+.PHONY: podman-build
+podman-build:
+	podman build . -t ${IMG} --build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS}
+
+# Push the podman image
+.PHONY: podman-push
+podman-push:
+	podman push ${IMG}
+
 
 .PHONY: install-cert
 install-cert: ## Install cert manager for webhooks
@@ -226,10 +257,10 @@ $(ENVTEST): $(LOCALBIN)
 # Generate bundle manifests and metadata, then validate generated files.
 .PHONY: bundle
 bundle: manifests
-	operator-sdk generate kustomize manifests -q
+	$(OPERATOR_SDK_CLI) generate kustomize manifests -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
-	$(KUSTOMIZE) build config/manifests | operator-sdk generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
-	operator-sdk bundle validate ./bundle
+	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK_CLI) generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
+	$(OPERATOR_SDK_CLI) bundle validate ./bundle
 
 # Build the bundle image.
 .PHONY: bundle-build
