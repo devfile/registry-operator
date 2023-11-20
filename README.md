@@ -69,11 +69,13 @@ Some of the rules supported by the makefile:
 
 |rule|purpose|
 |---|---|
-| controller-gen | install the controll-gen tool, used by other commands |
+| controller-gen | install the controller-gen tool, used by other commands |
 | kustomize | install the kustomize tool, used by other commands |
-| docker-build | build registry operator docker image |
-| docker-push | push registry operator docker image |
-| docker-buildx | build & push registry operator docker image for all supported architectures \(**does not work with podman**\) |
+| docker-build | build registry operator container image using docker |
+| docker-push | push registry operator container image using docker |
+| docker-buildx | build & push registry operator docker image for all supported architectures |
+| podman-build | build registry operator container image using podman |
+| podman-push | push registry operator container image using podman |
 | deploy | deploy operator to cluster |
 | undeploy | undeploy operator from cluster |
 | install | create the devfile registry CRDs on the cluster |
@@ -96,11 +98,12 @@ To see all rules supported by the makefile, run `make help`
 
 To run integration tests for the operator, run `make test-integration`. 
 
-The `oc` executable must be accessible.
+One of the `oc` or `kubectl` executables must be accessible. If both are present in your path, `oc` will be used, except if you
+define the environment variable `K8S_CLI` with the command you prefer to use.
 
 By default, the tests will use the default image for the operator, `quay.io/devfile/registry-operator:next`.
 
-You can use `make docker-build` to build your own image, `make docker-push` to publish it. Then, to use your own image, run:
+You can use `make <engine>-build` to build your own image, `make <engine>-push` to publish it - Replace `<engine>` with `podman` or `docker`. Then, to use your own image, run:
 
 ```
 IMG=<your-operator-image> make test-integration

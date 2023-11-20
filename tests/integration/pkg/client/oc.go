@@ -24,9 +24,9 @@ import (
 	"github.com/devfile/registry-operator/tests/integration/pkg/config"
 )
 
-// OcApplyResource applies resources on the cluster, corresponding to the specified file(s)
-func (w *K8sClient) OcApplyResource(filePath string) (err error) {
-	cmd := exec.Command("oc", "apply", "--namespace", config.Namespace, "-f", filePath)
+// ApplyResource applies resources on the cluster, corresponding to the specified file(s)
+func (w *K8sClient) ApplyResource(filePath string) (err error) {
+	cmd := exec.Command(w.cli, "apply", "--namespace", config.Namespace, "-f", filePath)
 	outBytes, err := cmd.CombinedOutput()
 	output := string(outBytes)
 	if err != nil && !strings.Contains(output, "AlreadyExists") {
@@ -35,9 +35,9 @@ func (w *K8sClient) OcApplyResource(filePath string) (err error) {
 	return err
 }
 
-// OcDeleteResource deletes the resources from the cluster that the specified file(s) correspond to
-func (w *K8sClient) OcDeleteResource(filePath string) (err error) {
-	cmd := exec.Command("oc", "delete", "--namespace", config.Namespace, "-f", filePath)
+// DeleteResource deletes the resources from the cluster that the specified file(s) correspond to
+func (w *K8sClient) DeleteResource(filePath string) (err error) {
+	cmd := exec.Command(w.cli, "delete", "--namespace", config.Namespace, "-f", filePath)
 	outBytes, err := cmd.CombinedOutput()
 	output := string(outBytes)
 	if err != nil && !strings.Contains(output, "AlreadyExists") {
@@ -48,7 +48,7 @@ func (w *K8sClient) OcDeleteResource(filePath string) (err error) {
 
 // CurlEndpointInContainer execs into the given container in the pod and uses curl to hit the specified endpoint
 func (w *K8sClient) CurlEndpointInContainer(pod string, container string, endpoint string) (string, error) {
-	cmd := exec.Command("oc", "exec", pod, "--namespace", config.Namespace, "-c", container, "--", "curl", endpoint)
+	cmd := exec.Command(w.cli, "exec", pod, "--namespace", config.Namespace, "-c", container, "--", "curl", endpoint)
 	outBytes, err := cmd.CombinedOutput()
 	output := string(outBytes)
 	return output, err
