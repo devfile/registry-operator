@@ -63,6 +63,10 @@ endif
 
 # operator-sdk
 OPERATOR_SDK_CLI ?= operator-sdk
+<<<<<<< HEAD
+=======
+
+>>>>>>> 682f891 (v0.2.0 (#63))
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # This is a requirement for 'setup-envtest.sh' in the test target.
