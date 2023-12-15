@@ -101,7 +101,8 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 
-## Architechure
+## Target platform
+TARGET_OS ?= linux # `make manager` only
 TARGET_ARCH ?= amd64
 
 ##@ Development
@@ -122,7 +123,7 @@ test-integration:
 
 .PHONY: build manager
 manager: manifests generate fmt vet ## Build manager binary.
-	go build -o $(LOCALBIN)/manager ./main.go
+	GOOS=${TARGET_OS} GOARCH=${TARGET_ARCH} go build -o $(LOCALBIN)/manager ./main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
