@@ -6,13 +6,28 @@ Thank you for your interest in contributing to the Devfile Registry Operator! We
 
 Before contributing to this repository for the first time, please review our project's [Code of Conduct](https://github.com/devfile/api/blob/main/CODE_OF_CONDUCT.md)
 
+## Certificate of Origin
+
+By contributing to this project you agree to the Developer Certificate of
+Origin (DCO). This document was created by the Linux Kernel community and is a
+simple statement that you, as a contributor, have the legal right to make the
+contribution. See the [DCO](DCO) file for details.
+
+In order to show your agreement with the DCO you should include at the end of the commit message,
+the following line:
+```console
+Signed-off-by: Firstname Lastname <email@email.com>
+```
+
+Once you set your user.name and user.email in your git config, you can sign your commit automatically with `git commit -s`.
+
 ## How to Contribute
 
 ### Issues
 
-If you spot a problem with the devfile registry, [search if an issue already exists](https://github.com/devfile/api/issues). If a related issue doesn't exist, you can open a new issue using a relevant [issue form](https://github.com/devfile/api/issues/new/choose).
+If you spot a problem with the **devfile registry operator**, [search if an issue already exists](https://github.com/devfile/api/issues?q=is%3Aissue+is%3Aopen+label%3Aarea%2Fregistry). 
 
-You can tag Devfile Registry related issues with the `/area registry` text in your issue.
+If a related issue doesn't exist, you can open a new issue using a relevant [issue form](https://github.com/devfile/api/issues/new/choose). You can tag Devfile Registry Operator related issues with the `/area registry` text in your issue.
 
 ### Development
 
@@ -50,7 +65,7 @@ If you want to enable http/2 for the webhook server, build with `ENABLE_WEBHOOK_
 
 ### Testing your Changes
 
-All changes delivered to the Devfile Registry operator are expected to be sufficiently tested. This may include validating that existing tests pass, updating tests, or adding new tests.
+All changes delivered to the Devfile Registry Operator are expected to be sufficiently tested. This may include validating that existing tests pass, updating tests, or adding new tests.
 
 #### Unit Tests
 
@@ -60,13 +75,12 @@ The unit tests for this repository are located under the `pkg/` folder and are d
 
 The integration tests for this repository are located under the `tests/integration` folder and contain tests that validate the Operator's functionality when running on an OpenShift cluster.
 
-To run these tests, run the following commands :
+To run these tests, run the following commands:
 
 ```bash
 export IMG=<your-built-operator-image>
 make test-integration
 ```
-
 
 ### Submitting Pull Request
 
@@ -77,15 +91,14 @@ Signed-off-by: First Lastname <email@email.com>
 
 You can easily add this footer to your commits by adding `-s` when running `git commit`. When you think the code is ready for review, create a pull request and link the issue associated with it.
 
-Owners of the repository will watch out for and review new PRs. 
+Owners of the repository will watch out for new PRs and provide reviews to them.
 
-By default for each change in the PR, GitHub Actions and OpenShift CI will run checks against your changes (linting, unit testing, and integration tests)
+For each change in the PR, GitHub Actions and OpenShift CI will by default run checks against your changes (linting, unit testing, and integration tests).
 
 If comments have been given in a review, they have to be addressed before merging.
 
-After addressing review comments, don’t forget to add a comment in the PR afterward, so everyone gets notified by Github and knows to re-review.
-
+After addressing review comments, don't forget to add a comment in the PR with the reviewer mentioned afterward, so they get notified by Github to provide a re-review.
 
 # Contact us
 
-If you have questions, please visit us on `#devfile` on the [Kubernetes Slack](https://slack.k8s.io).
+If you have any questions, please visit the `#devfile` channel under the [Kubernetes Slack](https://slack.k8s.io) workspace.
