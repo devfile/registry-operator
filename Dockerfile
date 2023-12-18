@@ -15,7 +15,7 @@
 
 # Build the manager binary
 FROM golang:1.19 as builder
-ARG TARGETARCH
+ARG TARGETARCH=amd64
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -43,7 +43,7 @@ ENV ENABLE_WEBHOOK_HTTP2=${ENABLE_WEBHOOK_HTTP2}
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM gcr.io/distroless/static:nonroot-${TARGETARCH}
 WORKDIR /
 COPY --from=builder /workspace/manager .
 USER 1001

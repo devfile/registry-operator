@@ -64,6 +64,27 @@ The repository contains a Makefile; building and deploying can be configured via
 |variable|purpose|default value|
 |---|---|---|
 | `IMG` | Image used for controller (run makefile, if `IMG` is updated) | `quay.io/devfile/registry-operator:next` |
+| `BUNDLE_IMG` | Image used for bundle OLM package | `quay.io/devfile/registry-operator-bundle:<latest_version>` |
+| `CERT_MANAGER_VERSION` | Version of `cert-manager` installed using `make install-cert` | `v1.11.0` |
+| `ENABLE_WEBHOOKS` | If `false`, disables operator webhooks | `true` |
+| `ENABLE_WEBHOOK_HTTP2` | Overrides webhook HTTP server deployment to use http/2 if set to `true`, **not recommended** | `false` |
+| `BUNDLE_CHANNELS` | Sets the list channel(s) include bundle build under | `alpha` |
+| `BUNDLE_DEFAULT_CHANNEL` | Sets the default channel to use when installing the bundle | |
+| `ENVTEST_K8S_VERSION` | Version of k8s to use for the test environment | `1.26` (current) |
+| `CONTROLLER_TOOLS_VERSION` | Version of the controller tools | `v0.9.2` |
+| `KUSTOMIZE_VERSION` | Version of kustomize | `v3.8.7` | 
+| `GOBIN` | Path to install Go binaries to | `${GOPATH}/bin` |
+| `K8S_CLI` | Path to CLI tool to use with the target cluster environment, `kubectl` or `oc` | Either `oc` or `kubectl` if installed in that order |
+| `OPERATOR_SDK_CLI` | CLI path to `operator-sdk` tool | `operator-sdk` |
+| `SHELL` | Active shell to use with make | `/usr/bin/env bash -o pipefail` |
+| `LOCALBIN` | Path to place project binaries | `./bin` |
+| `KUSTOMIZE` | Path to target `kustomize` binary | `${LOCALBIN}/kustomize` |
+| `CONTROLLER_GEN` | Path to target `controller-gen` binary | `${LOCALBIN}/controller-gen` |
+| `ENVTEST` | Path to target `setup-envtest` binary | `${LOCALBIN}/setup-envtest` |
+| `TARGET_ARCH` | Target architecture for operator manager builds, possible values: `amd64`, `arm64`, `s390x`, `ppc64le` | `amd64` |
+| `TARGET_OS` | Target operating system for operator manager build, **only for `make manager`** | `linux` |
+| `PLATFORMS` | Target architecture(s) for `make docker-buildx` | All supported: `linux/arm64,linux/amd64,linux/s390x,linux/ppc64le` |
+| `KUSTOMIZE_INSTALL_SCRIPT` | URL of kustomize installation script, see [kustomize installation instructions](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/) | `https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh` |
 
 Some of the rules supported by the makefile:
 

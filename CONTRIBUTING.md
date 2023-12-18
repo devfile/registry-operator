@@ -60,8 +60,47 @@ The Makefile currently supports both Docker and Podman. To run the proper comman
 
 By default, http/2 on the webhook server is disabled due to [CVE-2023-44487](https://github.com/advisories/GHSA-qppj-fm5r-hxr3).
 
-If you want to enable http/2 for the webhook server, build with `ENABLE_WEBHOOK_HTTP2=true make docker-build` or with 
+If you want to enable http/2 for the webhook server, build with `ENABLE_WEBHOOK_HTTP2=true make <engine>-build` or with 
 `ENABLE_WEBHOOK_HTTP2=true make run` if running locally.
+
+##### Using other platforms
+
+If you need to target another platform for container builds, such as Apple silicon, you can use `TARGET_ARCH=<architecture> make <engine>-build`.
+
+For example, to target container build to `arm64` run the following:
+
+```sh
+TARGET_ARCH=arm64 make <engine>-build
+```
+
+**Note:** Container builds only use `linux` as the operating system as local cluster runtime environments, such as `minikube` environments, run under Linux virtual machines for other operating systems. For example, _Apple silicon_ would just use the `arm64` container build.
+
+For local builds, you can also set the target operating system:
+
+**Apple silicon**
+
+```sh
+export TARGET_OS=darwin
+export TARGET_ARCH=arm64
+make manager
+```
+
+**Linux ARM**
+
+```sh
+export TARGET_ARCH=arm64
+make manager
+```
+
+**Windows**
+
+```sh
+export TARGET_OS=windows
+export TARGET_ARCH=amd64
+make manager
+```
+
+By default, `amd64` is used for the target architecture and `linux` is used for the target operating system.
 
 ### Testing your Changes
 

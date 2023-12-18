@@ -101,6 +101,10 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 
+## Target platform
+TARGET_OS ?= linux # `make manager` only
+TARGET_ARCH ?= amd64
+
 ##@ Development
 
 .PHONY: test
@@ -119,7 +123,7 @@ test-integration:
 
 .PHONY: build manager
 manager: manifests generate fmt vet ## Build manager binary.
-	go build -o $(LOCALBIN)/manager ./main.go
+	GOOS=${TARGET_OS} GOARCH=${TARGET_ARCH} go build -o $(LOCALBIN)/manager ./main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
@@ -171,7 +175,8 @@ generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and
 # Build the docker image
 .PHONY: docker-build
 docker-build:
-	docker build . -t ${IMG} --build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS} \
+	docker build . -t ${IMG} --build-arg TARGETARCH=${TARGET_ARCH} \
+--build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS} \
 --build-arg ENABLE_WEBHOOK_HTTP2=${ENABLE_WEBHOOK_HTTP2}
 
 # Push the docker image
@@ -200,7 +205,9 @@ docker-buildx: test ## Build and push docker image for the manager for cross-pla
 # Build the podman image
 .PHONY: podman-build
 podman-build:
-	podman build . -t ${IMG} --build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS}
+	podman build . -t ${IMG} --build-arg TARGETARCH=${TARGET_ARCH} \
+--build-arg ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS} \
+--build-arg ENABLE_WEBHOOK_HTTP2=${ENABLE_WEBHOOK_HTTP2}
 
 # Push the podman image
 .PHONY: podman-push
