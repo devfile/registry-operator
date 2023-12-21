@@ -11,6 +11,16 @@ The Devfile Registry operator manages the lifecycle of the following custom reso
 2. [Devfile Registries List](REGISTRIES_LISTS.md)
 3. [Cluster Devfile Registries List](REGISTRIES_LISTS.md)
 
+## Releases
+
+**Minor releases** will be scheduled roughly on a _quarterly basis_ and will include non-feature breaking changes made between release cycles.
+
+**Patch releases** are provided as needed for _critical bug fixes_ and _security patches_, it is **strongly recommended** for users running on the same minor version of the registry operator to update when these releases become available.
+
+Releases are available on [GitHub](https://github.com/devfile/registry-operator/releases) along with bundle entries on [OperatorHub.io](https://operatorhub.io) and the OpenShift OperatorHub community catalog.
+
+For more updates on releases, please join our [communication channels](https://devfile.io/docs/2.2.2/community#getting-involved).
+
 ## Issue Tracking
 
 Issue tracking repo: https://github.com/devfile/api with label area/registry
