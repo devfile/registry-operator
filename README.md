@@ -27,7 +27,7 @@ Issue tracking repo: https://github.com/devfile/api with label area/registry
 
 ## Changelog
 
-Access the [CHANGELOG.md](CHANGELOG.md) here.
+This repository utilizes Release Notes to track and display changes, a changelog for every release can be found [here](https://github.com/devfile/registry-operator/releases).
 
 ## Requirements
 
