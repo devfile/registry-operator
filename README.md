@@ -4,6 +4,7 @@
 <div id="header">
 
 [![Apache2.0 License](https://img.shields.io/badge/license-Apache2.0-brightgreen.svg)](LICENSE)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8256/badge)](https://www.bestpractices.dev/projects/8256)
 </div>
 
 The Devfile Registry operator manages the lifecycle of the following custom resources:
