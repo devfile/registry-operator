@@ -4,6 +4,7 @@
 <div id="header">
 
 [![Apache2.0 License](https://img.shields.io/badge/license-Apache2.0-brightgreen.svg)](LICENSE)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8256/badge)](https://www.bestpractices.dev/projects/8256)
 </div>
 
 The Devfile Registry operator manages the lifecycle of the following custom resources:
@@ -27,7 +28,7 @@ Issue tracking repo: https://github.com/devfile/api with label area/registry
 
 ## Changelog
 
-Access the [CHANGELOG.md](CHANGELOG.md) here.
+This repository utilizes Release Notes to track and display changes, a changelog for every release can be found [here](https://github.com/devfile/registry-operator/releases).
 
 ## Requirements
 
