@@ -5,6 +5,7 @@
 
 [![Apache2.0 License](https://img.shields.io/badge/license-Apache2.0-brightgreen.svg)](LICENSE)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8256/badge)](https://www.bestpractices.dev/projects/8256)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/devfile/registry-operator/badge)](https://securityscorecards.dev/viewer/?uri=github.com/devfile/registry-operator)
 </div>
 
 The Devfile Registry operator manages the lifecycle of the following custom resources:
