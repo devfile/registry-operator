@@ -24,6 +24,8 @@ usage ()
 
 if [[ $# -lt 1 ]]; then usage; fi
 SCHEMA_VERSION=$1
+FIRST_DIGIT="${SCHEMA_VERSION%%.*}"
+RELEASE_BRANCH="release-v${FIRST_DIGIT}"
 
 if ! command -v hub > /dev/null; then
   echo "[ERROR] The hub CLI needs to be installed. See https://github.com/github/hub/releases"
@@ -70,21 +72,21 @@ updateVersionNumbers() {
     SHORT_UNAME=$(uname -s)
 
     ## Updating version.md based off of operating system
-  if [ "$(uname)" == "Darwin" ]; then
-    sed -i '' "s/^.*$/$SCHEMA_VERSION/" VERSION
-  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
-    sed -i "s/^.*$/$SCHEMA_VERSION/" VERSION
-  fi
+    if [ "$(uname)" == "Darwin" ]; then
+      sed -i '' "s/^.*$/$SCHEMA_VERSION/" VERSION
+    elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
+      sed -i "s/^.*$/$SCHEMA_VERSION/" VERSION
+    fi
 
     ## Remaining version number updates to yaml files
-    yq eval ".metadata.annotations.containerImage = \"quay.io/devfile/registry-operator:$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
+    yq eval ".metadata.annotations.containerImage = \"quay.io/devfile/registry-operator:v$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
     yq eval ".metadata.name = \"registry-operator.v$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
     yq eval ".spec.version = \"$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
 }
 
 exportEnvironmentVariables() {
     CHANNEL=$(yq eval '.annotations."operators.operatorframework.io.bundle.channels.v1"' ./bundle/metadata/annotations.yaml)
-    export IMG=quay.io/devfile/registry-operator:$SCHEMA_VERSION
+    export IMG=quay.io/devfile/registry-operator:v$SCHEMA_VERSION
     export CHANNELS=$CHANNEL
     
 }
@@ -95,6 +97,20 @@ commitChanges() {
   git commit -s -m "$1"
   git push origin $SCHEMA_VERSION
 }
+
+# Creates a new branch in the registry-operator repo for a new major release
+# with the name release-vX
+## This func will be used when we have a new major release and there is no branch in the upstream repo
+createNewReleaseBranch(){
+  git checkout -b "${RELEASE_BRANCH}"
+  git push origin "${RELEASE_BRANCH}"
+  hub sync
+}
+
+createPullRequest(){
+  echo "[INFO] Creating a PR"
+  hub pull-request --base ${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1"
+}
  
 main(){
   checkoutToReleaseBranch
@@ -102,6 +118,7 @@ main(){
   exportEnvironmentVariables
   make bundle
   commitChanges "chore(release): release version ${SCHEMA_VERSION}"
+  createPullRequest "v${SCHEMA_VERSION} Release"
 }
 
 main

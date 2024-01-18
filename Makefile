@@ -288,3 +288,9 @@ gosec:
 	# Run this command to install gosec, if not installed:
 	# go install github.com/securego/gosec/v2/cmd/gosec@v2.14.0
 	gosec -no-fail -fmt=sarif -out=gosec.sarif -exclude-dir pkg/test -exclude-dir tests ./...
+
+### Release
+# RUN: make release new-version=x.x.x
+.PHONY: 
+release:
+	sh make-release.sh ${new-version}
