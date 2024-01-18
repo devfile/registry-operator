@@ -88,11 +88,20 @@ exportEnvironmentVariables() {
     export CHANNELS=$CHANNEL
     
 }
+
+commitChanges() {
+  echo "[INFO] Pushing changes to $SCHEMA_VERSION branch"
+  git add -A
+  git commit -s -m "$1"
+  git push origin $SCHEMA_VERSION
+}
  
 main(){
+  checkoutToReleaseBranch
   updateVersionNumbers
   exportEnvironmentVariables
   make bundle
+  commitChanges "chore(release): release version ${SCHEMA_VERSION}"
 }
 
 main
