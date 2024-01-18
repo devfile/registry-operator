@@ -102,23 +102,30 @@ commitChanges() {
 # with the name release-vX
 ## This func will be used when we have a new major release and there is no branch in the upstream repo
 createNewReleaseBranch(){
-  git checkout -b "${RELEASE_BRANCH}"
+  git checkout -b "${RELEASE_BRANCH}" main
   git push origin "${RELEASE_BRANCH}"
-  hub sync
+  #hub sync
 }
 
 createPullRequest(){
   echo "[INFO] Creating a PR"
-  hub pull-request --base ${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1"
+  hub pull-request --base jdubrick:${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1"
 }
  
 main(){
-  checkoutToReleaseBranch
-  updateVersionNumbers
-  exportEnvironmentVariables
-  make bundle
-  commitChanges "chore(release): release version ${SCHEMA_VERSION}"
-  createPullRequest "v${SCHEMA_VERSION} Release"
+  # checkoutToReleaseBranch
+  # updateVersionNumbers
+  # exportEnvironmentVariables
+  # make bundle
+  # commitChanges "chore(release): release version ${SCHEMA_VERSION}"
+  #createPullRequest "v${SCHEMA_VERSION} Release"
+  # Check if the branch exists in the remote repository
+  if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
+      echo "Branch $RELEASE_BRANCH exists in the remote repository."
+  else
+      echo "Branch $RELEASE_BRANCH does not exist in the remote repository."
+      createNewReleaseBranch
+  fi
 }
 
 main
