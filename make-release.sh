@@ -28,9 +28,9 @@ FIRST_DIGIT="${SCHEMA_VERSION%%.*}"
 RELEASE_BRANCH="release-v${FIRST_DIGIT}"
 DEVFILE_REPO="git@github.com:devfile/registry-operator.git"
 ## This will be uncommented for actual devfile repo
-RELEASE_UPSTREAM_NAME="devfile-upstream-release"
+#RELEASE_UPSTREAM_NAME="devfile-upstream-release"
 # This goes to my origin for testing
-#RELEASE_UPSTREAM_NAME="origin"
+RELEASE_UPSTREAM_NAME="origin"
 
 if ! command -v hub > /dev/null; then
   echo "[ERROR] The hub CLI needs to be installed. See https://github.com/github/hub/releases"
@@ -72,11 +72,11 @@ checkoutToReleaseBranch() {
   echo "[INFO] Checking out to $SCHEMA_VERSION branch."
   if git ls-remote -q --heads | grep -q $SCHEMA_VERSION ; then
     echo "[INFO] $SCHEMA_VERSION exists."
-    #resetChanges $SCHEMA_VERSION --- commented out so it doesnt delete my work when testing
+    resetChanges $SCHEMA_VERSION --- commented out so it doesnt delete my work when testing
   else
     echo "[INFO] $SCHEMA_VERSION does not exist. Will create a new one from main."
-    #resetChanges main --- commented out so it doesnt delete my work when testing
-    git push origin main:$SCHEMA_VERSION
+    resetChanges release-automation --- commented out so it doesnt delete my work when testing #change release-automation to main after testing
+    git push origin release-automation:$SCHEMA_VERSION
   fi
   git checkout -B $SCHEMA_VERSION
 }
@@ -117,18 +117,18 @@ commitChanges() {
 # with the name release-vX
 ## This func will be used when we have a new major release and there is no branch in the upstream repo
 createNewReleaseBranch(){
-  git checkout -b "${RELEASE_BRANCH}" main
+  git checkout -b "${RELEASE_BRANCH}" release-automation #change to main after testing
   git push "${RELEASE_UPSTREAM_NAME}" "${RELEASE_BRANCH}"
-  #hub sync -- this supposedly will create that branch in upstream
 }
 
+# Checks if release-vX branch is in the upstream
+# If it is not it creates the new major release branch based off main
 verifyReleaseBranch() {
   if git ls-remote --exit-code --heads ${RELEASE_UPSTREAM_NAME} "$RELEASE_BRANCH" >/dev/null 2>&1; then
       echo "Branch $RELEASE_BRANCH exists in the upstream repository."
   else
       echo "Branch $RELEASE_BRANCH does not exist in the upstream repository."
       createNewReleaseBranch
-  
   fi
 }
 
@@ -138,14 +138,14 @@ createPullRequest(){
 }
  
 main(){
-  # checkoutToReleaseBranch
-  # updateVersionNumbers
-  # exportEnvironmentVariables
-  # make bundle
-  # commitChanges "chore(release): release version ${SCHEMA_VERSION}"
-  #createPullRequest "v${SCHEMA_VERSION} Release"
-  # Check if the branch exists in the remote repository
+  checkoutToReleaseBranch
+  updateVersionNumbers
+  exportEnvironmentVariables
+  make bundle
+  commitChanges "chore(release): release version ${SCHEMA_VERSION}"
   verifyReleaseBranch
+  createPullRequest "v${SCHEMA_VERSION} Release"
+  
   #setUpstream -- LEAVE COMMENTED AS THIS WILL SET MY ORIGIN TO DEVFILE
 }
 
