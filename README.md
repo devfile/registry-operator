@@ -23,6 +23,13 @@ Releases are available on [GitHub](https://github.com/devfile/registry-operator/
 
 For more updates on releases, please join our [communication channels](https://devfile.io/docs/2.2.2/community#getting-involved).
 
+## Preparing Releases
+A script has been created to make the release process more efficient. This script takes care of all changes to version numbers in all necessary files. Additionally this script opens the initial PR to devfile/registry-operator. The release engineer will be responsible for running this script with the instructions below.
+
+1. Navigate to main branch of your forked registry-operator repository.
+2. Run `make release new-version=x.x.x` where x.x.x is the version you are trying to cut.
+3. Edit the PR opened by the script on devfile/registry-operator to include a proper description.
+
 ## Issue Tracking
 
 Issue tracking repo: https://github.com/devfile/api with label area/registry

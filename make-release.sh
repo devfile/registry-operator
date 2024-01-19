@@ -72,10 +72,10 @@ checkoutToReleaseBranch() {
   echo "[INFO] Checking out to $SCHEMA_VERSION branch."
   if git ls-remote -q --heads | grep -q $SCHEMA_VERSION ; then
     echo "[INFO] $SCHEMA_VERSION exists."
-    resetChanges $SCHEMA_VERSION --- commented out so it doesnt delete my work when testing
+    resetChanges $SCHEMA_VERSION
   else
     echo "[INFO] $SCHEMA_VERSION does not exist. Will create a new one from main."
-    resetChanges release-automation --- commented out so it doesnt delete my work when testing #change release-automation to main after testing
+    resetChanges release-automation #change release-automation to main after testing
     git push origin release-automation:$SCHEMA_VERSION
   fi
   git checkout -B $SCHEMA_VERSION
@@ -134,10 +134,11 @@ verifyReleaseBranch() {
 
 createPullRequest(){
   echo "[INFO] Creating a PR"
-  hub pull-request --base jdubrick:${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1"
+  hub pull-request --base jdubrick:${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1" #jdubrick changes to devfile
 }
  
 main(){
+  #setUpstream -- LEAVE COMMENTED AS THIS WILL SET MY ORIGIN TO DEVFILE
   checkoutToReleaseBranch
   updateVersionNumbers
   exportEnvironmentVariables
@@ -145,8 +146,6 @@ main(){
   commitChanges "chore(release): release version ${SCHEMA_VERSION}"
   verifyReleaseBranch
   createPullRequest "v${SCHEMA_VERSION} Release"
-  
-  #setUpstream -- LEAVE COMMENTED AS THIS WILL SET MY ORIGIN TO DEVFILE
 }
 
 main
