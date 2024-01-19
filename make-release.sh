@@ -134,7 +134,7 @@ verifyReleaseBranch() {
 
 createPullRequest(){
   echo "[INFO] Creating a PR"
-  hub pull-request --base ${RELEASE_UPSTREAM_NAME}:${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1"
+  hub pull-request --base jdubrick:${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1"
 }
  
 main(){
