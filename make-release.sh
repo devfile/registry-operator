@@ -117,7 +117,7 @@ commitChanges() {
 # with the name release-vX
 ## This func will be used when we have a new major release and there is no branch in the upstream repo
 createNewReleaseBranch(){
-  git checkout -b "${RELEASE_BRANCH}" "${RELEASE_UPSTREAM_NAME}"/main
+  git checkout -b "${RELEASE_BRANCH}" main
   git push "${RELEASE_UPSTREAM_NAME}" "${RELEASE_BRANCH}"
   #hub sync -- this supposedly will create that branch in upstream
 }
@@ -127,7 +127,7 @@ verifyReleaseBranch() {
       echo "Branch $RELEASE_BRANCH exists in the upstream repository."
   else
       echo "Branch $RELEASE_BRANCH does not exist in the upstream repository."
-      #createNewReleaseBranch
+      createNewReleaseBranch
   
   fi
 }
