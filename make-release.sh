@@ -26,6 +26,11 @@ if [[ $# -lt 1 ]]; then usage; fi
 SCHEMA_VERSION=$1
 FIRST_DIGIT="${SCHEMA_VERSION%%.*}"
 RELEASE_BRANCH="release-v${FIRST_DIGIT}"
+DEVFILE_REPO="git@github.com:devfile/registry-operator.git"
+## This will be uncommented for actual devfile repo
+RELEASE_UPSTREAM_NAME="devfile-upstream-release"
+# This goes to my origin for testing
+#RELEASE_UPSTREAM_NAME="origin"
 
 if ! command -v hub > /dev/null; then
   echo "[ERROR] The hub CLI needs to be installed. See https://github.com/github/hub/releases"
@@ -40,14 +45,23 @@ if ! [[ "$SCHEMA_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 	exit 1
 fi
 
+# Sets the upstream to devfile repo to ensure that git commands are performed on the correct repo
+# Ensures users who don't have an upstream set will be able to run script with no setup
+setUpstream(){
+  if git remote -v | grep -q "$RELEASE_UPSTREAM_NAME[[:space:]]\+$DEVFILE_REPO"; then
+    git remote rm ${RELEASE_UPSTREAM_NAME}
+  fi
+  git remote add ${RELEASE_UPSTREAM_NAME} "${DEVFILE_REPO}"
+}
+
 
 ## Ensures local branch matches the remote
 resetChanges() {
   echo "[INFO] Reset changes in $1 branch"
   git reset --hard
   git checkout $1
-  git fetch origin --prune
-  git pull origin $1
+  git fetch ${RELEASE_UPSTREAM_NAME} --prune
+  git pull ${RELEASE_UPSTREAM_NAME} $1
 }
 
 ## Branch containing releases and tags in main upstream repo will be named 'release-vx' where 'vx' is the major release
@@ -84,13 +98,14 @@ updateVersionNumbers() {
     yq eval ".spec.version = \"$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
 }
 
+# Export env variables that are used in bundle scripts
 exportEnvironmentVariables() {
     CHANNEL=$(yq eval '.annotations."operators.operatorframework.io.bundle.channels.v1"' ./bundle/metadata/annotations.yaml)
     export IMG=quay.io/devfile/registry-operator:v$SCHEMA_VERSION
     export CHANNELS=$CHANNEL
-    
 }
 
+# Commits version changes to your forked repository
 commitChanges() {
   echo "[INFO] Pushing changes to $SCHEMA_VERSION branch"
   git add -A
@@ -102,14 +117,24 @@ commitChanges() {
 # with the name release-vX
 ## This func will be used when we have a new major release and there is no branch in the upstream repo
 createNewReleaseBranch(){
-  git checkout -b "${RELEASE_BRANCH}" main
-  git push origin "${RELEASE_BRANCH}"
-  #hub sync
+  git checkout -b "${RELEASE_BRANCH}" "${RELEASE_UPSTREAM_NAME}"/main
+  git push "${RELEASE_UPSTREAM_NAME}" "${RELEASE_BRANCH}"
+  #hub sync -- this supposedly will create that branch in upstream
+}
+
+verifyReleaseBranch() {
+  if git ls-remote --exit-code --heads ${RELEASE_UPSTREAM_NAME} "$RELEASE_BRANCH" >/dev/null 2>&1; then
+      echo "Branch $RELEASE_BRANCH exists in the upstream repository."
+  else
+      echo "Branch $RELEASE_BRANCH does not exist in the upstream repository."
+      #createNewReleaseBranch
+  
+  fi
 }
 
 createPullRequest(){
   echo "[INFO] Creating a PR"
-  hub pull-request --base jdubrick:${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1"
+  hub pull-request --base ${RELEASE_UPSTREAM_NAME}:${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1"
 }
  
 main(){
@@ -120,12 +145,8 @@ main(){
   # commitChanges "chore(release): release version ${SCHEMA_VERSION}"
   #createPullRequest "v${SCHEMA_VERSION} Release"
   # Check if the branch exists in the remote repository
-  if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
-      echo "Branch $RELEASE_BRANCH exists in the remote repository."
-  else
-      echo "Branch $RELEASE_BRANCH does not exist in the remote repository."
-      createNewReleaseBranch
-  fi
+  verifyReleaseBranch
+  #setUpstream -- LEAVE COMMENTED AS THIS WILL SET MY ORIGIN TO DEVFILE
 }
 
 main
