@@ -290,7 +290,7 @@ gosec:
 	gosec -no-fail -fmt=sarif -out=gosec.sarif -exclude-dir pkg/test -exclude-dir tests ./...
 
 ### Release
-# RUN: make release new-version=x.x.x
+# RUN: make release NEW_VERSION=x.x.x
 .PHONY: 
 release:
-	sh make-release.sh ${new-version}
+	sh make-release.sh ${NEW_VERSION}

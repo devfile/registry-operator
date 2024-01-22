@@ -18,19 +18,17 @@
 set -eu
 
 usage ()
-{   echo "Usage: ./make-release.sh <schema-version>"
+{   echo "Usage: make release NEW_VERSION=<x.x.x>"
     exit
 }
 
 if [[ $# -lt 1 ]]; then usage; fi
+
 SCHEMA_VERSION=$1
 FIRST_DIGIT="${SCHEMA_VERSION%%.*}"
 RELEASE_BRANCH="release-v${FIRST_DIGIT}"
 DEVFILE_REPO="git@github.com:devfile/registry-operator.git"
-## This will be uncommented for actual devfile repo
-#RELEASE_UPSTREAM_NAME="devfile-upstream-release"
-# This goes to my origin for testing
-RELEASE_UPSTREAM_NAME="origin"
+RELEASE_UPSTREAM_NAME="devfile-upstream-release"
 
 if ! command -v hub > /dev/null; then
   echo "[ERROR] The hub CLI needs to be installed. See https://github.com/github/hub/releases"
@@ -75,34 +73,34 @@ checkoutToReleaseBranch() {
     resetChanges $SCHEMA_VERSION
   else
     echo "[INFO] $SCHEMA_VERSION does not exist. Will create a new one from main."
-    resetChanges release-automation #change release-automation to main after testing
-    git push origin release-automation:$SCHEMA_VERSION
+    resetChanges main
+    git push origin main:$SCHEMA_VERSION
   fi
   git checkout -B $SCHEMA_VERSION
 }
 
 
 updateVersionNumbers() {
-    SHORT_UNAME=$(uname -s)
+  SHORT_UNAME=$(uname -s)
 
-    ## Updating version.md based off of operating system
-    if [ "$(uname)" == "Darwin" ]; then
-      sed -i '' "s/^.*$/$SCHEMA_VERSION/" VERSION
-    elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
-      sed -i "s/^.*$/$SCHEMA_VERSION/" VERSION
-    fi
+  ## Updating version.md based off of operating system
+  if [ "$(uname)" == "Darwin" ]; then
+    sed -i '' "s/^.*$/$SCHEMA_VERSION/" VERSION
+  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
+    sed -i "s/^.*$/$SCHEMA_VERSION/" VERSION
+  fi
 
-    ## Remaining version number updates to yaml files
-    yq eval ".metadata.annotations.containerImage = \"quay.io/devfile/registry-operator:v$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
-    yq eval ".metadata.name = \"registry-operator.v$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
-    yq eval ".spec.version = \"$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
+  ## Remaining version number updates to yaml files
+  yq eval ".metadata.annotations.containerImage = \"quay.io/devfile/registry-operator:v$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
+  yq eval ".metadata.name = \"registry-operator.v$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
+  yq eval ".spec.version = \"$SCHEMA_VERSION\"" --inplace ./config/manifests/bases/registry-operator.clusterserviceversion.yaml
 }
 
 # Export env variables that are used in bundle scripts
 exportEnvironmentVariables() {
-    CHANNEL=$(yq eval '.annotations."operators.operatorframework.io.bundle.channels.v1"' ./bundle/metadata/annotations.yaml)
-    export IMG=quay.io/devfile/registry-operator:v$SCHEMA_VERSION
-    export CHANNELS=$CHANNEL
+  CHANNEL=$(yq eval '.annotations."operators.operatorframework.io.bundle.channels.v1"' ./bundle/metadata/annotations.yaml)
+  export IMG=quay.io/devfile/registry-operator:v$SCHEMA_VERSION
+  export CHANNELS=$CHANNEL
 }
 
 # Commits version changes to your forked repository
@@ -117,7 +115,7 @@ commitChanges() {
 # with the name release-vX
 ## This func will be used when we have a new major release and there is no branch in the upstream repo
 createNewReleaseBranch(){
-  git checkout -b "${RELEASE_BRANCH}" release-automation #change to main after testing
+  git checkout -b "${RELEASE_BRANCH}" main
   git push "${RELEASE_UPSTREAM_NAME}" "${RELEASE_BRANCH}"
 }
 
@@ -134,11 +132,11 @@ verifyReleaseBranch() {
 
 createPullRequest(){
   echo "[INFO] Creating a PR"
-  hub pull-request --base jdubrick:${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1" #jdubrick changes to devfile
+  hub pull-request --base devfile:${RELEASE_BRANCH} --head ${SCHEMA_VERSION} -m "$1"
 }
  
 main(){
-  #setUpstream -- LEAVE COMMENTED AS THIS WILL SET MY ORIGIN TO DEVFILE
+  setUpstream
   checkoutToReleaseBranch
   updateVersionNumbers
   exportEnvironmentVariables
