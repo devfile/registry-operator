@@ -22,6 +22,7 @@ import (
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -183,6 +184,120 @@ func TestGetDevfileRegistryVolumeSource(t *testing.T) {
 			tlsSetting := GetDevfileRegistryVolumeSource(&tt.cr)
 			if !reflect.DeepEqual(tlsSetting, tt.want) {
 				t.Errorf("TestGetDevfileRegistryVolumeSource error: storage source mismatch, expected: %v got: %v", tt.want, tlsSetting)
+			}
+		})
+	}
+
+}
+
+func TestGetDevfileIndexMemoryLimit(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   registryv1alpha1.DevfileRegistry
+		want resource.Quantity
+	}{
+		{
+			name: "Case 1: Memory Limit size set in DevfileRegistry CR",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					DevfileIndex: registryv1alpha1.DevfileRegistrySpecContainer{
+						MemoryLimit: "5Gi",
+					},
+				},
+			},
+			want: resource.MustParse("5Gi"),
+		},
+		{
+			name: "Case 2:  Memory Limit size not set in DevfileRegistry CR",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					DevfileIndex: registryv1alpha1.DevfileRegistrySpecContainer{},
+				},
+			},
+			want: resource.MustParse(DefaultDevfileIndexMemoryLimit),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			volSize := GetDevfileIndexMemoryLimit(&tt.cr)
+			if volSize != tt.want {
+				t.Errorf("TestGetDevfileIndexMemoryLimit error: storage size mismatch, expected: %v got: %v", tt.want, volSize)
+			}
+		})
+	}
+
+}
+
+func TestGetOCIRegistryMemoryLimit(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   registryv1alpha1.DevfileRegistry
+		want resource.Quantity
+	}{
+		{
+			name: "Case 1: Memory Limit size set in DevfileRegistry CR",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					OciRegistry: registryv1alpha1.DevfileRegistrySpecContainer{
+						MemoryLimit: "5Gi",
+					},
+				},
+			},
+			want: resource.MustParse("5Gi"),
+		},
+		{
+			name: "Case 2:  Memory Limit size not set in DevfileRegistry CR",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					OciRegistry: registryv1alpha1.DevfileRegistrySpecContainer{},
+				},
+			},
+			want: resource.MustParse(DefaultOCIRegistryMemoryLimit),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			volSize := GetOCIRegistryMemoryLimit(&tt.cr)
+			if volSize != tt.want {
+				t.Errorf("TestGetOCIRegistryMemoryLimit error: storage size mismatch, expected: %v got: %v", tt.want, volSize)
+			}
+		})
+	}
+
+}
+
+func TestGetRegistryViewerMemoryLimit(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   registryv1alpha1.DevfileRegistry
+		want resource.Quantity
+	}{
+		{
+			name: "Case 1: Memory Limit size set in DevfileRegistry CR",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					RegistryViewer: registryv1alpha1.DevfileRegistrySpecContainer{
+						MemoryLimit: "5Gi",
+					},
+				},
+			},
+			want: resource.MustParse("5Gi"),
+		},
+		{
+			name: "Case 2:  Memory Limit size not set in DevfileRegistry CR",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					RegistryViewer: registryv1alpha1.DevfileRegistrySpecContainer{},
+				},
+			},
+			want: resource.MustParse(DefaultRegistryViewerMemoryLimit),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			volSize := GetRegistryViewerMemoryLimit(&tt.cr)
+			if volSize != tt.want {
+				t.Errorf("TestGetRegistryViewerMemoryLimit error: storage size mismatch, expected: %v got: %v", tt.want, volSize)
 			}
 		})
 	}
