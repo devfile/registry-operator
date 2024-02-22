@@ -55,6 +55,9 @@ spec:
                   imagePullPolicy:
                     description: Sets the image pull policy for the container
                     type: string
+                  memoryLimit:
+                    description: Sets the memory limit for the container
+                    type: string
                 type: object
               devfileIndexImage:
                 description: Sets the container image containing devfile stacks to
@@ -83,6 +86,9 @@ spec:
                   imagePullPolicy:
                     description: Sets the image pull policy for the container
                     type: string
+                  memoryLimit:
+                    description: Sets the memory limit for the container
+                    type: string
                 type: object
               ociRegistryImage:
                 description: Overrides the container image used for the OCI registry.
@@ -98,6 +104,9 @@ spec:
                     type: string
                   imagePullPolicy:
                     description: Sets the image pull policy for the container
+                    type: string
+                  memoryLimit:
+                    description: Sets the memory limit for the container
                     type: string
                 type: object
               registryViewerImage:
