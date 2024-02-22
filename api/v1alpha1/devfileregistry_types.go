@@ -82,6 +82,10 @@ type DevfileRegistrySpecContainer struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// +optional
 	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty"`
+	// Sets the memory limit for the container
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +optional
+	MemoryLimit string `json:"memoryLimit,omitempty"`
 }
 
 // DevfileRegistrySpecStorage defines the desired state of the storage for the DevfileRegistry
