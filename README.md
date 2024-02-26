@@ -68,7 +68,9 @@ make install && make deploy
 
 The operator will be installed under the `registry-operator-system` namespace. However, devfile registries can be deployed in any namespace.
 
+## Deploying registry to a cluster
 
+After the operator has been installed to a cluster you can deploy a devfile registry by following [these instructions](DEVFILE_REGISTRY.md).
 ## Development
 
 The repository contains a Makefile; building and deploying can be configured via the environment variables
