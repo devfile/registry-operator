@@ -206,3 +206,16 @@ spec:
     ingressDomain: $INGRESS_DOMAIN
 EOF
 ```
+## Accessing the Deployed Registry
+
+After the devfile registry is deployed to the cluster you can access it via the `ingressDomain` you set. If you deployed to Minikube and are currently working on MacOS and you find trying to connect via the `ingressDomain` is timing out, please see [MacOS Troubleshooting](#macos-troubleshooting).
+
+## MacOS Troubleshooting
+
+Currently there is an issue with Minikube and MacOS where you cannot connect to a cluster using an ingress service. If this occurs you can follow these steps to access your cluster:
+1. Edit `/etc/hosts` to map `127.0.0.1` to your `ingressDomain`. Typically this is set to your Minikube ip, however, MacOS needs localhost.
+2. Open a new terminal and run `minikube tunnel`. This opens a route using the cluster's ip address.
+3. In a different terminal than the one you ran `minikube tunnel` in, run `minikube service devfile-registry --url -n <namespace of the registry>`. This will output 3 ips including ports. 
+4. The ip addresses and ports listed in step 4 are used to access your registry. The ports are the most important here as you can access the registry with `127.0.0.1:<port>` or `<ingressDomain>:<port>`
+
+From testing, majority of the time the first `<ip>:<port>` directs you to `/viewer` so you can view the registry in your browser. If this differs you will need to try them all.
