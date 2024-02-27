@@ -282,8 +282,10 @@ spec:
     name: Michael Valdron
   - email: jcollier@redhat.com
     name: John Collier
-  - email: ktsao@redhat.com
-    name: Kim Tsao
+  - email: tpetkos@redhat.com
+    name: Theofanis Petkos
+  - email: jdubrick@redhat.com
+    name: Jordan Dubrick
   maturity: beta
   minKubeVersion: 1.25.0
   provider:
