@@ -76,6 +76,10 @@ spec:
                     description: Ingress domain for a Kubernetes cluster. This MUST
                       be explicitly specified on Kubernetes. There are no defaults
                     type: string
+                  ingressClass:
+                    description: Ingress class for a Kubernetes cluster. This MUST
+                      be explicitly specified on Kubernetes. There are no defaults
+                    type: string
                 type: object
               ociRegistry:
                 description: Sets the OCI registry container spec to be deployed on
