@@ -122,7 +122,7 @@ type DevfileRegistrySpecK8sOnly struct {
 	// Ingress domain for a Kubernetes cluster. This MUST be explicitly specified on Kubernetes. There are no defaults
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	IngressDomain string `json:"ingressDomain,omitempty"`
-	// Ingress class for a Kubernetes cluster. This MUST be explicitly specified on Kubernetes. There are no defaults
+	// Ingress class for a Kubernetes cluster. Defaults to nginx.
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	IngressClass string `json:"ingressClass,omitempty"`
 }
