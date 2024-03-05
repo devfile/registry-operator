@@ -75,7 +75,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 								},
 								Limits: corev1.ResourceList{
 									corev1.ResourceCPU:    resource.MustParse("500m"),
-									corev1.ResourceMemory: GetDevfileIndexMemoryLimit(cr),
+									corev1.ResourceMemory: resource.MustParse("256Mi"),
 								},
 							},
 							LivenessProbe: &corev1.Probe{
@@ -134,7 +134,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 								},
 								Limits: corev1.ResourceList{
 									corev1.ResourceCPU:    resource.MustParse("500m"),
-									corev1.ResourceMemory: GetOCIRegistryMemoryLimit(cr),
+									corev1.ResourceMemory: resource.MustParse("256Mi"),
 								},
 							},
 							LivenessProbe: &corev1.Probe{
@@ -236,7 +236,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 				},
 				Limits: corev1.ResourceList{
 					corev1.ResourceCPU:    resource.MustParse("500m"),
-					corev1.ResourceMemory: GetRegistryViewerMemoryLimit(cr),
+					corev1.ResourceMemory: resource.MustParse("256Mi"),
 				},
 			},
 			LivenessProbe: &corev1.Probe{
