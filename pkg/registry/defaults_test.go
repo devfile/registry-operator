@@ -399,3 +399,33 @@ func TestIsTelemetryEnabled(t *testing.T) {
 	}
 
 }
+
+func Test_getDevfileRegistrySpecContainer(t *testing.T) {
+	tests := []struct {
+		name         string
+		quantity     string
+		defaultValue string
+		want         resource.Quantity
+	}{
+		{
+			name:         "Case 1: DevfileRegistrySpecContainer given correct quantity",
+			quantity:     "256Mi",
+			defaultValue: "512Mi",
+			want:         resource.MustParse("256Mi"),
+		},
+		{
+			name:         "Case 2: DevfileRegistrySpecContainer given correct quantity",
+			quantity:     "test",
+			defaultValue: "512Mi",
+			want:         resource.MustParse("512Mi"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := getDevfileRegistrySpecContainer(tt.quantity, tt.defaultValue)
+			if result != tt.want {
+				t.Errorf("func TestgetDevfileRegistrySpecContainer(t *testing.T) {\n error: enablement value mismatch, expected: %v got: %v", tt.want, result)
+			}
+		})
+	}
+}
