@@ -17,6 +17,8 @@
 package registry
 
 import (
+	"fmt"
+
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -70,5 +72,9 @@ func GenerateIngress(cr *registryv1alpha1.DevfileRegistry, host string, scheme *
 }
 
 func GetDevfileRegistryIngress(cr *registryv1alpha1.DevfileRegistry) string {
-	return cr.Name + "." + cr.Spec.K8s.IngressDomain
+	return GetHostname(cr) + "." + cr.Spec.K8s.IngressDomain
+}
+
+func GetHostname(cr *registryv1alpha1.DevfileRegistry) string {
+	return fmt.Sprintf("%s-%s", cr.Name, cr.Namespace)
 }
