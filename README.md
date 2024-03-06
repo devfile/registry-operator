@@ -174,3 +174,8 @@ make run ENABLE_WEBHOOKS=false
 ## Contributing
 
 Please see our [contributing.md](./CONTRIBUTING.md).
+
+## Known Issues
+- [`make test-integration` times out when running in Minikube](https://github.com/devfile/api/issues/1313)
+- [Headless mode field does not update devfile registry state during reconcile](https://github.com/devfile/api/issues/1258)
+- [`make bundle` removes `alm-examples` for `DevfileRegistriesList` and `ClusterDevfileRegistriesList` CRDs due to bug with Kustomize](https://github.com/kubernetes-sigs/kustomize/issues/5042)
