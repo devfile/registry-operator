@@ -72,6 +72,10 @@ spec:
                 description: DevfileRegistrySpecK8sOnly defines the desired state
                   of the kubernetes-only fields of the DevfileRegistry
                 properties:
+                  ingressClass:
+                    description: Ingress class for a Kubernetes cluster. Defaults
+                      to nginx.
+                    type: string
                   ingressDomain:
                     description: Ingress domain for a Kubernetes cluster. This MUST
                       be explicitly specified on Kubernetes. There are no defaults

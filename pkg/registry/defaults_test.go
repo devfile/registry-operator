@@ -429,3 +429,40 @@ func Test_getDevfileRegistrySpecContainer(t *testing.T) {
 		})
 	}
 }
+
+func TestGetK8sIngressClass(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   registryv1alpha1.DevfileRegistry
+		want string
+	}{
+		{
+			name: "Case 1: K8s ingress class set",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					K8s: registryv1alpha1.DevfileRegistrySpecK8sOnly{
+						IngressClass: "test",
+					},
+				},
+			},
+			want: "test",
+		},
+		{
+			name: "Case 2: K8s ingress class not set",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					Telemetry: registryv1alpha1.DevfileRegistrySpecTelemetry{},
+				},
+			},
+			want: DefaultK8sIngressClass,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := GetK8sIngressClass(&tt.cr)
+			if result != tt.want {
+				t.Errorf("func TestGetK8sIngressClass(t *testing.T) {\n error: enablement value mismatch, expected: %v got: %v", tt.want, result)
+			}
+		})
+	}
+}

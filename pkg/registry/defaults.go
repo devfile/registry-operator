@@ -57,6 +57,9 @@ const (
 	OCIMetricsPort              = 5001
 	OCIServerPort               = 5000
 	RegistryViewerPort          = 3000
+
+	// Default kubernetes-only fields
+	DefaultK8sIngressClass = "nginx"
 )
 
 // GetRegistryViewerImage returns the container image for the registry viewer to be deployed on the Devfile Registry.
@@ -157,6 +160,15 @@ func GetDevfileRegistryVolumeSource(cr *registryv1alpha1.DevfileRegistry) corev1
 	}
 	// If persistence is not enabled, return an empty dir volume source
 	return corev1.VolumeSource{}
+}
+
+// GetK8sIngressClass returns ingress class used for the k8s ingress class field.
+// Default: "nginx"
+func GetK8sIngressClass(cr *registryv1alpha1.DevfileRegistry) string {
+	if cr.Spec.K8s.IngressClass != "" {
+		return cr.Spec.K8s.IngressClass
+	}
+	return DefaultK8sIngressClass
 }
 
 // IsStorageEnabled returns true if storage.enabled is set in the DevfileRegistry CR
