@@ -19,6 +19,7 @@ package registry
 import (
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 const (
@@ -31,6 +32,11 @@ const (
 	DefaultDevfileIndexImagePullPolicy   = corev1.PullAlways
 	DefaultRegistryViewerImagePullPolicy = corev1.PullAlways
 	DefaultOCIRegistryImagePullPolicy    = corev1.PullAlways
+
+	// Default memory limits
+	DefaultDevfileIndexMemoryLimit   = "256Mi"
+	DefaultRegistryViewerMemoryLimit = "256Mi"
+	DefaultOCIRegistryMemoryLimit    = "256Mi"
 
 	// Defaults/constants for devfile registry storages
 	DefaultDevfileRegistryVolumeSize = "1Gi"
@@ -73,6 +79,13 @@ func GetRegistryViewerImagePullPolicy(cr *registryv1alpha1.DevfileRegistry) core
 	return DefaultRegistryViewerImagePullPolicy
 }
 
+// GetRegistryViewerMemoryLimit returns the memory limit for the registry viewer container.
+// In case of invalid quantity given, it returns the default value.
+// Default: resource.Quantity{s: "256Mi"}
+func GetRegistryViewerMemoryLimit(cr *registryv1alpha1.DevfileRegistry) resource.Quantity {
+	return getDevfileRegistrySpecContainer(cr.Spec.RegistryViewer.MemoryLimit, DefaultRegistryViewerMemoryLimit)
+}
+
 // GetOCIRegistryImage returns the container image for the OCI registry to be deployed on the Devfile Registry.
 // Default: "quay.io/devfile/oci-registry:next"
 func GetOCIRegistryImage(cr *registryv1alpha1.DevfileRegistry) string {
@@ -93,6 +106,13 @@ func GetOCIRegistryImagePullPolicy(cr *registryv1alpha1.DevfileRegistry) corev1.
 	return DefaultOCIRegistryImagePullPolicy
 }
 
+// GetOCIRegistryMemoryLimit returns the memory limit for the OCI registry container.
+// In case of invalid quantity given, it returns the default value.
+// Default: resource.Quantity{s: "256Mi"}
+func GetOCIRegistryMemoryLimit(cr *registryv1alpha1.DevfileRegistry) resource.Quantity {
+	return getDevfileRegistrySpecContainer(cr.Spec.OciRegistry.MemoryLimit, DefaultOCIRegistryMemoryLimit)
+}
+
 // GetDevfileIndexImage returns the container image for the devfile index server to be deployed on the Devfile Registry.
 // Default: "quay.io/devfile/devfile-index:next"
 func GetDevfileIndexImage(cr *registryv1alpha1.DevfileRegistry) string {
@@ -111,6 +131,13 @@ func GetDevfileIndexImagePullPolicy(cr *registryv1alpha1.DevfileRegistry) corev1
 		return cr.Spec.DevfileIndex.ImagePullPolicy
 	}
 	return DefaultDevfileIndexImagePullPolicy
+}
+
+// GetDevfileIndexMemoryLimit returns the memory limit for the devfile index container.
+// In case of invalid quantity given, it returns the default value.
+// Default: resource.Quantity{s: "256Mi"}
+func GetDevfileIndexMemoryLimit(cr *registryv1alpha1.DevfileRegistry) resource.Quantity {
+	return getDevfileRegistrySpecContainer(cr.Spec.DevfileIndex.MemoryLimit, DefaultDevfileIndexMemoryLimit)
 }
 
 func getDevfileRegistryVolumeSize(cr *registryv1alpha1.DevfileRegistry) string {
@@ -166,4 +193,14 @@ func IsHeadlessEnabled(cr *registryv1alpha1.DevfileRegistry) bool {
 		return *cr.Spec.Headless
 	}
 	return DefaultDevfileRegistryHeadlessEnabled
+}
+
+func getDevfileRegistrySpecContainer(quantity string, defaultValue string) resource.Quantity {
+	if quantity != "" {
+		resourceQuantity, err := resource.ParseQuantity(quantity)
+		if err == nil {
+			return resourceQuantity
+		}
+	}
+	return resource.MustParse(defaultValue)
 }
