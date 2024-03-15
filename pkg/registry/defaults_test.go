@@ -466,3 +466,96 @@ func TestGetK8sIngressClass(t *testing.T) {
 		})
 	}
 }
+
+func TestGetHostnameOverride(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   registryv1alpha1.DevfileRegistry
+		want string
+	}{
+		{
+			name: "Case 1: Hostname override is set",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					HostnameOverride: "192.168.1.123.nip.io",
+				},
+			},
+			want: "192.168.1.123.nip.io",
+		},
+		{
+			name: "Case 2: Hostname override is unset",
+			cr:   registryv1alpha1.DevfileRegistry{},
+			want: DefaultHostnameOverride,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := GetHostnameOverride(&tt.cr)
+			if result != tt.want {
+				t.Errorf("func TestGetHostnameOverride(t *testing.T) {\n error: enablement value mismatch, expected: %v got: %v", tt.want, result)
+			}
+		})
+	}
+}
+
+func TestGetNameOverride(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   registryv1alpha1.DevfileRegistry
+		want string
+	}{
+		{
+			name: "Case 1: App name override is set",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "devfile-registry-test",
+				},
+			},
+			want: "devfile-registry-test",
+		},
+		{
+			name: "Case 2: App name override is unset",
+			cr:   registryv1alpha1.DevfileRegistry{},
+			want: DefaultNameOverride,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := GetNameOverride(&tt.cr)
+			if result != tt.want {
+				t.Errorf("func TestGetNameOverride(t *testing.T) {\n error: enablement value mismatch, expected: %v got: %v", tt.want, result)
+			}
+		})
+	}
+}
+
+func TestGetFullnameOverride(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   registryv1alpha1.DevfileRegistry
+		want string
+	}{
+		{
+			name: "Case 1: Full app name override is set",
+			cr: registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					FullnameOverride: "devfile-registry-test",
+				},
+			},
+			want: "devfile-registry-test",
+		},
+		{
+			name: "Case 2: Full app name override is unset",
+			cr:   registryv1alpha1.DevfileRegistry{},
+			want: DefaultFullnameOverride,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := GetFullnameOverride(&tt.cr)
+			if result != tt.want {
+				t.Errorf("func TestGetFullnameOverride(t *testing.T) {\n error: enablement value mismatch, expected: %v got: %v", tt.want, result)
+			}
+		})
+	}
+}

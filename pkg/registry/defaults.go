@@ -60,6 +60,11 @@ const (
 
 	// Default kubernetes-only fields
 	DefaultK8sIngressClass = "nginx"
+
+	// Override defaults (should be empty)
+	DefaultHostnameOverride = ""
+	DefaultNameOverride     = ""
+	DefaultFullnameOverride = ""
 )
 
 // GetRegistryViewerImage returns the container image for the registry viewer to be deployed on the Devfile Registry.
@@ -169,6 +174,36 @@ func GetK8sIngressClass(cr *registryv1alpha1.DevfileRegistry) string {
 		return cr.Spec.K8s.IngressClass
 	}
 	return DefaultK8sIngressClass
+}
+
+// GetHostnameOverride returns hostname override used to override the hostname and domain of a devfile registry
+// Default: ""
+func GetHostnameOverride(cr *registryv1alpha1.DevfileRegistry) string {
+	if cr.Spec.HostnameOverride != "" {
+		return cr.Spec.HostnameOverride
+	}
+
+	return DefaultHostnameOverride
+}
+
+// GetNameOverride returns name override used to override the app name of a devfile registry
+// Default: ""
+func GetNameOverride(cr *registryv1alpha1.DevfileRegistry) string {
+	if cr.Spec.NameOverride != "" {
+		return cr.Spec.NameOverride
+	}
+
+	return DefaultNameOverride
+}
+
+// GetFullnameOverride returns full name override used to override the fully qualified app name of a devfile registry
+// Default: ""
+func GetFullnameOverride(cr *registryv1alpha1.DevfileRegistry) string {
+	if cr.Spec.FullnameOverride != "" {
+		return cr.Spec.FullnameOverride
+	}
+
+	return DefaultFullnameOverride
 }
 
 // IsStorageEnabled returns true if storage.enabled is set in the DevfileRegistry CR
