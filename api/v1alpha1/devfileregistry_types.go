@@ -70,6 +70,18 @@ type DevfileRegistrySpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// +optional
 	Headless *bool `json:"headless,omitempty"`
+	// Overrides the entire hostname and domain of the devfile registry ingress
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +optional
+	HostnameOverride string `json:"hostnameOverride,omitempty"`
+	// Overrides the app name of the devfile registry
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +optional
+	NameOverride string `json:"nameOverride,omitempty"`
+	// Overrides the fully qualified app name of the devfile registry
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +optional
+	FullnameOverride string `json:"fullnameOverride,omitempty"`
 }
 
 // DevfileRegistrySpecContainer defines the desired state of a container for the DevfileRegistry
