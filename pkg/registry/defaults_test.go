@@ -17,6 +17,7 @@
 package registry
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -555,6 +556,155 @@ func TestGetFullnameOverride(t *testing.T) {
 			result := GetFullnameOverride(&tt.cr)
 			if result != tt.want {
 				t.Errorf("func TestGetFullnameOverride(t *testing.T) {\n error: enablement value mismatch, expected: %v got: %v", tt.want, result)
+			}
+		})
+	}
+}
+
+func Test_getAppName(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   *registryv1alpha1.DevfileRegistry
+		want string
+	}{
+		{
+			name: "Case 1: Default App Name",
+			cr:   &registryv1alpha1.DevfileRegistry{},
+			want: DefaultAppName,
+		},
+		{
+			name: "Case 2: Overridden Short App Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr",
+		},
+		{
+			name: "Case 3: Overridden Long App Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1-tf433",
+				},
+			},
+			want: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1",
+		},
+		{
+			name: "Case 4: CR set to nil",
+			cr:   nil,
+			want: DefaultAppName,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := getAppName(test.cr)
+			if got != test.want {
+				t.Errorf("\nGot: %v\nExpected: %v\n", got, test.want)
+			}
+		})
+	}
+}
+
+func Test_getAppFullName(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   *registryv1alpha1.DevfileRegistry
+		want string
+	}{
+		{
+			name: "Case 1: Default App Full Name",
+			cr:   &registryv1alpha1.DevfileRegistry{},
+			want: DefaultAppName,
+		},
+		{
+			name: "Case 2: Default App Full Name with overridden short App Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr",
+		},
+		{
+			name: "Case 3: Default App Full Name with overridden long App Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1-tf433",
+				},
+			},
+			want: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1",
+		},
+		{
+			name: "Case 4: Overridden Short App Full Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					FullnameOverride: "dr",
+				},
+			},
+			want: "dr",
+		},
+		{
+			name: "Case 5: Overridden Long App Full Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					FullnameOverride: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1-tf433",
+				},
+			},
+			want: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1",
+		},
+		{
+			name: "Case 6: Default App Full Name with short CR name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "dr",
+				},
+			},
+			want: fmt.Sprintf("%s-%s", "dr", DefaultAppName),
+		},
+		{
+			name: "Case 7: Default App Full Name with long CR name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "devfile-registry-testregistry-devfile-io-k8s-prow",
+				},
+			},
+			want: "devfile-registry-testregistry-devfile-io-k8s-prow-devfile-regis",
+		},
+		{
+			name: "Case 8: Default App Full Name with CR name subset of default app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "registry",
+				},
+			},
+			want: "registry",
+		},
+		{
+			name: "Case 9: Default App Full Name with CR name subset of overridden app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "devfile-registry-test",
+				},
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "devfile-registry-test-app",
+				},
+			},
+			want: "devfile-registry-test",
+		},
+		{
+			name: "Case 10: CR set to nil",
+			cr:   nil,
+			want: DefaultAppName,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := getAppFullName(test.cr)
+			if got != test.want {
+				t.Errorf("\nGot: %v\nExpected: %v\n", got, test.want)
 			}
 		})
 	}
