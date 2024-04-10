@@ -16,7 +16,20 @@
 
 package registry
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	"strings"
+
+	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+func truncateName(name string) string {
+	const MAX_TRUNC_LEN = 63
+	if len(name) > MAX_TRUNC_LEN {
+		return strings.TrimSuffix(name[:63], "-")
+	}
+	return strings.TrimSuffix(name, "-")
+}
 
 func generateObjectMeta(name string, namespace string, labels map[string]string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
@@ -28,6 +41,10 @@ func generateObjectMeta(name string, namespace string, labels map[string]string)
 
 // LabelsForDevfileRegistry returns the labels for selecting the resources
 // belonging to the given devfileregistry CR name.
-func LabelsForDevfileRegistry(name string) map[string]string {
-	return map[string]string{"app": "devfileregistry", "devfileregistry_cr": name}
+func LabelsForDevfileRegistry(cr *registryv1alpha1.DevfileRegistry) map[string]string {
+	if cr != nil {
+		return map[string]string{"app": getAppName(cr), "devfileregistry_cr": cr.Name}
+	}
+
+	return map[string]string{"app": DefaultAppName}
 }

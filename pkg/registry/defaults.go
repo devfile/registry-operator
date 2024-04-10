@@ -17,6 +17,9 @@
 package registry
 
 import (
+	"fmt"
+	"strings"
+
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -65,6 +68,9 @@ const (
 	DefaultHostnameOverride = ""
 	DefaultNameOverride     = ""
 	DefaultFullnameOverride = ""
+
+	// App name default
+	DefaultAppName = "devfile-registry"
 )
 
 // GetRegistryViewerImage returns the container image for the registry viewer to be deployed on the Devfile Registry.
@@ -250,4 +256,45 @@ func getDevfileRegistrySpecContainer(quantity string, defaultValue string) resou
 		}
 	}
 	return resource.MustParse(defaultValue)
+}
+
+// getAppName returns app name of a devfile registry
+// truncated to 63 characters max, if `DevfileRegistry.NameOverride`
+// is set it will return the override name truncated to 63 characters max
+func getAppName(cr *registryv1alpha1.DevfileRegistry) string {
+	if cr != nil {
+		nameOverride := GetNameOverride(cr)
+
+		if nameOverride == DefaultNameOverride {
+			return truncateName(DefaultAppName)
+		}
+
+		return truncateName(nameOverride)
+	}
+
+	return truncateName(DefaultAppName)
+}
+
+// getAppFullName returns fully qualified app name of a devfile registry
+// truncated to 63 characters max, if `DevfileRegistry.FullnameOverride`
+// is set it will return the override name truncated to 63 characters max
+func getAppFullName(cr *registryv1alpha1.DevfileRegistry) string {
+	if cr != nil {
+		fullNameOverride := GetFullnameOverride(cr)
+
+		if fullNameOverride == DefaultFullnameOverride {
+			appName := getAppName(cr)
+			if cr.Name == "" {
+				return truncateName(appName)
+			} else if strings.Contains(appName, cr.Name) {
+				return truncateName(cr.Name)
+			} else {
+				return truncateName(fmt.Sprintf("%s-%s", cr.Name, appName))
+			}
+		}
+
+		return truncateName(fullNameOverride)
+	}
+
+	return truncateName(DefaultAppName)
 }
