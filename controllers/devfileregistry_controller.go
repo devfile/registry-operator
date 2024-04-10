@@ -141,7 +141,7 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 		// Get the hostname of the generated devfile route
 		devfilesRoute := &routev1.Route{}
-		err = r.Get(ctx, types.NamespacedName{Name: registry.IngressName(devfileRegistry.Name), Namespace: devfileRegistry.Namespace}, devfilesRoute)
+		err = r.Get(ctx, types.NamespacedName{Name: registry.IngressName(devfileRegistry), Namespace: devfileRegistry.Namespace}, devfilesRoute)
 		if err != nil {
 			// Log an error, but requeue, as the controller's cached kube client likely hasn't registered the new route yet.
 			// See https://github.com/operator-framework/operator-sdk/issues/4013#issuecomment-707267616 for an explanation on why we requeue rather than error out here

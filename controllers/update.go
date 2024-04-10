@@ -197,7 +197,7 @@ func (r *DevfileRegistryReconciler) deleteOldPVCIfNeeded(ctx context.Context, cr
 	// Check to see if a PVC exists, if so, need to clean it up because storage was disabled
 	if !registry.IsStorageEnabled(cr) {
 		pvc := &corev1.PersistentVolumeClaim{}
-		err := r.Get(ctx, types.NamespacedName{Name: registry.PVCName(cr.Name), Namespace: cr.Namespace}, pvc)
+		err := r.Get(ctx, types.NamespacedName{Name: registry.PVCName(cr), Namespace: cr.Namespace}, pvc)
 		if err != nil {
 			if errors.IsNotFound(err) {
 				// PVC not found, so there's no old PVC to delete. Just return nil, nothing to do.

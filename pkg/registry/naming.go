@@ -16,36 +16,40 @@
 
 package registry
 
-// genericResourceName returns just the name of the custom resource, to be used
-func GenericResourceName(devfileRegistryName string) string {
-	return devfileRegistryName
+import (
+	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
+)
+
+// GenericResourceName returns just the fully qualified app name, to be used
+func GenericResourceName(cr *registryv1alpha1.DevfileRegistry) string {
+	return getAppFullName(cr)
 }
 
 // DeploymentName returns the name of the deployment object associated with the DevfileRegistry CR
-// Just returns the CR name right now, but extracting to a function to avoid relying on that assumption in the future
-func DeploymentName(devfileRegistryName string) string {
-	return GenericResourceName(devfileRegistryName)
+// Just returns the fully qualified app name right now, but extracting to a function to avoid relying on that assumption in the future
+func DeploymentName(cr *registryv1alpha1.DevfileRegistry) string {
+	return GenericResourceName(cr)
 }
 
 // ServiceName returns the name of the service object associated with the DevfileRegistry CR
-// Just returns the CR name right now, but extracting to a function to avoid relying on that assumption in the future
-func ServiceName(devfileRegistryName string) string {
-	return GenericResourceName(devfileRegistryName)
+// Just returns the fully qualified app name right now, but extracting to a function to avoid relying on that assumption in the future
+func ServiceName(cr *registryv1alpha1.DevfileRegistry) string {
+	return GenericResourceName(cr)
 }
 
 // ConfigMapName returns the name of the service object associated with the DevfileRegistry CR
-func ConfigMapName(devfileRegistryName string) string {
-	return devfileRegistryName + "-registry-config"
+func ConfigMapName(cr *registryv1alpha1.DevfileRegistry) string {
+	return getAppFullName(cr) + "-registry-config"
 }
 
 // PVCName returns the name of the PVC object associated with the DevfileRegistry CR
-// Just returns the CR name right now, but extracting to a function to avoid relying on that assumption in the future
-func PVCName(devfileRegistryName string) string {
-	return GenericResourceName(devfileRegistryName)
+// Just returns the fully qualified app name right now, but extracting to a function to avoid relying on that assumption in the future
+func PVCName(cr *registryv1alpha1.DevfileRegistry) string {
+	return GenericResourceName(cr)
 }
 
 // IngressName returns the name of the Ingress object associated with the DevfileRegistry CR
-// Just returns the CR name right now, but extracting to a function to avoid relying on that assumption in the future
-func IngressName(devfileRegistryName string) string {
-	return GenericResourceName(devfileRegistryName)
+// Just returns the fully qualified app name right now, but extracting to a function to avoid relying on that assumption in the future
+func IngressName(cr *registryv1alpha1.DevfileRegistry) string {
+	return GenericResourceName(cr)
 }

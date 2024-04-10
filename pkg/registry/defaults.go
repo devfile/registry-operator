@@ -165,7 +165,7 @@ func GetDevfileRegistryVolumeSource(cr *registryv1alpha1.DevfileRegistry) corev1
 	if IsStorageEnabled(cr) {
 		return corev1.VolumeSource{
 			PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-				ClaimName: PVCName(cr.Name),
+				ClaimName: PVCName(cr),
 			},
 		}
 	}
