@@ -23,10 +23,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// truncateName truncates given name to default 63 characters,
+// trims "-" from suffix if last character
 func truncateName(name string) string {
 	return truncateNameLengthN(name, maxTruncLength)
 }
 
+// truncateNameLengthN truncates given name to given n characters,
+// trims "-" from suffix if last character
 func truncateNameLengthN(name string, n int) string {
 	if n < 0 {
 		n = 0
