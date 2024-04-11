@@ -76,5 +76,5 @@ func GetDevfileRegistryIngress(cr *registryv1alpha1.DevfileRegistry) string {
 }
 
 func GetHostname(cr *registryv1alpha1.DevfileRegistry) string {
-	return fmt.Sprintf("%s-%s", cr.Name, cr.Namespace)
+	return fmt.Sprintf("%s-%s", getAppFullName(cr), cr.Namespace)
 }
