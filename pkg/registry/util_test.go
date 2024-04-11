@@ -62,6 +62,61 @@ func Test_truncateName(t *testing.T) {
 	}
 }
 
+func Test_truncateNameLengthN(t *testing.T) {
+	tests := []struct {
+		name        string
+		inputName   string
+		inputLength int
+		want        string
+	}{
+		{
+			name:        "Case 1: Short name",
+			inputName:   "devfile-registry-test",
+			want:        "devfile-registry",
+			inputLength: 17,
+		},
+		{
+			name:        "Case 2: Long name",
+			inputName:   "devfile-registry-testregistry-devfile-io-k8s-prow-test-environment-afdfs2345j2234j2k42ljl234",
+			want:        "devfile-registry-testregistry-devfile-io-k8s-prow",
+			inputLength: 49,
+		},
+		{
+			name:        "Case 3: Short name with leftover suffix",
+			inputName:   "devfile-registry-test-",
+			want:        "devfile-registry-test",
+			inputLength: 30,
+		},
+		{
+			name:        "Case 4: Long name with leftover suffix",
+			inputName:   "devfile-registry-testregistry-devfile-io-k8s-prow-environment1-tf433",
+			want:        "devfile-registry-testregistry",
+			inputLength: 30,
+		},
+		{
+			name:        "Case 5: Negative truncation length",
+			inputName:   "devfile-registry-test",
+			want:        "",
+			inputLength: -17,
+		},
+		{
+			name:        "Case 6: Truncation length zero",
+			inputName:   "devfile-registry-test",
+			want:        "",
+			inputLength: 0,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := truncateNameLengthN(test.inputName, test.inputLength)
+			if got != test.want {
+				t.Errorf("\nGot: %v\nExpected: %v\n", got, test.want)
+			}
+		})
+	}
+}
+
 func TestLabelsForDevfileRegistry(t *testing.T) {
 	tests := []struct {
 		name string

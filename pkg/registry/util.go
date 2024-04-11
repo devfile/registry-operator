@@ -24,10 +24,18 @@ import (
 )
 
 func truncateName(name string) string {
-	const MAX_TRUNC_LEN = 63
-	if len(name) > MAX_TRUNC_LEN {
-		return strings.TrimSuffix(name[:63], "-")
+	return truncateNameLengthN(name, maxTruncLength)
+}
+
+func truncateNameLengthN(name string, n int) string {
+	if n < 0 {
+		n = 0
 	}
+
+	if len(name) > n {
+		return strings.TrimSuffix(name[:n], "-")
+	}
+
 	return strings.TrimSuffix(name, "-")
 }
 

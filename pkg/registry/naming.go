@@ -39,7 +39,15 @@ func ServiceName(cr *registryv1alpha1.DevfileRegistry) string {
 
 // ConfigMapName returns the name of the service object associated with the DevfileRegistry CR
 func ConfigMapName(cr *registryv1alpha1.DevfileRegistry) string {
-	return getAppFullName(cr) + "-registry-config"
+	const suffixLength = 15
+	appFullName := getAppFullName(cr)
+	configMapNameLength := (len(appFullName) + suffixLength)
+
+	if configMapNameLength > maxTruncLength {
+		return truncateNameLengthN(appFullName, len(appFullName)-suffixLength) + "-registry-config"
+	}
+
+	return appFullName + "-registry-config"
 }
 
 // PVCName returns the name of the PVC object associated with the DevfileRegistry CR
