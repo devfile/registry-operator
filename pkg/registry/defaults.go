@@ -286,7 +286,7 @@ func getAppFullName(cr *registryv1alpha1.DevfileRegistry) string {
 			appName := getAppName(cr)
 			if cr.Name == "" {
 				return truncateName(appName)
-			} else if strings.Contains(appName, cr.Name) {
+			} else if strings.Contains(cr.Name, appName) {
 				return truncateName(cr.Name)
 			} else {
 				return truncateName(fmt.Sprintf("%s-%s", cr.Name, appName))

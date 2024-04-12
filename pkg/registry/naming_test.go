@@ -84,31 +84,31 @@ func TestGenericResourceName(t *testing.T) {
 			name: "Case 7: Default App Full Name with long CR name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "devfile-registry-testregistry-devfile-io-k8s-prow",
+					Name: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-registry",
 				},
 			},
-			want: "devfile-registry-testregistry-devfile-io-k8s-prow-devfile-regis",
+			want: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-reg",
 		},
 		{
-			name: "Case 8: Default App Full Name with CR name subset of default app name",
-			cr: &registryv1alpha1.DevfileRegistry{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "registry",
-				},
-			},
-			want: "registry",
-		},
-		{
-			name: "Case 9: Default App Full Name with CR name subset of overridden app name",
+			name: "Case 8: Default App Full Name with CR name contains default app name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "devfile-registry-test",
 				},
-				Spec: registryv1alpha1.DevfileRegistrySpec{
-					NameOverride: "devfile-registry-test-app",
-				},
 			},
 			want: "devfile-registry-test",
+		},
+		{
+			name: "Case 9: Default App Full Name with CR name contains overridden app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "dr-test",
+				},
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr-test",
 		},
 		{
 			name: "Case 10: CR set to nil",
@@ -187,31 +187,31 @@ func TestDeploymentName(t *testing.T) {
 			name: "Case 7: Default App Full Name with long CR name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "devfile-registry-testregistry-devfile-io-k8s-prow",
+					Name: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-registry",
 				},
 			},
-			want: "devfile-registry-testregistry-devfile-io-k8s-prow-devfile-regis",
+			want: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-reg",
 		},
 		{
-			name: "Case 8: Default App Full Name with CR name subset of default app name",
-			cr: &registryv1alpha1.DevfileRegistry{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "registry",
-				},
-			},
-			want: "registry",
-		},
-		{
-			name: "Case 9: Default App Full Name with CR name subset of overridden app name",
+			name: "Case 8: Default App Full Name with CR name contains default app name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "devfile-registry-test",
 				},
-				Spec: registryv1alpha1.DevfileRegistrySpec{
-					NameOverride: "devfile-registry-test-app",
-				},
 			},
 			want: "devfile-registry-test",
+		},
+		{
+			name: "Case 9: Default App Full Name with CR name contains overridden app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "dr-test",
+				},
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr-test",
 		},
 		{
 			name: "Case 10: CR set to nil",
@@ -290,31 +290,31 @@ func TestConfigMapName(t *testing.T) {
 			name: "Case 7: Default App Full Name with long CR name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "devfile-registry-testregistry-devfile-io-k8s-prow",
+					Name: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-registry",
 				},
 			},
-			want: "devfile-registry-testregistry-devfile-io-k8s-pro-registry-config",
+			want: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0r-registry-config",
 		},
 		{
-			name: "Case 8: Default App Full Name with CR name subset of default app name",
-			cr: &registryv1alpha1.DevfileRegistry{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "registry",
-				},
-			},
-			want: "registry-registry-config",
-		},
-		{
-			name: "Case 9: Default App Full Name with CR name subset of overridden app name",
+			name: "Case 8: Default App Full Name with CR name contains default app name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "devfile-registry-test",
 				},
-				Spec: registryv1alpha1.DevfileRegistrySpec{
-					NameOverride: "devfile-registry-test-app",
-				},
 			},
 			want: "devfile-registry-test-registry-config",
+		},
+		{
+			name: "Case 9: Default App Full Name with CR name contains overridden app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "dr-test",
+				},
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr-test-registry-config",
 		},
 		{
 			name: "Case 10: CR set to nil",
@@ -393,31 +393,31 @@ func TestServiceName(t *testing.T) {
 			name: "Case 7: Default App Full Name with long CR name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "devfile-registry-testregistry-devfile-io-k8s-prow",
+					Name: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-registry",
 				},
 			},
-			want: "devfile-registry-testregistry-devfile-io-k8s-prow-devfile-regis",
+			want: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-reg",
 		},
 		{
-			name: "Case 8: Default App Full Name with CR name subset of default app name",
-			cr: &registryv1alpha1.DevfileRegistry{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "registry",
-				},
-			},
-			want: "registry",
-		},
-		{
-			name: "Case 9: Default App Full Name with CR name subset of overridden app name",
+			name: "Case 8: Default App Full Name with CR name contains default app name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "devfile-registry-test",
 				},
-				Spec: registryv1alpha1.DevfileRegistrySpec{
-					NameOverride: "devfile-registry-test-app",
-				},
 			},
 			want: "devfile-registry-test",
+		},
+		{
+			name: "Case 9: Default App Full Name with CR name contains overridden app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "dr-test",
+				},
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr-test",
 		},
 		{
 			name: "Case 10: CR set to nil",
@@ -496,31 +496,31 @@ func TestPVCName(t *testing.T) {
 			name: "Case 7: Default App Full Name with long CR name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "devfile-registry-testregistry-devfile-io-k8s-prow",
+					Name: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-registry",
 				},
 			},
-			want: "devfile-registry-testregistry-devfile-io-k8s-prow-devfile-regis",
+			want: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-reg",
 		},
 		{
-			name: "Case 8: Default App Full Name with CR name subset of default app name",
-			cr: &registryv1alpha1.DevfileRegistry{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "registry",
-				},
-			},
-			want: "registry",
-		},
-		{
-			name: "Case 9: Default App Full Name with CR name subset of overridden app name",
+			name: "Case 8: Default App Full Name with CR name contains default app name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "devfile-registry-test",
 				},
-				Spec: registryv1alpha1.DevfileRegistrySpec{
-					NameOverride: "devfile-registry-test-app",
-				},
 			},
 			want: "devfile-registry-test",
+		},
+		{
+			name: "Case 9: Default App Full Name with CR name contains overridden app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "dr-test",
+				},
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr-test",
 		},
 		{
 			name: "Case 10: CR set to nil",
@@ -599,31 +599,31 @@ func TestIngressName(t *testing.T) {
 			name: "Case 7: Default App Full Name with long CR name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "devfile-registry-testregistry-devfile-io-k8s-prow",
+					Name: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-registry",
 				},
 			},
-			want: "devfile-registry-testregistry-devfile-io-k8s-prow-devfile-regis",
+			want: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-reg",
 		},
 		{
-			name: "Case 8: Default App Full Name with CR name subset of default app name",
-			cr: &registryv1alpha1.DevfileRegistry{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "registry",
-				},
-			},
-			want: "registry",
-		},
-		{
-			name: "Case 9: Default App Full Name with CR name subset of overridden app name",
+			name: "Case 8: Default App Full Name with CR name contains default app name",
 			cr: &registryv1alpha1.DevfileRegistry{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "devfile-registry-test",
 				},
-				Spec: registryv1alpha1.DevfileRegistrySpec{
-					NameOverride: "devfile-registry-test-app",
-				},
 			},
 			want: "devfile-registry-test",
+		},
+		{
+			name: "Case 9: Default App Full Name with CR name contains overridden app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "dr-test",
+				},
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr-test",
 		},
 		{
 			name: "Case 10: CR set to nil",
