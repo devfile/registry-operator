@@ -33,7 +33,7 @@ var K8sClient *client.K8sClient
 
 var _ = ginkgo.Describe("[Create Devfile Registry resource]", func() {
 	ginkgo.It("Should deploy a devfile registry on to the cluster", func() {
-		crName := "devfileregistry"
+		crName := "devfile-registry"
 		label := "devfileregistry_cr=" + crName
 
 		// Deploy the devfileregistry resource for this test case and wait for the pod to be running
@@ -88,7 +88,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource]", func() {
 
 var _ = ginkgo.Describe("[Create Devfile Registry resource with TLS enabled]", func() {
 	ginkgo.It("Should deploy a devfile registry on to the cluster with HTTPS", func() {
-		crName := "devfileregistry-tls"
+		crName := "devfile-registry-tls"
 		label := "devfileregistry_cr=" + crName
 
 		// Deploy the devfileregistry resource for this test case and wait for the pod to be running
@@ -123,7 +123,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource with TLS enabled]", f
 
 var _ = ginkgo.Describe("[Create Devfile Registry resource with headless enabled]", func() {
 	ginkgo.It("Should deploy a headless devfile registry on to the cluster", func() {
-		crName := "devfileregistry-headless"
+		crName := "devfile-registry-headless"
 		label := "devfileregistry_cr=" + crName
 
 		// Deploy the devfileregistry resource for this test case and wait for the pod to be running
@@ -165,7 +165,7 @@ var _ = ginkgo.Describe("[Create Devfile Registry resource with headless enabled
 
 var _ = ginkgo.Describe("[Update Devfile Registry resource]", func() {
 	ginkgo.It("Should deploy a devfile registry on to the cluster and properly update it", func() {
-		crName := "devfileregistry-update"
+		crName := "devfile-registry-update"
 		label := "devfileregistry_cr=" + crName
 
 		// Deploy the devfileregistry resource for this test case and wait for the pod to be running

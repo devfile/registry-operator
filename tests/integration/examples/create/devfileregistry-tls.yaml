@@ -1,7 +1,7 @@
 apiVersion: registry.devfile.io/v1alpha1
 kind: DevfileRegistry
 metadata:
-  name: devfileregistry-tls
+  name: devfile-registry-tls
 spec:
   devfileIndex:
     image: quay.io/devfile/devfile-index:next

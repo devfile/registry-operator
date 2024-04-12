@@ -1,7 +1,7 @@
 apiVersion: registry.devfile.io/v1alpha1
 kind: DevfileRegistry
 metadata:
-  name: devfileregistry-headless
+  name: devfile-registry-headless
 spec:
   devfileIndex:
     image: quay.io/devfile/devfile-index:next
