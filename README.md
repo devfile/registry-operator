@@ -162,7 +162,7 @@ make run ENABLE_WEBHOOKS=false
 
 ## Contributing
 
-Please see our [contributing.md](./CONTRIBUTING.md).
+Please see our [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Known Issues
 - [`make test-integration` times out when running in Minikube](https://github.com/devfile/api/issues/1313)
