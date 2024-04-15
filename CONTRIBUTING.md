@@ -121,6 +121,9 @@ By default, the tests will use the default image for the operator, `quay.io/devf
 
 You can use `make <engine>-build` to build your own image, `make <engine>-push` to publish it - Replace `<engine>` with `podman` or `docker`. You will need to have a reference to your newly built image available via the `IMG` environment variable.
 
+<!--
+Will need to be updated after the completion of https://github.com/devfile/api/issues/1523
+-->
 In order for `make test-integration` to properly run you must first ensure your environment is prepared for the operator. The following steps should be done **before** running `make test-integration` and
 these commands should be run from the root of the repository where the [`Makefile`](Makefile) is located.
 1. Run `make install-cert` and wait for pods in the `cert-manager` namespace to be running before moving to step 2.
