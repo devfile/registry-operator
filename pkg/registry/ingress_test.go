@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestGetDevfileRegistryIngress(t *testing.T) {
@@ -32,18 +33,20 @@ func TestGetDevfileRegistryIngress(t *testing.T) {
 		{
 			name: "Case 1: Correct Conjunction",
 			cr: registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-name",
+					Namespace: "test-namespace",
+				},
 				Spec: registryv1alpha1.DevfileRegistrySpec{
 					K8s: registryv1alpha1.DevfileRegistrySpecK8sOnly{
 						IngressDomain: "my-domain",
 					},
 				}},
-			want: "test-name-test-namespace.my-domain",
+			want: "test-name-devfile-registry-test-namespace.my-domain",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.cr.Name = "test-name"
-			tt.cr.Namespace = "test-namespace"
 			ingress := GetDevfileRegistryIngress(&tt.cr)
 			if ingress != tt.want {
 				t.Errorf("expected: %v got: %v", tt.want, ingress)
@@ -63,18 +66,20 @@ func TestGetHostname(t *testing.T) {
 		{
 			name: "Case 1: Correct Hostname",
 			cr: registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-name",
+					Namespace: "test-namespace",
+				},
 				Spec: registryv1alpha1.DevfileRegistrySpec{
 					K8s: registryv1alpha1.DevfileRegistrySpecK8sOnly{
 						IngressDomain: "my-domain",
 					},
 				}},
-			want: "test-name-test-namespace",
+			want: "test-name-devfile-registry-test-namespace",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.cr.Name = "test-name"
-			tt.cr.Namespace = "test-namespace"
 			hostname := GetHostname(&tt.cr)
 			if hostname != tt.want {
 				t.Errorf("expected: %v got: %v", tt.want, hostname)

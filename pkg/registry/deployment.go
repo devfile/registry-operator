@@ -39,7 +39,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 	fsGroup := int64(3001)
 
 	dep := &appsv1.Deployment{
-		ObjectMeta: generateObjectMeta(cr.Name, cr.Namespace, labels),
+		ObjectMeta: generateObjectMeta(DeploymentName(cr), cr.Namespace, labels),
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
@@ -184,7 +184,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 							VolumeSource: corev1.VolumeSource{
 								ConfigMap: &corev1.ConfigMapVolumeSource{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: ConfigMapName(cr.Name),
+										Name: ConfigMapName(cr),
 									},
 									Items: []corev1.KeyToPath{
 										{

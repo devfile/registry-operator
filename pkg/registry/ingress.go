@@ -28,7 +28,7 @@ import (
 func GenerateIngress(cr *registryv1alpha1.DevfileRegistry, host string, scheme *runtime.Scheme, labels map[string]string) *networkingv1.Ingress {
 	pathTypeImplementationSpecific := networkingv1.PathTypeImplementationSpecific
 	ingress := &networkingv1.Ingress{
-		ObjectMeta: generateObjectMeta(IngressName(cr.Name), cr.Namespace, labels),
+		ObjectMeta: generateObjectMeta(IngressName(cr), cr.Namespace, labels),
 		Spec: networkingv1.IngressSpec{
 			Rules: []networkingv1.IngressRule{
 				{
@@ -40,7 +40,7 @@ func GenerateIngress(cr *registryv1alpha1.DevfileRegistry, host string, scheme *
 									Path: "/",
 									Backend: networkingv1.IngressBackend{
 										Service: &networkingv1.IngressServiceBackend{
-											Name: ServiceName(cr.Name),
+											Name: ServiceName(cr),
 											Port: networkingv1.ServiceBackendPort{
 												Number: int32(DevfileIndexPort),
 											},
@@ -76,5 +76,5 @@ func GetDevfileRegistryIngress(cr *registryv1alpha1.DevfileRegistry) string {
 }
 
 func GetHostname(cr *registryv1alpha1.DevfileRegistry) string {
-	return fmt.Sprintf("%s-%s", cr.Name, cr.Namespace)
+	return fmt.Sprintf("%s-%s", getAppFullName(cr), cr.Namespace)
 }

@@ -36,7 +36,7 @@ import (
 
 func (r *DevfileRegistryReconciler) ensure(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, resource client.Object, labels map[string]string, ingressDomain string) (*reconcile.Result, error) {
 	resourceType := reflect.TypeOf(resource).Elem().Name()
-	resourceName := getResourceName(resource, cr.Name)
+	resourceName := getResourceName(resource, cr)
 	//use the controller log
 	// Check to see if the requested resource exists on the cluster. If it doesn't exist, create it and return.
 	err := r.Get(ctx, types.NamespacedName{Name: resourceName, Namespace: cr.Namespace}, resource)
@@ -74,20 +74,20 @@ func (r *DevfileRegistryReconciler) ensure(ctx context.Context, cr *registryv1al
 	return nil, nil
 }
 
-func getResourceName(resource runtime.Object, crName string) string {
+func getResourceName(resource runtime.Object, cr *registryv1alpha1.DevfileRegistry) string {
 	switch resource.(type) {
 	case *appsv1.Deployment:
-		return registry.DeploymentName(crName)
+		return registry.DeploymentName(cr)
 	case *corev1.ConfigMap:
-		return registry.ConfigMapName(crName)
+		return registry.ConfigMapName(cr)
 	case *corev1.PersistentVolumeClaim:
-		return registry.PVCName(crName)
+		return registry.PVCName(cr)
 	case *corev1.Service:
-		return registry.ServiceName(crName)
+		return registry.ServiceName(cr)
 	case *routev1.Route, *networkingv1.Ingress:
-		return registry.IngressName(crName)
+		return registry.IngressName(cr)
 	}
-	return registry.GenericResourceName(crName)
+	return registry.GenericResourceName(cr)
 }
 
 func (r *DevfileRegistryReconciler) generateResourceObject(cr *registryv1alpha1.DevfileRegistry, resource client.Object, labels map[string]string, ingressDomain string) client.Object {

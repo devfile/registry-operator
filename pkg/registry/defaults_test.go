@@ -17,6 +17,7 @@
 package registry
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -130,58 +131,63 @@ func TestGetDevfileRegistryVolumeSource(t *testing.T) {
 	storageEnabled := true
 	storageDisabled := false
 	crName := "devfileregistry-test"
+	crTestData := []registryv1alpha1.DevfileRegistry{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: crName,
+			},
+			Spec: registryv1alpha1.DevfileRegistrySpec{
+				Storage: registryv1alpha1.DevfileRegistrySpecStorage{
+					Enabled: &storageEnabled,
+				},
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: crName,
+			},
+			Spec: registryv1alpha1.DevfileRegistrySpec{
+				Storage: registryv1alpha1.DevfileRegistrySpecStorage{
+					Enabled: &storageDisabled,
+				},
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: crName,
+			},
+			Spec: registryv1alpha1.DevfileRegistrySpec{},
+		},
+	}
 
 	tests := []struct {
 		name string
-		cr   registryv1alpha1.DevfileRegistry
+		cr   *registryv1alpha1.DevfileRegistry
 		want corev1.VolumeSource
 	}{
 		{
 			name: "Case 1: Storage enabled in DevfileRegistry CR",
-			cr: registryv1alpha1.DevfileRegistry{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: crName,
-				},
-				Spec: registryv1alpha1.DevfileRegistrySpec{
-					Storage: registryv1alpha1.DevfileRegistrySpecStorage{
-						Enabled: &storageEnabled,
-					},
-				},
-			},
+			cr:   &crTestData[0],
 			want: corev1.VolumeSource{
 				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-					ClaimName: PVCName(crName),
+					ClaimName: PVCName(&crTestData[0]),
 				},
 			},
 		},
 		{
 			name: "Case 2: Storage disabled in DevfileRegistry CR",
-			cr: registryv1alpha1.DevfileRegistry{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: crName,
-				},
-				Spec: registryv1alpha1.DevfileRegistrySpec{
-					Storage: registryv1alpha1.DevfileRegistrySpecStorage{
-						Enabled: &storageDisabled,
-					},
-				},
-			},
+			cr:   &crTestData[1],
 			want: corev1.VolumeSource{},
 		},
 		{
 			name: "Case 3: Storage not set, default set to false",
-			cr: registryv1alpha1.DevfileRegistry{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: crName,
-				},
-				Spec: registryv1alpha1.DevfileRegistrySpec{},
-			},
+			cr:   &crTestData[2],
 			want: corev1.VolumeSource{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tlsSetting := GetDevfileRegistryVolumeSource(&tt.cr)
+			tlsSetting := GetDevfileRegistryVolumeSource(tt.cr)
 			if !reflect.DeepEqual(tlsSetting, tt.want) {
 				t.Errorf("TestGetDevfileRegistryVolumeSource error: storage source mismatch, expected: %v got: %v", tt.want, tlsSetting)
 			}
@@ -555,6 +561,155 @@ func TestGetFullnameOverride(t *testing.T) {
 			result := GetFullnameOverride(&tt.cr)
 			if result != tt.want {
 				t.Errorf("func TestGetFullnameOverride(t *testing.T) {\n error: enablement value mismatch, expected: %v got: %v", tt.want, result)
+			}
+		})
+	}
+}
+
+func Test_getAppName(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   *registryv1alpha1.DevfileRegistry
+		want string
+	}{
+		{
+			name: "Case 1: Default App Name",
+			cr:   &registryv1alpha1.DevfileRegistry{},
+			want: DefaultAppName,
+		},
+		{
+			name: "Case 2: Overridden Short App Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr",
+		},
+		{
+			name: "Case 3: Overridden Long App Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1-tf433",
+				},
+			},
+			want: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1",
+		},
+		{
+			name: "Case 4: CR set to nil",
+			cr:   nil,
+			want: DefaultAppName,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := getAppName(test.cr)
+			if got != test.want {
+				t.Errorf("\nGot: %v\nExpected: %v\n", got, test.want)
+			}
+		})
+	}
+}
+
+func Test_getAppFullName(t *testing.T) {
+	tests := []struct {
+		name string
+		cr   *registryv1alpha1.DevfileRegistry
+		want string
+	}{
+		{
+			name: "Case 1: Default App Full Name",
+			cr:   &registryv1alpha1.DevfileRegistry{},
+			want: DefaultAppName,
+		},
+		{
+			name: "Case 2: Default App Full Name with overridden short App Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr",
+		},
+		{
+			name: "Case 3: Default App Full Name with overridden long App Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1-tf433",
+				},
+			},
+			want: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1",
+		},
+		{
+			name: "Case 4: Overridden Short App Full Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					FullnameOverride: "dr",
+				},
+			},
+			want: "dr",
+		},
+		{
+			name: "Case 5: Overridden Long App Full Name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					FullnameOverride: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1-tf433",
+				},
+			},
+			want: "devfile-registry-testregistry-devfile-io-k8s-prow-environment1",
+		},
+		{
+			name: "Case 6: Default App Full Name with short CR name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "dr",
+				},
+			},
+			want: fmt.Sprintf("%s-%s", "dr", DefaultAppName),
+		},
+		{
+			name: "Case 7: Default App Full Name with long CR name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-registry",
+				},
+			},
+			want: "testregistry-devfile-io-k8s-prow-af4325d2dcb2d0rte1-devfile-reg",
+		},
+		{
+			name: "Case 8: Default App Full Name with CR name contains default app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "devfile-registry-test",
+				},
+			},
+			want: "devfile-registry-test",
+		},
+		{
+			name: "Case 9: Default App Full Name with CR name contains overridden app name",
+			cr: &registryv1alpha1.DevfileRegistry{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "dr-test",
+				},
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					NameOverride: "dr",
+				},
+			},
+			want: "dr-test",
+		},
+		{
+			name: "Case 10: CR set to nil",
+			cr:   nil,
+			want: DefaultAppName,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := getAppFullName(test.cr)
+			if got != test.want {
+				t.Errorf("\nGot: %v\nExpected: %v\n", got, test.want)
 			}
 		})
 	}

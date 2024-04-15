@@ -59,7 +59,7 @@ DEVFILE_REGISTRIES=[{"name":"%s","url":"http://localhost:8080","fqdn":"%s"}]`,
 	configMapData[".env.registry-viewer"] = viewerEnvfile
 
 	cm := &corev1.ConfigMap{
-		ObjectMeta: generateObjectMeta(ConfigMapName(cr.Name), cr.Namespace, labels),
+		ObjectMeta: generateObjectMeta(ConfigMapName(cr), cr.Namespace, labels),
 		Data:       configMapData,
 	}
 

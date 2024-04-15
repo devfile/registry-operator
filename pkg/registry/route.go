@@ -30,11 +30,11 @@ func GenerateRoute(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme,
 	weight := int32(100)
 
 	route := &routev1.Route{
-		ObjectMeta: generateObjectMeta(IngressName(cr.Name), cr.Namespace, labels),
+		ObjectMeta: generateObjectMeta(IngressName(cr), cr.Namespace, labels),
 		Spec: routev1.RouteSpec{
 			To: routev1.RouteTargetReference{
 				Kind:   "Service",
-				Name:   ServiceName(cr.Name),
+				Name:   ServiceName(cr),
 				Weight: &weight,
 			},
 			Port: &routev1.RoutePort{
