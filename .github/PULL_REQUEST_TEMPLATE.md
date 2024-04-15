@@ -16,4 +16,20 @@ Fixes #?
 Documentation
 - [ ] Does the registry operator documentation need to be updated with your changes?
 
-**How to test changes / Special notes to the reviewer**:
+<!--
+Instructions for locally testing changes made to the operator, drawn from CONTRIBUTING.md
+-->
+**Testing changes**
+
+Unit Tests:
+- Run `make test` from root of the repository.
+
+Integration Tests:
+- Run `make install-cert` and wait for pods in `cert-manager` namespace.
+- Run `make install && make deploy` and wait for pods in `registry-operator-system` namespace.
+- Run `make test-integration`.
+
+<!--
+Add extra instructions that reviewers may need regarding testing your changes or to properly review your pull request.
+-->
+**Special notes to the reviewer**:
