@@ -21,16 +21,9 @@ Instructions for locally testing changes made to the operator, drawn from CONTRI
 -->
 **Testing changes**
 
-Unit Tests:
-- Run `make test` from root of the repository.
+[Running Unit Tests](https://github.com/devfile/registry-operator/blob/main/CONTRIBUTING.md#unit-tests)
 
-<!--
-Will need to be updated after the completion of https://github.com/devfile/api/issues/1523
--->
-Integration Tests:
-- Run `make install-cert` and wait for pods in `cert-manager` namespace.
-- Run `make install && make deploy` and wait for pods in `registry-operator-system` namespace.
-- Run `make test-integration`.
+[Running Integration Tests](https://github.com/devfile/registry-operator/blob/main/CONTRIBUTING.md#integration-tests)
 
 <!--
 Add extra instructions that reviewers may need regarding testing your changes or to properly review your pull request.
