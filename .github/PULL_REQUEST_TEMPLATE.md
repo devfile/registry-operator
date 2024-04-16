@@ -16,4 +16,16 @@ Fixes #?
 Documentation
 - [ ] Does the registry operator documentation need to be updated with your changes?
 
-**How to test changes / Special notes to the reviewer**:
+<!--
+Instructions for locally testing changes made to the operator, drawn from CONTRIBUTING.md
+-->
+**Testing changes**
+
+[Running Unit Tests](https://github.com/devfile/registry-operator/blob/main/CONTRIBUTING.md#unit-tests)
+
+[Running Integration Tests](https://github.com/devfile/registry-operator/blob/main/CONTRIBUTING.md#integration-tests)
+
+<!--
+Add extra instructions that reviewers may need regarding testing your changes or to properly review your pull request.
+-->
+**Special notes to the reviewer**:

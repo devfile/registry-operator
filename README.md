@@ -131,18 +131,7 @@ To see all rules supported by the makefile, run `make help`
 
 ## Testing
 
-To run integration tests for the operator, run `make test-integration`. 
-
-One of the `oc` or `kubectl` executables must be accessible. If both are present in your path, `oc` will be used, except if you
-define the environment variable `K8S_CLI` with the command you prefer to use.
-
-By default, the tests will use the default image for the operator, `quay.io/devfile/registry-operator:next`.
-
-You can use `make <engine>-build` to build your own image, `make <engine>-push` to publish it - Replace `<engine>` with `podman` or `docker`. Then, to use your own image, run:
-
-```
-IMG=<your-operator-image> make test-integration
-```
+Detailed instructions on how to run tests for the Devfile Registry Operator are found in [CONTRIBUTING.md](CONTRIBUTING.md#testing-your-changes).
 
 ### Run operator locally
 It's possible to run an instance of the operator locally while communicating with a cluster. 
@@ -173,7 +162,7 @@ make run ENABLE_WEBHOOKS=false
 
 ## Contributing
 
-Please see our [contributing.md](./CONTRIBUTING.md).
+Please see our [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Known Issues
 - [`make test-integration` times out when running in Minikube](https://github.com/devfile/api/issues/1313)
