@@ -152,9 +152,14 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	} else {
 		// Create/update the ingress for the devfile registry
 		hostname = registry.GetDevfileRegistryIngress(devfileRegistry)
-		result, err = r.ensure(ctx, devfileRegistry, &networkingv1.Ingress{}, labels, hostname)
-		if result != nil {
-			return *result, err
+
+		if devfileRegistry.Spec.K8s.IngressDomain != "" {
+			result, err = r.ensure(ctx, devfileRegistry, &networkingv1.Ingress{}, labels, hostname)
+			if result != nil {
+				return *result, err
+			}
+		} else {
+			log.Info("Ingress creation skipped due to missing IngressDomain field.")
 		}
 	}
 
