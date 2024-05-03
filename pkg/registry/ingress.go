@@ -73,7 +73,7 @@ func GenerateIngress(cr *registryv1alpha1.DevfileRegistry, host string, scheme *
 
 func GetDevfileRegistryIngress(cr *registryv1alpha1.DevfileRegistry) string {
 	if cr.Spec.K8s.IngressDomain == "" {
-		return GetHostname(cr)
+		return localHostname
 	}
 	return GetHostname(cr) + "." + cr.Spec.K8s.IngressDomain
 }

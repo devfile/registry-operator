@@ -52,7 +52,7 @@ func TestGetDevfileRegistryIngress(t *testing.T) {
 					Namespace: "test-namespace",
 				},
 			},
-			want: "test-name-devfile-registry-test-namespace",
+			want: localHostname,
 		},
 	}
 	for _, tt := range tests {
