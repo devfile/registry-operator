@@ -274,7 +274,7 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					[
 						{
 							"name": "%s",
-							"url": %s,
+							"url": "%s",
 							"fqdn": "%s"
 						}
 					]`, cr.ObjectMeta.Name, localHostname, cr.Status.URL),
