@@ -274,10 +274,10 @@ func GenerateDeployment(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Sc
 					[
 						{
 							"name": "%s",
-							"url": "http://localhost:8080",
+							"url": %s,
 							"fqdn": "%s"
 						}
-					]`, cr.ObjectMeta.Name, cr.Status.URL),
+					]`, cr.ObjectMeta.Name, localHostname, cr.Status.URL),
 				},
 			},
 		})
