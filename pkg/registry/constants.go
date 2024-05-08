@@ -18,4 +18,4 @@ package registry
 
 const maxTruncLength = 63
 
-const localHostname = "http://localhost:8080"
+const localHostname = "localhost:8080"
