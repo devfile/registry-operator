@@ -153,7 +153,7 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		// Create/update the ingress for the devfile registry
 		hostname = registry.GetDevfileRegistryIngress(devfileRegistry)
 
-		if devfileRegistry.Spec.K8s.IngressDomain != "" {
+		if !registry.IsIngressSkipped(devfileRegistry) {
 			result, err = r.ensure(ctx, devfileRegistry, &networkingv1.Ingress{}, labels, hostname)
 			if result != nil {
 				return *result, err
@@ -165,28 +165,32 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 	var devfileRegistryServer string
 
-	if registry.IsTLSEnabled(devfileRegistry) {
-		devfileRegistryServer = "https://" + hostname
-	} else {
+	// When running on K8s and no ingress set we default to http
+	if (!config.ControllerCfg.IsOpenShift() && registry.IsIngressSkipped(devfileRegistry)) || !registry.IsTLSEnabled(devfileRegistry) {
 		devfileRegistryServer = "http://" + hostname
+	} else {
+		devfileRegistryServer = "https://" + hostname
 	}
 
-	if devfileRegistry.Status.URL != devfileRegistryServer {
-		// Check to see if the registry is active, and if so, update the status to reflect the URL
-		// when deploying a new devfile registry, it may not have a signed cert installed yet, so we will skip TLS checking.  We just want to make sure
-		// server is up and running
-		err = util.WaitForServer(devfileRegistryServer, 30*time.Second, false)
-		if err != nil {
-			log.Error(err, "Devfile registry server failed to start after 30 seconds, re-queueing...")
-			return ctrl.Result{Requeue: true}, err
-		}
+	// Setting the status should be skipped in instances where running on K8s and no ingress is set
+	if !(!config.ControllerCfg.IsOpenShift() && registry.IsIngressSkipped(devfileRegistry)) {
+		if devfileRegistry.Status.URL != devfileRegistryServer {
+			// Check to see if the registry is active, and if so, update the status to reflect the URL
+			// when deploying a new devfile registry, it may not have a signed cert installed yet, so we will skip TLS checking.  We just want to make sure
+			// server is up and running
+			err = util.WaitForServer(devfileRegistryServer, 30*time.Second, false)
+			if err != nil {
+				log.Error(err, "Devfile registry server failed to start after 30 seconds, re-queueing...")
+				return ctrl.Result{Requeue: true}, err
+			}
 
-		// Update the status
-		devfileRegistry.Status.URL = devfileRegistryServer
-		err := r.Status().Update(ctx, devfileRegistry)
-		if err != nil {
-			log.Error(err, "Failed to update DevfileRegistry status")
-			return ctrl.Result{Requeue: true}, err
+			// Update the status
+			devfileRegistry.Status.URL = devfileRegistryServer
+			err := r.Status().Update(ctx, devfileRegistry)
+			if err != nil {
+				log.Error(err, "Failed to update DevfileRegistry status")
+				return ctrl.Result{Requeue: true}, err
+			}
 		}
 	}
 
