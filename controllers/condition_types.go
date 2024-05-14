@@ -20,4 +20,5 @@ const (
 	typeValidateDevfileRegistries = "ValidateDevfileRegistries"
 	typeUpdateDevfileRegistries   = "UpdateDevfileRegistries"
 	typeUpdateDevfileRegistry     = "UpdateDevfileRegistry"
+	typeNoDeployDevfileRegistry   = "NoDeployDevfileRegistry"
 )

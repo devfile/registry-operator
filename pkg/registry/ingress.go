@@ -72,9 +72,6 @@ func GenerateIngress(cr *registryv1alpha1.DevfileRegistry, host string, scheme *
 }
 
 func GetDevfileRegistryIngress(cr *registryv1alpha1.DevfileRegistry) string {
-	if IsIngressSkipped(cr) {
-		return localHostname
-	}
 	return GetHostname(cr) + "." + cr.Spec.K8s.IngressDomain
 }
 
