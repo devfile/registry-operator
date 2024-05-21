@@ -298,3 +298,12 @@ func getAppFullName(cr *registryv1alpha1.DevfileRegistry) string {
 
 	return truncateName(DefaultAppName)
 }
+
+// IsIngressSkipped returns true if no Ingress is set in the DevfileRegistry CR.
+// If cr does not exist return true by default as no Ingress resource should be created
+func IsIngressSkipped(cr *registryv1alpha1.DevfileRegistry) bool {
+	if cr != nil {
+		return cr.Spec.K8s.IngressDomain == ""
+	}
+	return true
+}

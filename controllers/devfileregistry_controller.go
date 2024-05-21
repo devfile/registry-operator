@@ -75,6 +75,22 @@ func (r *DevfileRegistryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		return ctrl.Result{}, err
 	}
 
+	// Block the Devfile Registry deployment if an Ingress domain is missing for Kubernetes
+	if !config.ControllerCfg.IsOpenShift() && registry.IsIngressSkipped(devfileRegistry) {
+		meta.SetStatusCondition(&devfileRegistry.Status.Conditions, metav1.Condition{
+			Type:    typeNoDeployDevfileRegistry,
+			Status:  metav1.ConditionUnknown,
+			Reason:  "DeploymentBlocked",
+			Message: "No Ingress domain set for Devfile Registry - Deployment Blocked",
+		})
+
+		log.Info("Blocked deployment due to unset Ingress domain")
+
+		err = r.Status().Update(ctx, devfileRegistry)
+
+		return ctrl.Result{}, err
+	}
+
 	if devfileRegistry.Status.Conditions == nil || len(devfileRegistry.Status.Conditions) == 0 {
 		err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
 			meta.SetStatusCondition(&devfileRegistry.Status.Conditions, metav1.Condition{

@@ -714,3 +714,47 @@ func Test_getAppFullName(t *testing.T) {
 		})
 	}
 }
+
+func TestIsIngressSkipped(t *testing.T) {
+
+	tests := []struct {
+		name string
+		cr   *registryv1alpha1.DevfileRegistry
+		want bool
+	}{
+		{
+			name: "Case 1: Ingress skipped",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					K8s: registryv1alpha1.DevfileRegistrySpecK8sOnly{},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "Case 2: Ingress set",
+			cr: &registryv1alpha1.DevfileRegistry{
+				Spec: registryv1alpha1.DevfileRegistrySpec{
+					K8s: registryv1alpha1.DevfileRegistrySpecK8sOnly{
+						IngressDomain: "test",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "Case 3: CR is nil",
+			cr:   nil,
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ingressSkipped := IsIngressSkipped(tt.cr)
+			if ingressSkipped != tt.want {
+				t.Errorf("TestIsIngressSkipped error: value mismatch, expected: %v got: %v", tt.want, ingressSkipped)
+			}
+		})
+	}
+
+}
