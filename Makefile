@@ -64,6 +64,8 @@ endif
 # operator-sdk
 OPERATOR_SDK_CLI ?= operator-sdk
 
+# Controls whether the buildx command should include the push flag or not - Enables the testing of only the build portion without pushing
+PUSH_IMAGE ?= true
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # This is a requirement for 'setup-envtest.sh' in the test target.
@@ -200,8 +202,55 @@ docker-buildx: test ## Build and push docker image for the manager for cross-pla
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- docker buildx create --name registry-operator-builder
 	docker buildx use registry-operator-builder
-	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross $(shell pwd)
+	$(MAKE) docker-buildx-helper
 	- docker buildx rm registry-operator-builder
+	rm Dockerfile.cross
+
+# PRIVATE: Intended for internal use and is not meant to be called by a user
+# This command helps control the flow for whether or not to push the multi-arch images or to only test the build
+.PHONY: docker-buildx-helper
+docker-buildx-helper:
+ifeq ($(PUSH_IMAGE),true)
+	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
+else
+	- docker buildx build --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
+endif
+
+# PRIVATE: Intended for internal use and is not meant to be called by a user
+# This command helps control the flow for whether or not to push the multi-arch images or to only test the build
+.PHONY: docker-bundle-buildx-helper
+docker-bundle-buildx-helper:
+ifeq ($(PUSH_IMAGE),true)
+	- docker buildx build --push --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
+else
+	- docker buildx build --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
+endif
+
+# Build the bundle image.
+.PHONY: docker-bundle-buildx
+docker-bundle-buildx:
+	- docker buildx create --name bundle-builder
+	docker buildx use bundle-builder
+	$(MAKE) docker-bundle-buildx-helper
+	- docker buildx rm bundle-builder
+
+# PRIVATE: Intended for internal use and is not meant to be called by a user
+# This command helps control the flow for whether or not to push the multi-arch images or to only test the build
+.PHONY: podman-buildx-helper
+podman-buildx-helper:
+ifeq ($(PUSH_IMAGE),true)
+	- podman manifest push ${IMG}
+endif
+
+# Clone of docker-buildx command but redesigned to work with podman's workflow
+.PHONY: podman-buildx
+podman-buildx: test ## Build and push podman image for the manager for cross-platform support
+# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
+	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
+	- podman manifest create ${IMG}
+	- podman build --platform=$(PLATFORMS) --manifest ${IMG} -f Dockerfile.cross $(shell pwd)
+	$(MAKE) podman-buildx-helper
+	- podman manifest rm ${IMG}
 	rm Dockerfile.cross
 
 # Build the podman image
