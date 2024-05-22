@@ -119,7 +119,7 @@ jobs:
       uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 #v3.0.0
 
     - name: Check if operator docker build is working
-      run: docker build -f Dockerfile .
+      run: make docker-buildx
 
   operator-bundle-build:
     name: Check operator bundle build
@@ -136,4 +136,4 @@ jobs:
       uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 #v3.0.0
     
     - name: Build the operator's bundle image
-      run: make bundle-build
+      run: make docker-bundle-buildx
