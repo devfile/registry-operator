@@ -35,8 +35,8 @@ jobs:
         username: ${{ secrets.QUAY_USERNAME }}
         password: ${{ secrets.QUAY_PASSWORD }}
 
-    - name: Docker Buildx - Operator
-      run: "make docker-buildx"
+    - name: Build and push Operator with Docker Buildx
+      run: "make docker-buildx-push"
         
   push-operator-bundle:
     runs-on: ubuntu-latest
@@ -54,5 +54,5 @@ jobs:
         username: ${{ secrets.QUAY_USERNAME }}
         password: ${{ secrets.QUAY_PASSWORD }}
 
-    - name: Docker Buildx - Bundle
-      run: "make docker-bundle-buildx"
+    - name: Build and push bundle with Docker Buildx
+      run: "make docker-bundle-buildx-push"
