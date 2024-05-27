@@ -64,9 +64,6 @@ endif
 # operator-sdk
 OPERATOR_SDK_CLI ?= operator-sdk
 
-# Controls whether the buildx command should include the push flag or not - Enables the testing of only the build portion without pushing
-PUSH_IMAGE ?= true
-
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # This is a requirement for 'setup-envtest.sh' in the test target.
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
@@ -196,42 +193,54 @@ docker-push:
 # To properly provided solutions that supports more than one platform you should use this option.
 # **docker-buildx does not work with podman**
 PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
-.PHONY: docker-buildx
-docker-buildx: test ## Build and push docker image for the manager for cross-platform support
-# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
+
+.PHONY: docker-buildx-build
+docker-buildx-build: test
+	$(MAKE) docker-buildx-setup
+	- docker buildx build --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
+	$(MAKE) docker-buildx-cleanup
+
+.PHONY: docker-buildx-push
+docker-buildx-push: test 
+	$(MAKE) docker-buildx-setup
+	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
+	$(MAKE) docker-buildx-cleanup
+
+# INTERNAL: Used to setup the docker-buildx command, not to be called by users
+.PHONY: docker-buildx-setup
+docker-buildx-setup:
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- docker buildx create --name registry-operator-builder
 	docker buildx use registry-operator-builder
-	$(MAKE) docker-buildx-helper
+
+# INTERNAL: Used to cleanup the docker-buildx command, not to be called by users
+.PHONY: docker-buildx-cleanup
+docker-buildx-cleanup:
 	- docker buildx rm registry-operator-builder
 	rm Dockerfile.cross
 
-# PRIVATE: Intended for internal use and is not meant to be called by a user
-# This command helps control the flow for whether or not to push the multi-arch images or to only test the build
-.PHONY: docker-buildx-helper
-docker-buildx-helper:
-ifeq ($(PUSH_IMAGE),true)
-	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
-else
-	- docker buildx build --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
-endif
-
-# PRIVATE: Intended for internal use and is not meant to be called by a user
-# This command helps control the flow for whether or not to push the multi-arch images or to only test the build
-.PHONY: docker-bundle-buildx-helper
-docker-bundle-buildx-helper:
-ifeq ($(PUSH_IMAGE),true)
-	- docker buildx build --push --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
-else
-	- docker buildx build --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
-endif
-
 # Build the bundle image.
-.PHONY: docker-bundle-buildx
-docker-bundle-buildx:
+.PHONY: docker-bundle-buildx-build
+docker-bundle-buildx-build:
+	$(MAKE) docker-bundle-buildx-setup
+	- docker buildx build --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
+	$(MAKE) docker-bundle-buildx-cleanup
+
+.PHONY: docker-bundle-buildx-push
+docker-bundle-buildx-push:
+	$(MAKE) docker-bundle-buildx-setup
+	- docker buildx build --push --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
+	$(MAKE) docker-bundle-buildx-cleanup
+
+# INTERNAL: Used to setup the docker-bundle-buildx command, not to be called by users
+.PHONY: docker-bundle-buildx-setup
+docker-bundle-buildx-setup:
 	- docker buildx create --name bundle-builder
 	docker buildx use bundle-builder
-	$(MAKE) docker-bundle-buildx-helper
+
+# INTERNAL: Used to cleanup the docker-bundle-buildx command, not to be called by users
+.PHONY: docker-bundle-buildx-cleanup
+docker-bundle-buildx-cleanup:
 	- docker buildx rm bundle-builder
 
 # Clone of docker-buildx command but redesigned to work with podman's workflow
