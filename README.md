@@ -97,7 +97,6 @@ The repository contains a Makefile; building and deploying can be configured via
 | `ENVTEST` | Path to target `setup-envtest` binary | `${LOCALBIN}/setup-envtest` |
 | `TARGET_ARCH` | Target architecture for operator manager builds, possible values: `amd64`, `arm64`, `s390x`, `ppc64le` | `amd64` |
 | `TARGET_OS` | Target operating system for operator manager build, **only for `make manager`** | `linux` |
-| `PUSH_IMAGE` | Controls whether or not `make docker-buildx`, `make docker-bundle-buildx` or `make podman-buildx` push to an external repository. If `false` they will only build. | `true` |
 | `PLATFORMS` | Target architecture(s) for `make docker-buildx` | All supported: `linux/arm64,linux/amd64,linux/s390x,linux/ppc64le` |
 | `KUSTOMIZE_INSTALL_SCRIPT` | URL of kustomize installation script, see [kustomize installation instructions](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/) | `https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh` |
 
@@ -110,9 +109,12 @@ Some of the rules supported by the makefile:
 | kustomize | install the kustomize tool, used by other commands |
 | docker-build | build registry operator container image using docker |
 | docker-push | push registry operator container image using docker |
-| docker-buildx | build & push registry operator docker image for all supported architectures using docker|
-| docker-bundle-buildx | build & push registry operator bundle docker image for all supported architectures using docker|
-| podman-buildx | build & push registry operator docker image for all supported architectures using podman|
+| docker-buildx-build | build registry operator docker image for all supported architectures using docker|
+| docker-buildx-push | build & push registry operator docker image for all supported architectures using docker|
+| docker-bundle-buildx-build | build registry operator bundle docker image for all supported architectures using docker|
+| docker-bundle-buildx-push | build & push registry operator bundle docker image for all supported architectures using docker|
+| podman-buildx-build | build registry operator docker image for all supported architectures using podman|
+| podman-buildx-push | push registry operator docker image for all supported architectures using podman|
 | podman-build | build registry operator container image using podman |
 | podman-push | push registry operator container image using podman |
 | deploy | deploy operator to cluster |
