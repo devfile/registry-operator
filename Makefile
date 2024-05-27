@@ -234,22 +234,19 @@ docker-bundle-buildx:
 	$(MAKE) docker-bundle-buildx-helper
 	- docker buildx rm bundle-builder
 
-# PRIVATE: Intended for internal use and is not meant to be called by a user
-# This command helps control the flow for whether or not to push the multi-arch images or to only test the build
-.PHONY: podman-buildx-helper
-podman-buildx-helper:
-ifeq ($(PUSH_IMAGE),true)
-	- podman manifest push ${IMG}
-endif
-
 # Clone of docker-buildx command but redesigned to work with podman's workflow
-.PHONY: podman-buildx
-podman-buildx: test ## Build and push podman image for the manager for cross-platform support
-# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
+# Designed to build and push multi architecture images of the registry operator
+# This utilizes a new Dockerfile to insert platform args to preserve the original Dockerfile
+.PHONY: podman-buildx-build
+podman-buildx-build: test
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- podman manifest create ${IMG}
 	- podman build --platform=$(PLATFORMS) --manifest ${IMG} -f Dockerfile.cross $(shell pwd)
-	$(MAKE) podman-buildx-helper
+
+# Contains cleanup steps to remove files and manifests created during build
+.PHONY: podman-buildx-push
+podman-buildx-push:
+	- podman manifest push ${IMG}
 	- podman manifest rm ${IMG}
 	rm Dockerfile.cross
 
