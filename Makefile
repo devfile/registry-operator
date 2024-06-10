@@ -64,7 +64,6 @@ endif
 # operator-sdk
 OPERATOR_SDK_CLI ?= operator-sdk
 
-
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # This is a requirement for 'setup-envtest.sh' in the test target.
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
@@ -194,14 +193,70 @@ docker-push:
 # To properly provided solutions that supports more than one platform you should use this option.
 # **docker-buildx does not work with podman**
 PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
-.PHONY: docker-buildx
-docker-buildx: test ## Build and push docker image for the manager for cross-platform support
-# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
+
+.PHONY: docker-buildx-build
+docker-buildx-build: test
+	$(MAKE) docker-buildx-setup
+	- docker buildx build --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
+	$(MAKE) docker-buildx-cleanup
+
+.PHONY: docker-buildx-push
+docker-buildx-push: test 
+	$(MAKE) docker-buildx-setup
+	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
+	$(MAKE) docker-buildx-cleanup
+
+# INTERNAL: Used to setup the docker-buildx command, not to be called by users
+.PHONY: docker-buildx-setup
+docker-buildx-setup:
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- docker buildx create --name registry-operator-builder
 	docker buildx use registry-operator-builder
-	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross $(shell pwd)
+
+# INTERNAL: Used to cleanup the docker-buildx command, not to be called by users
+.PHONY: docker-buildx-cleanup
+docker-buildx-cleanup:
 	- docker buildx rm registry-operator-builder
+	rm Dockerfile.cross
+
+# Build the bundle image.
+.PHONY: docker-bundle-buildx-build
+docker-bundle-buildx-build:
+	$(MAKE) docker-bundle-buildx-setup
+	- docker buildx build --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
+	$(MAKE) docker-bundle-buildx-cleanup
+
+.PHONY: docker-bundle-buildx-push
+docker-bundle-buildx-push:
+	$(MAKE) docker-bundle-buildx-setup
+	- docker buildx build --push --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
+	$(MAKE) docker-bundle-buildx-cleanup
+
+# INTERNAL: Used to setup the docker-bundle-buildx command, not to be called by users
+.PHONY: docker-bundle-buildx-setup
+docker-bundle-buildx-setup:
+	- docker buildx create --name bundle-builder
+	docker buildx use bundle-builder
+
+# INTERNAL: Used to cleanup the docker-bundle-buildx command, not to be called by users
+.PHONY: docker-bundle-buildx-cleanup
+docker-bundle-buildx-cleanup:
+	- docker buildx rm bundle-builder
+
+# Clone of docker-buildx command but redesigned to work with podman's workflow
+# Designed to build and push multi architecture images of the registry operator
+# This utilizes a new Dockerfile to insert platform args to preserve the original Dockerfile
+.PHONY: podman-buildx-build
+podman-buildx-build: test
+	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
+	- podman manifest create ${IMG}
+	- podman build --platform=$(PLATFORMS) --manifest ${IMG} -f Dockerfile.cross $(shell pwd)
+
+# Contains cleanup steps to remove files and manifests created during build
+.PHONY: podman-buildx-push
+podman-buildx-push:
+	- podman manifest push ${IMG}
+	- podman manifest rm ${IMG}
 	rm Dockerfile.cross
 
 # Build the podman image
