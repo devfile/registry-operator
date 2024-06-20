@@ -26,6 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -54,7 +55,7 @@ func (r *ClusterDevfileRegistriesList) Default() {
 var _ webhook.Validator = &ClusterDevfileRegistriesList{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *ClusterDevfileRegistriesList) ValidateCreate() error {
+func (r *ClusterDevfileRegistriesList) ValidateCreate() (admission.Warnings, error) {
 	clusterdevfileregistrieslistlog.Info("validate create", "name", r.Name)
 	//limit CR creation to one per cluster
 	clusterDevfileRegistriesList := &ClusterDevfileRegistriesListList{}
@@ -63,29 +64,29 @@ func (r *ClusterDevfileRegistriesList) ValidateCreate() error {
 	}
 
 	if err := kubeClient.List(context.TODO(), clusterDevfileRegistriesList, listOpts...); err != nil {
-		return fmt.Errorf("error listing clusterDevfileRegistriesList custom resources: %v", err)
+		return nil, fmt.Errorf("error listing clusterDevfileRegistriesList custom resources: %v", err)
 	}
 
 	if len(clusterDevfileRegistriesList.Items) == 1 {
-		return fmt.Errorf(multiCRError)
+		return nil, fmt.Errorf(multiCRError)
 	}
 
 	if err := validateURLs(r.Spec.DevfileRegistries); err != nil {
-		return err
+		return nil, err
 	}
 
-	return IsNamespaceValid(r.Namespace)
+	return nil, IsNamespaceValid(r.Namespace)
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *ClusterDevfileRegistriesList) ValidateUpdate(old runtime.Object) error {
+func (r *ClusterDevfileRegistriesList) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
 	clusterdevfileregistrieslistlog.Info("validate update", "name", r.Name)
 	//re-validate the entire list to ensure existing URLs have not gone stale
-	return validateURLs(r.Spec.DevfileRegistries)
+	return nil, validateURLs(r.Spec.DevfileRegistries)
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *ClusterDevfileRegistriesList) ValidateDelete() error {
+func (r *ClusterDevfileRegistriesList) ValidateDelete() (admission.Warnings, error) {
 	clusterdevfileregistrieslistlog.Info("validate delete", "name", r.Name)
-	return nil
+	return nil, nil
 }

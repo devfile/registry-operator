@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Build the manager binary
-FROM golang:1.19 as builder
+FROM golang:1.21 as builder
 ARG TARGETARCH=amd64
 
 WORKDIR /workspace
