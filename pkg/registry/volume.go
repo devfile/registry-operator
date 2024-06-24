@@ -31,7 +31,7 @@ func GeneratePVC(cr *registryv1alpha1.DevfileRegistry, scheme *runtime.Scheme, l
 		ObjectMeta: generateObjectMeta(PVCName(cr), cr.Namespace, labels),
 		Spec: corev1.PersistentVolumeClaimSpec{
 			AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
-			Resources: corev1.ResourceRequirements{
+			Resources: corev1.VolumeResourceRequirements{
 				Requests: corev1.ResourceList{
 					corev1.ResourceStorage: resource.MustParse(getDevfileRegistryVolumeSize(cr)),
 				},

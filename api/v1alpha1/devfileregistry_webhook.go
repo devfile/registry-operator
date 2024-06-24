@@ -21,6 +21,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -48,19 +49,19 @@ func (r *DevfileRegistry) Default() {
 var _ webhook.Validator = &DevfileRegistry{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *DevfileRegistry) ValidateCreate() error {
+func (r *DevfileRegistry) ValidateCreate() (admission.Warnings, error) {
 	devfileregistrylog.Info("validate create", "name", r.Name)
-	return IsNamespaceValid(r.Namespace)
+	return nil, IsNamespaceValid(r.Namespace)
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *DevfileRegistry) ValidateUpdate(old runtime.Object) error {
+func (r *DevfileRegistry) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
 	devfileregistrylog.Info("validate update", "name", r.Name)
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *DevfileRegistry) ValidateDelete() error {
+func (r *DevfileRegistry) ValidateDelete() (admission.Warnings, error) {
 	devfileregistrylog.Info("validate delete", "name", r.Name)
-	return nil
+	return nil, nil
 }

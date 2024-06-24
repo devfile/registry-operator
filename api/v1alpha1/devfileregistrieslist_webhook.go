@@ -25,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -54,7 +55,7 @@ func (r *DevfileRegistriesList) Default() {
 var _ webhook.Validator = &DevfileRegistriesList{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *DevfileRegistriesList) ValidateCreate() error {
+func (r *DevfileRegistriesList) ValidateCreate() (admission.Warnings, error) {
 	devfileregistrieslistlog.Info("validate create", "name", r.Name)
 
 	//limit CR creation to one per namespace
@@ -64,29 +65,29 @@ func (r *DevfileRegistriesList) ValidateCreate() error {
 	}
 
 	if err := kubeClient.List(context.TODO(), devfileRegistriesList, listOpts...); err != nil {
-		return fmt.Errorf("error listing devfileRegistriesList custom resources: %v", err)
+		return nil, fmt.Errorf("error listing devfileRegistriesList custom resources: %v", err)
 	}
 
 	if len(devfileRegistriesList.Items) == 1 {
-		return fmt.Errorf("a DevfileRegistriesList instance already exists. Only one instance can exist on a namespace")
+		return nil, fmt.Errorf("a DevfileRegistriesList instance already exists. Only one instance can exist on a namespace")
 	}
 
 	if err := validateURLs(r.Spec.DevfileRegistries); err != nil {
-		return err
+		return nil, err
 	}
 
-	return IsNamespaceValid(r.Namespace)
+	return nil, IsNamespaceValid(r.Namespace)
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *DevfileRegistriesList) ValidateUpdate(old runtime.Object) error {
+func (r *DevfileRegistriesList) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
 	devfileregistrieslistlog.Info("validate update", "name", r.Name)
 	//re-validate the entire list to ensure existing URLs have not gone stale
-	return validateURLs(r.Spec.DevfileRegistries)
+	return nil, validateURLs(r.Spec.DevfileRegistries)
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *DevfileRegistriesList) ValidateDelete() error {
+func (r *DevfileRegistriesList) ValidateDelete() (admission.Warnings, error) {
 	devfileregistrieslistlog.Info("validate delete", "name", r.Name)
-	return nil
+	return nil, nil
 }

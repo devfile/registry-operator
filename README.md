@@ -46,7 +46,7 @@ security setups.
 
 ### Development
 
-- Go 1.19.x
+- Go 1.21.x
 - Docker / Podman
 - Operator SDK 1.28.x
 
