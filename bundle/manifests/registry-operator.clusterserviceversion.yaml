@@ -15,59 +15,28 @@ metadata:
               "image": "quay.io/devfile/devfile-index:next"
             }
           }
-        },
-        {
-          "apiVersion": "registry.devfile.io/v1alpha1",
-          "kind": "DevfileRegistriesList",
-          "metadata": {
-            "name": "sample-devfileregistrieslist"
-          },
-          "spec": {
-            "devfileRegistries": [
-              {
-                "name": "devfile-staging",
-                "url": "https://registry.stage.devfile.io"
-              }
-            ]
-          }
-        },
-        {
-          "apiVersion": "registry.devfile.io/v1alpha1",
-          "kind": "ClusterDevfileRegistriesList",
-          "metadata": {
-            "name": "sample-clusterdevfileregistrieslist"
-          },
-          "spec": {
-            "devfileRegistries": [
-              {
-                "name": "devfile-staging",
-                "url": "https://registry.stage.devfile.io"
-              }
-            ]
-          }
         }
       ]
     capabilities: Basic Install
     categories: OpenShift Optional,Developer Tools
-    containerImage: quay.io/devfile/registry-operator:v0.1.4
-    createdAt: "2024-02-27T22:36:03Z"
+    containerImage: quay.io/devfile/registry-operator:v0.3.0
+    createdAt: "2024-07-30T16:49:34Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
-    operators.operatorframework.io/builder: operator-sdk-v1.28.0
+    operators.operatorframework.io/builder: operator-sdk-v1.36.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/devfile/registry-operator
     support: Red Hat
-  name: registry-operator.v0.1.4
+  name: registry-operator.v0.3.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - description: ClusterDevfileRegistriesList is a custom resource where cluster
-        admins can add a list of Devfile Registries to allow devfiles to be visible
-        at the cluster level.  In order to be added to the list, the Devfile Registries
-        must be reachable, supports the Devfile v2.0 spec and above, and is not using
-        the default namespace.
+    - description: |-
+        ClusterDevfileRegistriesList is a custom resource where cluster admins can add a list of Devfile Registries to allow devfiles to be visible
+        at the cluster level.  In order to be added to the list, the Devfile Registries must be reachable, supports the Devfile v2.0 spec and above,
+        and is not using the default namespace.
       displayName: Cluster Devfile Registries List
       kind: ClusterDevfileRegistriesList
       name: clusterdevfileregistrieslists.registry.devfile.io
@@ -95,10 +64,10 @@ spec:
         displayName: Conditions
         path: conditions
       version: v1alpha1
-    - description: DevfileRegistry is a custom resource allows you to create and manage
-        your own index server and registry viewer. In order to be added, the Devfile
-        Registry must be reachable, supports the Devfile v2.0 spec and above, and
-        is not using the default namespace.
+    - description: |-
+        DevfileRegistry is a custom resource allows you to create and manage your own index server and registry viewer.
+        In order to be added, the Devfile Registry must be reachable, supports the Devfile v2.0 spec and above, and is
+        not using the default namespace.
       displayName: Devfile Registry
       kind: DevfileRegistry
       name: devfileregistries.registry.devfile.io
@@ -117,19 +86,35 @@ spec:
       - description: Sets the image pull policy for the container
         displayName: Image Pull Policy
         path: devfileIndex.imagePullPolicy
+      - description: Sets the memory limit for the container
+        displayName: Memory Limit
+        path: devfileIndex.memoryLimit
       - description: Sets the container image containing devfile stacks to be deployed
           on the Devfile Registry
         displayName: Devfile Index Image
         path: devfileIndexImage
+      - description: Overrides the fully qualified app name of the devfile registry
+        displayName: Fullname Override
+        path: fullnameOverride
       - description: Sets the registry server deployment to run under headless mode
         displayName: Headless
         path: headless
+      - description: Overrides the entire hostname and domain of the devfile registry
+          ingress
+        displayName: Hostname Override
+        path: hostnameOverride
       - displayName: K8s
         path: k8s
+      - description: Ingress class for a Kubernetes cluster. Defaults to nginx.
+        displayName: Ingress Class
+        path: k8s.ingressClass
       - description: Ingress domain for a Kubernetes cluster. This MUST be explicitly
           specified on Kubernetes. There are no defaults
         displayName: Ingress Domain
         path: k8s.ingressDomain
+      - description: Overrides the app name of the devfile registry
+        displayName: Name Override
+        path: nameOverride
       - description: Sets the OCI registry container spec to be deployed on the Devfile
           Registry
         displayName: Oci Registry
@@ -140,8 +125,12 @@ spec:
       - description: Sets the image pull policy for the container
         displayName: Image Pull Policy
         path: ociRegistry.imagePullPolicy
-      - description: Overrides the container image used for the OCI registry. Recommended
-          to leave blank and default to the image specified by the operator.
+      - description: Sets the memory limit for the container
+        displayName: Memory Limit
+        path: ociRegistry.memoryLimit
+      - description: |-
+          Overrides the container image used for the OCI registry.
+          Recommended to leave blank and default to the image specified by the operator.
         displayName: Oci Registry Image
         path: ociRegistryImage
       - description: Sets the registry viewer container spec to be deployed on the
@@ -154,41 +143,45 @@ spec:
       - description: Sets the image pull policy for the container
         displayName: Image Pull Policy
         path: registryViewer.imagePullPolicy
+      - description: Sets the memory limit for the container
+        displayName: Memory Limit
+        path: registryViewer.memoryLimit
       - description: Overrides the container image used for the registry viewer.
         displayName: Registry Viewer Image
         path: registryViewerImage
       - displayName: Storage
         path: storage
-      - description: Instructs the operator to deploy the DevfileRegistry with persistent
-          storage Disabled by default.
+      - description: |-
+          Instructs the operator to deploy the DevfileRegistry with persistent storage
+          Disabled by default.
         displayName: Enabled
         path: storage.enabled
-      - description: Configures the size of the devfile registry's persistent volume,
-          if enabled. Defaults to 1Gi.
+      - description: |-
+          Configures the size of the devfile registry's persistent volume, if enabled.
+          Defaults to 1Gi.
         displayName: Registry Volume Size
         path: storage.registryVolumeSize
       - displayName: Telemetry
         path: telemetry
-      - description: Specify a telemetry key to allow devfile specific data to be
-          sent to a client's own Segment analytics source. If the write key is specified
-          then telemetry will be enabled
+      - description: |-
+          Specify a telemetry key to allow devfile specific data to be sent to a client's own Segment analytics source.
+          If the write key is specified then telemetry will be enabled
         displayName: Key
         path: telemetry.key
       - description: The registry name (can be any string) that is used as identifier
           for devfile telemetry.
         displayName: Registry Name
         path: telemetry.registryName
-      - description: Specify a telemetry write key for the registry viewer component
-          to allow data to be sent to a client's own Segment analytics source. If
-          the write key is specified then telemetry for the registry viewer component
-          will be enabled
+      - description: |-
+          Specify a telemetry write key for the registry viewer component to allow data to be sent to a client's own Segment analytics source.
+          If the write key is specified then telemetry for the registry viewer component will be enabled
         displayName: Registry Viewer Write Key
         path: telemetry.registryViewerWriteKey
       - displayName: TLS
         path: tls
-      - description: Instructs the operator to deploy the DevfileRegistry with TLS
-          enabled. Enabled by default. Disabling is only recommended for development
-          or test.
+      - description: |-
+          Instructs the operator to deploy the DevfileRegistry with TLS enabled.
+          Enabled by default. Disabling is only recommended for development or test.
         displayName: Enabled
         path: tls.enabled
       - description: Name of an optional, pre-existing TLS secret to use for TLS termination
@@ -204,11 +197,10 @@ spec:
         displayName: URL
         path: url
       version: v1alpha1
-    - description: DevfileRegistriesList is a custom resource where namespace users
-        can add a list of Devfile Registries to allow devfiles to be visible at the
-        namespace level.  In order to be added to the list, the Devfile Registries
-        must be reachable, supports the Devfile v2.0 spec and above, and is not using
-        the default namespace.
+    - description: |-
+        DevfileRegistriesList is a custom resource where namespace users can add a list of Devfile Registries to allow devfiles to be visible
+        at the namespace level.  In order to be added to the list, the Devfile Registries must be reachable, supports the Devfile v2.0 spec
+        and above, and is not using the default namespace.
       displayName: Devfile Registries List
       kind: DevfileRegistriesList
       name: devfileregistrieslists.registry.devfile.io
@@ -571,7 +563,7 @@ spec:
   provider:
     name: Red Hat
     url: https://redhat.com
-  version: 0.1.4
+  version: 0.3.0
   webhookdefinitions:
   - admissionReviewVersions:
     - v1
