@@ -79,7 +79,7 @@ The repository contains a Makefile; building and deploying can be configured via
 |---|---|---|
 | `IMG` | Image used for controller (run makefile, if `IMG` is updated) | `quay.io/devfile/registry-operator:next` |
 | `BUNDLE_IMG` | Image used for bundle OLM package | `quay.io/devfile/registry-operator-bundle:<latest_version>` |
-| `CERT_MANAGER_VERSION` | Version of `cert-manager` installed using `make install-cert` | `v1.11.0` |
+| `CERT_MANAGER_VERSION` | Version of `cert-manager` installed using `make install-cert` | `v1.15.1` |
 | `ENABLE_WEBHOOKS` | If `false`, disables operator webhooks | `true` |
 | `ENABLE_WEBHOOK_HTTP2` | Overrides webhook HTTP server deployment to use http/2 if set to `true`, **not recommended** | `false` |
 | `BUNDLE_CHANNELS` | Sets the list channel(s) include bundle build under | `alpha` |
