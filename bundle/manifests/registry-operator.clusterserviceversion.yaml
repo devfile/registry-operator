@@ -440,7 +440,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: quay.io/devfile/registry-operator:next
+                image: quay.io/devfile/registry-operator:0.3.0
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
