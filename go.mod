@@ -3,8 +3,8 @@ module github.com/devfile/registry-operator
 go 1.21
 
 require (
-	github.com/devfile/registry-support/index/generator v0.0.0-20240311135803-6215550f93d4
-	github.com/devfile/registry-support/registry-library v0.0.0-20240311160550-e51ee8934746
+	github.com/devfile/registry-support/index/generator v0.0.0-20240816133831-cf509ccd1a6b
+	github.com/devfile/registry-support/registry-library v0.0.0-20240816160225-30dce468d0c0
 	github.com/go-logr/logr v1.4.1
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/onsi/ginkgo/v2 v2.14.0
