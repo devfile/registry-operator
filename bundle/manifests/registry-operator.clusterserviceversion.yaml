@@ -50,7 +50,7 @@ metadata:
     capabilities: Basic Install
     categories: OpenShift Optional,Developer Tools
     containerImage: quay.io/devfile/registry-operator:v0.3.0
-    createdAt: "2024-08-13T13:58:24Z"
+    createdAt: "2024-08-20T09:11:27Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
     operators.operatorframework.io/builder: operator-sdk-v1.36.0
@@ -116,19 +116,35 @@ spec:
       - description: Sets the image pull policy for the container
         displayName: Image Pull Policy
         path: devfileIndex.imagePullPolicy
+      - description: Sets the memory limit for the container
+        displayName: Memory Limit
+        path: devfileIndex.memoryLimit
       - description: Sets the container image containing devfile stacks to be deployed
           on the Devfile Registry
         displayName: Devfile Index Image
         path: devfileIndexImage
+      - description: Overrides the fully qualified app name of the devfile registry
+        displayName: Fullname Override
+        path: fullnameOverride
       - description: Sets the registry server deployment to run under headless mode
         displayName: Headless
         path: headless
+      - description: Overrides the entire hostname and domain of the devfile registry
+          ingress
+        displayName: Hostname Override
+        path: hostnameOverride
       - displayName: K8s
         path: k8s
+      - description: Ingress class for a Kubernetes cluster. Defaults to nginx.
+        displayName: Ingress Class
+        path: k8s.ingressClass
       - description: Ingress domain for a Kubernetes cluster. This MUST be explicitly
           specified on Kubernetes. There are no defaults
         displayName: Ingress Domain
         path: k8s.ingressDomain
+      - description: Overrides the app name of the devfile registry
+        displayName: Name Override
+        path: nameOverride
       - description: Sets the OCI registry container spec to be deployed on the Devfile
           Registry
         displayName: Oci Registry
@@ -139,6 +155,9 @@ spec:
       - description: Sets the image pull policy for the container
         displayName: Image Pull Policy
         path: ociRegistry.imagePullPolicy
+      - description: Sets the memory limit for the container
+        displayName: Memory Limit
+        path: ociRegistry.memoryLimit
       - description: |-
           Overrides the container image used for the OCI registry.
           Recommended to leave blank and default to the image specified by the operator.
@@ -154,6 +173,9 @@ spec:
       - description: Sets the image pull policy for the container
         displayName: Image Pull Policy
         path: registryViewer.imagePullPolicy
+      - description: Sets the memory limit for the container
+        displayName: Memory Limit
+        path: registryViewer.memoryLimit
       - description: Overrides the container image used for the registry viewer.
         displayName: Registry Viewer Image
         path: registryViewerImage
