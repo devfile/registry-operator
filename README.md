@@ -35,8 +35,10 @@ This repository utilizes Release Notes to track and display changes, a changelog
 
 Deployment cluster must meet one of the following criteria:
 
-- OpenShift Container Platform (OCP) 4.12.x
-- Kubernetes 1.25.x-1.26.x
+- OpenShift Container Platform (OCP) 4.15.x
+- Kubernetes 1.29.x
+
+**Note**: Though full support for OpenShift Container Platform (OCP) 4.16.x is not currently in place, it [includes Kubernetes 1.29.x APIs](https://docs.openshift.com/container-platform/4.16/release_notes/ocp-4-16-release-notes.html#ocp-4-16-admin-ack-updating_release-notes) therefore should work in theory.
 
 More on the support of container orchestration systems can be 
 found [here](CLUSTER_SUPPORT.md).
