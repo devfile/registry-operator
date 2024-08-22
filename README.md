@@ -35,8 +35,10 @@ This repository utilizes Release Notes to track and display changes, a changelog
 
 Deployment cluster must meet one of the following criteria:
 
-- OpenShift Container Platform (OCP) 4.12.x
-- Kubernetes 1.25.x-1.26.x
+- OpenShift Container Platform (OCP) 4.15.x
+- Kubernetes 1.29.x
+
+**Note**: Though full support for OpenShift Container Platform (OCP) 4.16.x is not currently in place, it [includes Kubernetes 1.29.x APIs](https://docs.openshift.com/container-platform/4.16/release_notes/ocp-4-16-release-notes.html#ocp-4-16-admin-ack-updating_release-notes) therefore should work in theory.
 
 More on the support of container orchestration systems can be 
 found [here](CLUSTER_SUPPORT.md).
@@ -174,3 +176,4 @@ Please see our [CONTRIBUTING.md](./CONTRIBUTING.md).
 - [`make test-integration` times out when running in Minikube](https://github.com/devfile/api/issues/1313)
 - [Headless mode field does not update devfile registry state during reconcile](https://github.com/devfile/api/issues/1258)
 - [`make bundle` removes `alm-examples` for `DevfileRegistriesList` and `ClusterDevfileRegistriesList` CRDs due to bug with Kustomize](https://github.com/kubernetes-sigs/kustomize/issues/5042)
+- [Operator SDK is out of sync, should be upgraded to v1.36.0](https://github.com/devfile/api/issues/1626)
