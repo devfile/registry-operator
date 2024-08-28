@@ -31,7 +31,7 @@ jobs:
           go-version-file: 'go.mod'
       - name: Run Gosec Security Scanner
         run: |
-          go install github.com/securego/gosec/v2/cmd/gosec@v2.14.0
+          go install github.com/securego/gosec/v2/cmd/gosec@1af1d5bb49259b62e45c505db397dd2ada5d74f8
           make gosec
           if [[ $? != 0 ]]
           then

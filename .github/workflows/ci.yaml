@@ -50,10 +50,10 @@ jobs:
           fi
       - name: Check format
         run: |
-          go get -u github.com/google/addlicense
-          go install github.com/google/addlicense
-          go get -u golang.org/x/tools/cmd/goimports
-          go install golang.org/x/tools/cmd/goimports
+          go get -u github.com/google/addlicense@dc31ac9ffcca99c9457226366135701794b128c0
+          go install github.com/google/addlicense@dc31ac9ffcca99c9457226366135701794b128c0
+          go get -u golang.org/x/tools/cmd/goimports@0cc407e63f5fdd71499c32afa4c54382c5b48d71
+          go install golang.org/x/tools/cmd/goimports@0cc407e63f5fdd71499c32afa4c54382c5b48d71
           git reset HEAD --hard
 
           make fmt
@@ -80,7 +80,7 @@ jobs:
 
       - name: Run Gosec Security Scanner
         run: |
-          go install github.com/securego/gosec/v2/cmd/gosec@v2.14.0
+          go install github.com/securego/gosec/v2/cmd/gosec@1af1d5bb49259b62e45c505db397dd2ada5d74f8
           make gosec
           if [[ $? != 0 ]]
           then
