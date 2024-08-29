@@ -15,6 +15,7 @@ contribution. See the [DCO](DCO) file for details.
 
 In order to show your agreement with the DCO you should include at the end of the commit message,
 the following line:
+
 ```console
 Signed-off-by: Firstname Lastname <email@email.com>
 ```
@@ -25,13 +26,14 @@ Once you set your user.name and user.email in your git config, you can sign your
 
 ### Issues
 
-If you spot a problem with the **devfile registry operator**, [search if an issue already exists](https://github.com/devfile/api/issues?q=is%3Aissue+is%3Aopen+label%3Aarea%2Fregistry). 
+If you spot a problem with the **devfile registry operator**, [search if an issue already exists](https://github.com/devfile/api/issues?q=is%3Aissue+is%3Aopen+label%3Aarea%2Fregistry).
 
 If a related issue doesn't exist, you can open a new issue using a relevant [issue form](https://github.com/devfile/api/issues/new/choose). You can tag Devfile Registry Operator related issues with the `/area registry` text in your issue.
 
 ### Development
 
 #### First Time Setup
+
 1. Install prerequisites: see [Requirements section in README](README.md#requirements).
 
 2. Fork and clone this repository.
@@ -39,7 +41,9 @@ If a related issue doesn't exist, you can open a new issue using a relevant [iss
 3. Open the folder in the IDE of your choice (VS Code with Go extension, or GoLand is recommended)
 
 #### Build and Run the Operator
+
 The Makefile currently supports both Docker and Podman. To run the proper command replace `<engine>` with either `podman` or `docker` depending on your container engine.
+
 1. Log in to an OpenShift or Kubernetes cluster
 
 2. Run `export IMG=<operator-image>` where `<operator-image>` is the image repository to where you would like to push the image (e.g. `quay.io/user/registry-operator:latest`).
@@ -60,7 +64,7 @@ The Makefile currently supports both Docker and Podman. To run the proper comman
 
 By default, http/2 on the webhook server is disabled due to [CVE-2023-44487](https://github.com/advisories/GHSA-qppj-fm5r-hxr3).
 
-If you want to enable http/2 for the webhook server, build with `ENABLE_WEBHOOK_HTTP2=true make <engine>-build` or with 
+If you want to enable http/2 for the webhook server, build with `ENABLE_WEBHOOK_HTTP2=true make <engine>-build` or with
 `ENABLE_WEBHOOK_HTTP2=true make run` if running locally.
 
 ##### Using other platforms
@@ -124,8 +128,10 @@ You can use `make <engine>-build` to build your own image, `make <engine>-push` 
 <!--
 Will need to be updated after the completion of https://github.com/devfile/api/issues/1523
 -->
+
 In order for `make test-integration` to properly run you must first ensure your environment is prepared for the operator. The following steps should be done **before** running `make test-integration` and
 these commands should be run from the root of the repository where the [`Makefile`](Makefile) is located.
+
 1. Run `make install-cert` and wait for pods in the `cert-manager` namespace to be running before moving to step 2.
 2. Run `make install && make deploy` and wait until pods in the `registry-operator-system` namespace are running before proceeding to step 3.
 3. Run `make test-integration` or `IMG=<your-operator-image> make test-integration` to run the integration tests.
@@ -133,6 +139,7 @@ these commands should be run from the root of the repository where the [`Makefil
 ### Submitting Pull Request
 
 **Note:** All commits must be signed off with the footer:
+
 ```
 Signed-off-by: First Lastname <email@email.com>
 ```

@@ -16,43 +16,43 @@ name: Next Dockerimage
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   push-operator-image:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout registry-operator source code
-      uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Checkout registry-operator source code
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
-    - name: Set up QEMU # Enables arm64 image building
-      uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 #v3.0.0
+      - name: Set up QEMU # Enables arm64 image building
+        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 #v3.0.0
 
-    - name: Login to Quay.io
-      uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
-      with:
-        registry: quay.io
-        username: ${{ secrets.QUAY_USERNAME }}
-        password: ${{ secrets.QUAY_PASSWORD }}
+      - name: Login to Quay.io
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
 
-    - name: Build and push Operator with Docker Buildx
-      run: "make docker-buildx-push"
-        
+      - name: Build and push Operator with Docker Buildx
+        run: "make docker-buildx-push"
+
   push-operator-bundle:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout registry-operator source code
-      uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Checkout registry-operator source code
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
-    - name: Set up QEMU # Enables arm64 image building
-      uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 #v3.0.0
+      - name: Set up QEMU # Enables arm64 image building
+        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 #v3.0.0
 
-    - name: Login to Quay.io
-      uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
-      with:
-        registry: quay.io
-        username: ${{ secrets.QUAY_USERNAME }}
-        password: ${{ secrets.QUAY_PASSWORD }}
+      - name: Login to Quay.io
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
 
-    - name: Build and push bundle with Docker Buildx
-      run: "make docker-bundle-buildx-push"
+      - name: Build and push bundle with Docker Buildx
+        run: "make docker-bundle-buildx-push"
