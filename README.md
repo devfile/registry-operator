@@ -137,6 +137,10 @@ Some of the rules supported by the makefile:
 
 To see all rules supported by the makefile, run `make help`
 
+## Security
+
+Further information for the devfile organization security policy can be found [here](https://github.com/devfile/api/blob/main/SECURITY.md).
+
 ## Testing
 
 Detailed instructions on how to run tests for the Devfile Registry Operator are found in [CONTRIBUTING.md](CONTRIBUTING.md#testing-your-changes).
