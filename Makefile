@@ -17,7 +17,7 @@
 VERSION ?= `cat $(PWD)/VERSION`
 # Default bundle image tag
 BUNDLE_IMG ?= quay.io/devfile/registry-operator-bundle:v$(VERSION)
-CERT_MANAGER_VERSION ?= v1.11.0
+CERT_MANAGER_VERSION ?= v1.15.1
 ENABLE_WEBHOOKS ?= true
 ENABLE_WEBHOOK_HTTP2 ?= false
 
