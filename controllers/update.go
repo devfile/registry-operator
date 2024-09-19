@@ -27,6 +27,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -59,6 +60,15 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 			indexImageContainer.ImagePullPolicy = indexImagePullPolicy
 			needsUpdating = true
 		}
+	}
+
+	if indexImageContainer.Resources.Limits.Memory().String() != cr.Spec.DevfileIndex.MemoryLimit {
+		memoryLimit, err := resource.ParseQuantity(cr.Spec.DevfileIndex.MemoryLimit)
+		if err != nil {
+			r.Log.Error(err, "Error parsing memory limit")
+		}
+		indexImageContainer.Resources.Limits[corev1.ResourceMemory] = memoryLimit
+		needsUpdating = true
 	}
 
 	ociImage := registry.GetOCIRegistryImage(cr)
