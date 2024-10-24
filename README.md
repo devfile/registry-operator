@@ -87,7 +87,7 @@ The repository contains a Makefile; building and deploying can be configured via
 | `BUNDLE_CHANNELS` | Sets the list channel(s) include bundle build under | `alpha` |
 | `BUNDLE_DEFAULT_CHANNEL` | Sets the default channel to use when installing the bundle | |
 | `ENVTEST_K8S_VERSION` | Version of k8s to use for the test environment | `1.26` (current) |
-| `CONTROLLER_TOOLS_VERSION` | Version of the controller tools | `v0.9.2` |
+| `CONTROLLER_TOOLS_VERSION` | Version of the controller tools | `v0.14.0` |
 | `KUSTOMIZE_VERSION` | Version of kustomize | `v3.8.7` | 
 | `GOBIN` | Path to install Go binaries to | `${GOPATH}/bin` |
 | `K8S_CLI` | Path to CLI tool to use with the target cluster environment, `kubectl` or `oc` | Either `oc` or `kubectl` if installed in that order |

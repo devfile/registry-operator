@@ -50,10 +50,10 @@ jobs:
           fi
       - name: Check format
         run: |
-          go get -u github.com/google/addlicense@dc31ac9ffcca99c9457226366135701794b128c0
-          go install github.com/google/addlicense@dc31ac9ffcca99c9457226366135701794b128c0
-          go get -u golang.org/x/tools/cmd/goimports@0cc407e63f5fdd71499c32afa4c54382c5b48d71
-          go install golang.org/x/tools/cmd/goimports@0cc407e63f5fdd71499c32afa4c54382c5b48d71
+          go get github.com/google/addlicense@v1.1.1
+          go install github.com/google/addlicense@v1.1.1
+          go get golang.org/x/tools/cmd/goimports@v0.24.0
+          go install golang.org/x/tools/cmd/goimports@v0.24.0
           git reset HEAD --hard
 
           make fmt
