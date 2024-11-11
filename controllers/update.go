@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	"github.com/devfile/registry-operator/pkg/registry"
@@ -82,6 +83,19 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 		if dep.Spec.Template.Spec.Volumes[0].PersistentVolumeClaim != nil {
 			dep.Spec.Template.Spec.Volumes[0].VolumeSource = registry.GetDevfileRegistryVolumeSource(cr)
 			needsUpdating = true
+		}
+	}
+	headlessStatus := dep.Spec.Template.Spec.Containers[0].Env
+
+	for _, env := range headlessStatus {
+		if env.Name == "REGISTRY_HEADLESS" {
+			value, err := strconv.ParseBool(env.Value)
+			if err != nil {
+				return err
+			}
+			if *cr.Spec.Headless != value {
+				needsUpdating = true
+			}
 		}
 	}
 
