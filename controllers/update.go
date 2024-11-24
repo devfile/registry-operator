@@ -74,6 +74,14 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 		}
 	}
 
+	headlessStatusOutdated, err := r.isHeadlessStatusOutdated(cr, dep)
+	if err != nil {
+		return err
+	}
+	if headlessStatusOutdated {
+		needsUpdating = true
+	}
+
 	if registry.IsStorageEnabled(cr) {
 		if dep.Spec.Template.Spec.Volumes[0].PersistentVolumeClaim == nil {
 			dep.Spec.Template.Spec.Volumes[0].VolumeSource = registry.GetDevfileRegistryVolumeSource(cr)
@@ -83,19 +91,6 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 		if dep.Spec.Template.Spec.Volumes[0].PersistentVolumeClaim != nil {
 			dep.Spec.Template.Spec.Volumes[0].VolumeSource = registry.GetDevfileRegistryVolumeSource(cr)
 			needsUpdating = true
-		}
-	}
-	headlessStatus := dep.Spec.Template.Spec.Containers[0].Env
-
-	for _, env := range headlessStatus {
-		if env.Name == "REGISTRY_HEADLESS" {
-			value, err := strconv.ParseBool(env.Value)
-			if err != nil {
-				return err
-			}
-			if *cr.Spec.Headless != value {
-				needsUpdating = true
-			}
 		}
 	}
 
@@ -232,4 +227,33 @@ func (r *DevfileRegistryReconciler) deleteOldPVCIfNeeded(ctx context.Context, cr
 		}
 	}
 	return nil
+}
+
+func (r *DevfileRegistryReconciler) isHeadlessStatusOutdated(cr *registryv1alpha1.DevfileRegistry, dep *appsv1.Deployment) (bool, error) {
+	var existingHeadless bool
+	found := false
+
+	for _, env := range dep.Spec.Template.Spec.Containers[0].Env {
+		if env.Name == "REGISTRY_HEADLESS" {
+			var err error
+			existingHeadless, err = strconv.ParseBool(env.Value)
+			if err != nil {
+				return false, fmt.Errorf("error parsing REGISTRY_HEADLESS value: %w", err)
+			}
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		existingHeadless = false
+	}
+
+	expectedHeadless := registry.IsHeadlessEnabled(cr)
+
+	if existingHeadless != expectedHeadless {
+		return true, nil
+	}
+
+	return false, nil
 }
