@@ -34,6 +34,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+const viewerContainerName = "registry-viewer"
+
 // updateDeployment ensures that a devfile registry deployment exists on the cluster and is up to date with the custom resource
 func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, dep *appsv1.Deployment) error {
 	// Check to see if the existing devfile registry deployment needs to be updated
@@ -254,7 +256,7 @@ func updateRegistryHeadlessEnv(envVars []corev1.EnvVar, headless bool) []corev1.
 func removeViewerContainer(containers []corev1.Container) []corev1.Container {
 	var newContainers []corev1.Container
 	for _, container := range containers {
-		if container.Name != "registry-viewer" {
+		if container.Name != viewerContainerName {
 			newContainers = append(newContainers, container)
 		}
 	}
@@ -272,7 +274,7 @@ func (r *DevfileRegistryReconciler) updateDeploymentForHeadlessChange(cr *regist
 		// Check if viewer container already exists before adding
 		viewerExists := false
 		for _, container := range dep.Spec.Template.Spec.Containers {
-			if container.Name == "registry-viewer" {
+			if container.Name == viewerContainerName {
 				viewerExists = true
 				break
 			}
@@ -297,7 +299,7 @@ func (r *DevfileRegistryReconciler) updateDeploymentForHeadlessChange(cr *regist
 			dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
 				Image:           registry.GetRegistryViewerImage(cr),
 				ImagePullPolicy: registry.GetRegistryViewerImagePullPolicy(cr),
-				Name:            "registry-viewer",
+				Name:            viewerContainerName,
 				SecurityContext: &corev1.SecurityContext{
 					AllowPrivilegeEscalation: &allowPrivilegeEscalation,
 					RunAsNonRoot:             &runAsNonRoot,
@@ -374,7 +376,7 @@ func (r *DevfileRegistryReconciler) updateDeploymentForHeadlessChange(cr *regist
 		// Check if viewer container needs to be removed
 		viewerExists := false
 		for _, container := range dep.Spec.Template.Spec.Containers {
-			if container.Name == "registry-viewer" {
+			if container.Name == viewerContainerName {
 				viewerExists = true
 				break
 			}

@@ -69,7 +69,7 @@ func TestUpdateDeploymentForHeadlessChange(t *testing.T) {
 						Env:  []corev1.EnvVar{{Name: "REGISTRY_HEADLESS", Value: "false"}},
 					},
 					{
-						Name: "registry-viewer",
+						Name: viewerContainerName,
 					},
 				}
 				return dep
@@ -92,7 +92,7 @@ func TestUpdateDeploymentForHeadlessChange(t *testing.T) {
 						Env:  []corev1.EnvVar{{Name: "REGISTRY_HEADLESS", Value: "false"}},
 					},
 					{
-						Name: "registry-viewer",
+						Name: viewerContainerName,
 					},
 				}
 				return dep
