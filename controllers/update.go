@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
 	"github.com/devfile/registry-operator/pkg/registry"
@@ -27,9 +28,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+const viewerContainerName = "registry-viewer"
 
 // updateDeployment ensures that a devfile registry deployment exists on the cluster and is up to date with the custom resource
 func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *registryv1alpha1.DevfileRegistry, dep *appsv1.Deployment) error {
@@ -71,6 +76,14 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 			ociImageContainer.ImagePullPolicy = ociImagePullPolicy
 			needsUpdating = true
 		}
+	}
+
+	updated, err := r.updateDeploymentForHeadlessChange(cr, dep)
+	if err != nil {
+		return err
+	}
+	if updated {
+		needsUpdating = true
 	}
 
 	if registry.IsStorageEnabled(cr) {
@@ -218,4 +231,175 @@ func (r *DevfileRegistryReconciler) deleteOldPVCIfNeeded(ctx context.Context, cr
 		}
 	}
 	return nil
+}
+
+// updateRegistryHeadlessEnv updates or adds the REGISTRY_HEADLESS environment variable
+func updateRegistryHeadlessEnv(envVars []corev1.EnvVar, headless bool) []corev1.EnvVar {
+	found := false
+	for i, env := range envVars {
+		if env.Name == "REGISTRY_HEADLESS" {
+			envVars[i].Value = strconv.FormatBool(headless)
+			found = true
+			break
+		}
+	}
+	if !found {
+		envVars = append(envVars, corev1.EnvVar{
+			Name:  "REGISTRY_HEADLESS",
+			Value: strconv.FormatBool(headless),
+		})
+	}
+	return envVars
+}
+
+// removeViewerContainer removes the registry-viewer container from the list of containers
+func removeViewerContainer(containers []corev1.Container) []corev1.Container {
+	var newContainers []corev1.Container
+	for _, container := range containers {
+		if container.Name != viewerContainerName {
+			newContainers = append(newContainers, container)
+		}
+	}
+	return newContainers
+}
+
+// updateDeploymentForHeadlessChange updates the deployment based on headless configuration
+func (r *DevfileRegistryReconciler) updateDeploymentForHeadlessChange(cr *registryv1alpha1.DevfileRegistry, dep *appsv1.Deployment) (bool, error) {
+	updated := false
+	allowPrivilegeEscalation := false
+	runAsNonRoot := true
+	localHostname := "localhost"
+
+	if !registry.IsHeadlessEnabled(cr) {
+		// Check if viewer container already exists before adding
+		viewerExists := false
+		for _, container := range dep.Spec.Template.Spec.Containers {
+			if container.Name == viewerContainerName {
+				viewerExists = true
+				break
+			}
+		}
+
+		if !viewerExists {
+			// Configure StartupProbe
+			dep.Spec.Template.Spec.Containers[0].StartupProbe = &corev1.Probe{
+				ProbeHandler: corev1.ProbeHandler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Path:   "/viewer",
+						Port:   intstr.FromInt(registry.RegistryViewerPort),
+						Scheme: corev1.URISchemeHTTP,
+					},
+				},
+				InitialDelaySeconds: 30,
+				PeriodSeconds:       10,
+				TimeoutSeconds:      20,
+			}
+
+			// Append registry-viewer container
+			dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
+				Image:           registry.GetRegistryViewerImage(cr),
+				ImagePullPolicy: registry.GetRegistryViewerImagePullPolicy(cr),
+				Name:            viewerContainerName,
+				SecurityContext: &corev1.SecurityContext{
+					AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+					RunAsNonRoot:             &runAsNonRoot,
+					Capabilities: &corev1.Capabilities{
+						Drop: []corev1.Capability{"ALL"},
+					},
+					SeccompProfile: &corev1.SeccompProfile{
+						Type: "RuntimeDefault",
+					},
+				},
+				Resources: corev1.ResourceRequirements{
+					Requests: corev1.ResourceList{
+						corev1.ResourceCPU:    resource.MustParse("250m"),
+						corev1.ResourceMemory: resource.MustParse("64Mi"),
+					},
+					Limits: corev1.ResourceList{
+						corev1.ResourceCPU:    resource.MustParse("500m"),
+						corev1.ResourceMemory: resource.MustParse("256Mi"),
+					},
+				},
+				LivenessProbe: &corev1.Probe{
+					ProbeHandler: corev1.ProbeHandler{
+						HTTPGet: &corev1.HTTPGetAction{
+							Path:   "/viewer",
+							Port:   intstr.FromInt(registry.RegistryViewerPort),
+							Scheme: corev1.URISchemeHTTP,
+						},
+					},
+					InitialDelaySeconds: 15,
+					PeriodSeconds:       10,
+					TimeoutSeconds:      20,
+				},
+				ReadinessProbe: &corev1.Probe{
+					ProbeHandler: corev1.ProbeHandler{
+						HTTPGet: &corev1.HTTPGetAction{
+							Path:   "/viewer",
+							Port:   intstr.FromInt(registry.RegistryViewerPort),
+							Scheme: corev1.URISchemeHTTP,
+						},
+					},
+					InitialDelaySeconds: 15,
+					PeriodSeconds:       10,
+					TimeoutSeconds:      20,
+				},
+				Env: []corev1.EnvVar{
+					{
+						Name:  "NEXT_PUBLIC_ANALYTICS_WRITE_KEY",
+						Value: cr.Spec.Telemetry.RegistryViewerWriteKey,
+					},
+					{
+						Name: "DEVFILE_REGISTRIES",
+						Value: fmt.Sprintf(`[
+                            {
+                                "name": "%s",
+                                "url": "http://%s",
+                                "fqdn": "%s"
+                            }
+                        ]`, cr.ObjectMeta.Name, localHostname, cr.Status.URL),
+					},
+				},
+			})
+			updated = true
+		}
+	} else {
+		// Check if REGISTRY_HEADLESS env var needs to be updated
+		headlessEnvNeedsUpdate := true
+		for _, env := range dep.Spec.Template.Spec.Containers[0].Env {
+			if env.Name == "REGISTRY_HEADLESS" && env.Value == strconv.FormatBool(true) {
+				headlessEnvNeedsUpdate = false
+				break
+			}
+		}
+
+		// Check if viewer container needs to be removed
+		viewerExists := false
+		for _, container := range dep.Spec.Template.Spec.Containers {
+			if container.Name == viewerContainerName {
+				viewerExists = true
+				break
+			}
+		}
+
+		if headlessEnvNeedsUpdate || viewerExists {
+			// Set REGISTRY_HEADLESS environment variable
+			dep.Spec.Template.Spec.Containers[0].Env = updateRegistryHeadlessEnv(
+				dep.Spec.Template.Spec.Containers[0].Env,
+				true,
+			)
+
+			// Remove viewer container
+			dep.Spec.Template.Spec.Containers = removeViewerContainer(
+				dep.Spec.Template.Spec.Containers,
+			)
+
+			// Clear startup probe
+			dep.Spec.Template.Spec.Containers[0].StartupProbe = nil
+
+			updated = true
+		}
+	}
+
+	return updated, nil
 }
