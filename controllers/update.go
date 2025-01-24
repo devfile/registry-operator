@@ -66,6 +66,15 @@ func (r *DevfileRegistryReconciler) updateDeployment(ctx context.Context, cr *re
 		}
 	}
 
+	if indexImageContainer.Resources.Limits.Memory().String() != cr.Spec.DevfileIndex.MemoryLimit {
+		memoryLimit, err := resource.ParseQuantity(cr.Spec.DevfileIndex.MemoryLimit)
+		if err != nil {
+			r.Log.Error(err, "Error parsing memory limit")
+		}
+		indexImageContainer.Resources.Limits[corev1.ResourceMemory] = memoryLimit
+		needsUpdating = true
+	}
+
 	ociImage := registry.GetOCIRegistryImage(cr)
 	ociImageContainer := dep.Spec.Template.Spec.Containers[1]
 	if ociImageContainer.Image != ociImage {
