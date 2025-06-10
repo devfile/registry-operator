@@ -14,8 +14,9 @@
 # limitations under the License.
 
 # Build the manager binary
-FROM golang:1.21@sha256:b405b620c7b53ef64695c7da7c8396f411f381c1eb7da6713c585dd7eca1559b as builder
+FROM registry.access.redhat.com/ubi9/go-toolset:1.22.9@sha256:e4193e71ea9f2e2504f6b4ee93cadef0fe5d7b37bba57484f4d4229801a7c063 as builder
 ARG TARGETARCH=amd64
+USER root
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -41,9 +42,8 @@ ENV ENABLE_WEBHOOKS=${ENABLE_WEBHOOKS}
 ARG ENABLE_WEBHOOK_HTTP2=false
 ENV ENABLE_WEBHOOK_HTTP2=${ENABLE_WEBHOOK_HTTP2}
 
-# Use distroless as minimal base image to package the manager binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot-${TARGETARCH}
+# Use ubi-micro as minimal base image to package the manager binary
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.6@sha256:955512628a9104d74f7b3b0a91db27a6bbecdd6a1975ce0f1b2658d3cd060b98
 WORKDIR /
 COPY --from=builder /workspace/manager .
 USER 1001
