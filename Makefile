@@ -319,11 +319,14 @@ $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) GOFLAGS="" go install sigs.k8s.io/controller-runtime/tools/setup-envtest@$(ENVTEST_VERSION)
 
 # Generate bundle manifests and metadata, then validate generated files.
+## sh replace-alm-examples.sh is there to fix an issue with Kustomize removing List items
+## More information can be found here: https://github.com/kubernetes-sigs/kustomize/issues/5042
 .PHONY: bundle
 bundle: manifests
 	$(OPERATOR_SDK_CLI) generate kustomize manifests -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK_CLI) generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
+	sh replace-alm-examples.sh
 	$(OPERATOR_SDK_CLI) bundle validate ./bundle
 
 # Build the bundle image.
@@ -342,3 +345,9 @@ gosec:
 	# Run this command to install gosec, if not installed:
 	# go install github.com/securego/gosec/v2/cmd/gosec@v2.22.0
 	gosec -no-fail -fmt=sarif -out=gosec.sarif -exclude-dir pkg/test -exclude-dir tests ./...
+
+### Release
+# RUN: make release NEW_VERSION=x.x.x
+.PHONY: 
+release:
+	sh make-release.sh ${NEW_VERSION}
