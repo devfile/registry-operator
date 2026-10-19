@@ -10,7 +10,8 @@
     "* 19-23,0-2 */2,4 * 4"
   ],
   "enabledManagers": [
-    "github-actions"
+    "github-actions",
+    "dockerfile"
   ],
   "packageRules": [
     {
