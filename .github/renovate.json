@@ -1,0 +1,64 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":gitSignOff"
+  ],
+  "timezone": "America/Toronto",
+  "schedule": [
+    "* 19-23,0-2 */2,4 * 4"
+  ],
+  "enabledManagers": [
+    "github-actions",
+    "dockerfile"
+  ],
+  "packageRules": [
+    {
+      "description": "Group GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "groupSlug": "github-actions-deps",
+      "commitMessageTopic": "GitHub Action {{depName}}"
+    },
+    {
+      "description": "Group Dockerfile dependency updates",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "groupName": "dockerfile dependencies",
+      "groupSlug": "dockerfile-deps",
+      "commitMessageTopic": "Dockerfile {{depName}}"
+    },
+    {
+      "description": "Disable major version updates for Dockerfiles",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      "description": "Disable minor version updates for Go version specific images",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "registry.access.redhat.com/*/go-toolset",
+        "docker.io/library/golang",
+        "golang"
+      ],
+      "matchUpdateTypes": ["minor"],
+      "enabled": false
+    }
+  ],
+  "ignorePaths": [
+    "bundle/**"
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
+  "prHourlyLimit": 20,
+  "prConcurrentLimit": 1,
+  "labels": ["renovatebot"]
+}
