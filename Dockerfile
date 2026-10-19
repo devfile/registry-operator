@@ -43,7 +43,7 @@ ARG ENABLE_WEBHOOK_HTTP2=false
 ENV ENABLE_WEBHOOK_HTTP2=${ENABLE_WEBHOOK_HTTP2}
 
 # Use ubi-micro as minimal base image to package the manager binary
-FROM registry.access.redhat.com/ubi9/ubi-micro:9.6@sha256:955512628a9104d74f7b3b0a91db27a6bbecdd6a1975ce0f1b2658d3cd060b98
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.8-1791895366@sha256:5be877a2a280ae36eb9ab80ca4efb28bbf77c57abbba38137cdc37a03b8465e6
 WORKDIR /
 COPY --from=builder /workspace/manager .
 USER 1001
