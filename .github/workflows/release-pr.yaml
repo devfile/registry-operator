@@ -24,9 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout registry-operator source code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Set up Go 1.x
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: 'go.mod'
       - name: Run Gosec Security Scanner
@@ -39,7 +39,7 @@ jobs:
             exit 1
           fi
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@74483a38d39275f33fcff5f35b679b5ca4a26a99 # 2.22.5
+        uses: github/codeql-action/upload-sarif@b8d3b6e8af63cde30bdc382c0bc28114f4346c88 # v2.28.1
         with:
           # Path to SARIF file relative to the root of the repository
           sarif_file: gosec.sarif
@@ -55,7 +55,7 @@ jobs:
       CACHED_MANAGER_IMAGE_TAG: .cache/manager_image_tag.txt
     steps:
       - name: Checkout registry-operator source code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Download yq
         run: curl -sL https://github.com/mikefarah/yq/releases/download/v4.34.2/yq_linux_amd64 -o yq && chmod +x yq
       - name: Cache version tags
@@ -77,9 +77,9 @@ jobs:
       OPERATOR_SDK_CLI: ./operator-sdk
     steps:
       - name: Checkout registry-operator source code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Setup Go environment
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: 'go.mod'
       - name: Download operator-sdk
@@ -104,7 +104,7 @@ jobs:
           mv operator-sdk_${OS}_${ARCH} ${OPERATOR_SDK_CLI}
           chmod +x ${OPERATOR_SDK_CLI}
       - name: Setup Minikube
-        uses: manusa/actions-setup-minikube@3856c6fa039819f1c8e7e248b1fc5a8564e354c9 # v2.9.0
+        uses: manusa/actions-setup-minikube@001b9f30165b2a875b835ec5183ced75b94bc269 # v2.19.0
         with:
           minikube version: 'v1.31.2'
           kubernetes version: "${{ matrix.version }}"
@@ -112,7 +112,7 @@ jobs:
           github token: ${{ secrets.GITHUB_TOKEN }}
           start args: '--memory 4096 --cpus 2'
       - name: Set manager image pull policy to Never
-        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+        uses: mikefarah/yq@504fc38780cc46be8444ea1b72fb55919fc0bfb0 # v4.54.1
         with:
           cmd: yq -i '(select(documentIndex == 1) | .spec.template.spec.containers[0].imagePullPolicy) = "Never"' 'config/manager/manager.yaml'
       - name: Run integration testing on release image
