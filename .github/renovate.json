@@ -52,6 +52,9 @@
       "enabled": false
     }
   ],
+  "ignorePaths": [
+    "bundle/**"
+  ],
   "vulnerabilityAlerts": {
     "enabled": true
   },
