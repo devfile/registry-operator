@@ -20,6 +20,36 @@
       "groupName": "github actions",
       "groupSlug": "github-actions-deps",
       "commitMessageTopic": "GitHub Action {{depName}}"
+    },
+    {
+      "description": "Group Dockerfile dependency updates",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "groupName": "dockerfile dependencies",
+      "groupSlug": "dockerfile-deps",
+      "commitMessageTopic": "Dockerfile {{depName}}"
+    },
+    {
+      "description": "Disable major version updates for Dockerfiles",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      "description": "Disable minor version updates for Go version specific images",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "registry.access.redhat.com/*/go-toolset",
+        "docker.io/library/golang",
+        "golang"
+      ],
+      "matchUpdateTypes": ["minor"],
+      "enabled": false
     }
   ],
   "vulnerabilityAlerts": {
