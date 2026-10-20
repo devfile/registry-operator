@@ -1,0 +1,23 @@
+# Allow metrics clients in namespaces labeled metrics=enabled.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-metrics-traffic
+  namespace: system
+  labels:
+    app.kubernetes.io/name: devfileregistry-operator
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  podSelector:
+    matchLabels:
+      control-plane: controller-manager
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          metrics: enabled
+    ports:
+    - port: 8443
+      protocol: TCP

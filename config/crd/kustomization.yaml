@@ -7,19 +7,19 @@ resources:
 - bases/registry.devfile.io_clusterdevfileregistrieslists.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
-patchesStrategicMerge:
+patches:
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix.
 # patches here are for enabling the conversion webhook for each CRD
-#- patches/webhook_in_devfileregistries.yaml
-- patches/webhook_in_devfileregistrieslists.yaml
-- patches/webhook_in_clusterdevfileregistrieslists.yaml
+#- path: patches/webhook_in_devfileregistries.yaml
+- path: patches/webhook_in_devfileregistrieslists.yaml
+- path: patches/webhook_in_clusterdevfileregistrieslists.yaml
 # +kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable webhook, uncomment all the sections with [CERTMANAGER] prefix.
 # patches here are for enabling the CA injection for each CRD
-#- patches/cainjection_in_devfileregistries.yaml
-- patches/cainjection_in_devfileregistrieslists.yaml
-- patches/cainjection_in_clusterdevfileregistrieslists.yaml
+#- path: patches/cainjection_in_devfileregistries.yaml
+- path: patches/cainjection_in_devfileregistrieslists.yaml
+- path: patches/cainjection_in_clusterdevfileregistrieslists.yaml
 # +kubebuilder:scaffold:crdkustomizecainjectionpatch
 
 # the following config is for teaching kustomize how to do kustomization for CRDs.

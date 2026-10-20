@@ -62,8 +62,6 @@ kubectl wait deploy/registry-operator-controller-manager --namespace registry-op
 if [ $? -ne 0 ]; then
     echo "manager container logs:"
     kubectl logs -l app=devfileregistry-operator --namespace registry-operator-system --container manager
-    echo "kube-rbac-proxy container logs:"
-    kubectl logs -l app=devfileregistry-operator --namespace registry-operator-system --container kube-rbac-proxy
 
     # Return the description of every pod
     kubectl describe pods --namespace registry-operator-system

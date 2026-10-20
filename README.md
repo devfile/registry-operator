@@ -39,17 +39,19 @@ Deployment cluster must meet one of the following criteria:
 - OpenShift Container Platform (OCP) 4.15.x-4.18.x
 - Kubernetes 1.29.x-1.31.x
 
-More on the support of container orchestration systems can be 
+More on the support of container orchestration systems can be
 found [here](CLUSTER_SUPPORT.md).
 
-Deployments made by the devfile registry operator must *never* target the default namespace due to incompatibility with 
+Deployments made by the devfile registry operator must *never* target the default namespace due to incompatibility with
 security setups.
 
 ### Development
 
+See [the SDK 1.39.1 migration notes](SDK_MIGRATION.md) for layout and metrics changes.
+
 - Go 1.26.x
 - Docker / Podman
-- Operator SDK 1.28.x
+- Operator SDK 1.39.1
 
 See [Upgrade SDK Version](https://sdk.operatorframework.io/docs/upgrading-sdk-version/) for a guide on updating the Operator SDK. Ensure the Operator SDK version and the version of Kubernetes APIs match each other when updating by checking [CLUSTER_SUPPORT.md](CLUSTER_SUPPORT.md).
 
@@ -85,9 +87,10 @@ The repository contains a Makefile; building and deploying can be configured via
 | `ENABLE_WEBHOOK_HTTP2` | Overrides webhook HTTP server deployment to use http/2 if set to `true`, **not recommended** | `false` |
 | `BUNDLE_CHANNELS` | Sets the list channel(s) include bundle build under | `alpha` |
 | `BUNDLE_DEFAULT_CHANNEL` | Sets the default channel to use when installing the bundle | |
-| `ENVTEST_K8S_VERSION` | Version of k8s to use for the test environment | `1.26` (current) |
+| `ENVTEST_VERSION` | Version of setup-envtest | `release-0.19` |
+| `ENVTEST_K8S_VERSION` | Version of k8s to use for the test environment | `1.31.0` (current) |
 | `CONTROLLER_TOOLS_VERSION` | Version of the controller tools | `v0.23.0` |
-| `KUSTOMIZE_VERSION` | Version of kustomize | `v3.8.7` | 
+| `KUSTOMIZE_VERSION` | Version of kustomize | `v5.4.3` |
 | `GOBIN` | Path to install Go binaries to | `${GOPATH}/bin` |
 | `K8S_CLI` | Path to CLI tool to use with the target cluster environment, `kubectl` or `oc` | Either `oc` or `kubectl` if installed in that order |
 | `OPERATOR_SDK_CLI` | CLI path to `operator-sdk` tool | `operator-sdk` |
@@ -99,13 +102,13 @@ The repository contains a Makefile; building and deploying can be configured via
 | `TARGET_ARCH` | Target architecture for operator manager builds, possible values: `amd64`, `arm64`, `s390x`, `ppc64le` | `amd64` |
 | `TARGET_OS` | Target operating system for operator manager build, **only for `make manager`** | `linux` |
 | `PLATFORMS` | Target architecture(s) for `make docker-buildx` | All supported: `linux/arm64,linux/amd64,linux/s390x,linux/ppc64le` |
-| `KUSTOMIZE_INSTALL_SCRIPT` | URL of kustomize installation script, see [kustomize installation instructions](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/) | `https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh` |
 
 
 Some of the rules supported by the makefile:
 
 |rule|purpose|
 |---|---|
+| build-installer | generate `dist/install.yaml` with CRDs and deployment |
 | controller-gen | install the controller-gen tool, used by other commands |
 | kustomize | install the kustomize tool, used by other commands |
 | docker-build | build registry operator container image using docker |
@@ -145,7 +148,7 @@ Further information for the devfile organization security policy can be found [h
 Detailed instructions on how to run tests for the Devfile Registry Operator are found in [CONTRIBUTING.md](CONTRIBUTING.md#testing-your-changes).
 
 ### Run operator locally
-It's possible to run an instance of the operator locally while communicating with a cluster. 
+It's possible to run an instance of the operator locally while communicating with a cluster.
 
 1. You may need to install the `controller-gen` tool before, used when building the binary:
 
@@ -179,4 +182,3 @@ Please see our [CONTRIBUTING.md](./CONTRIBUTING.md).
 - [`make test-integration` times out when running in Minikube](https://github.com/devfile/api/issues/1313)
 - [Headless mode field does not update devfile registry state during reconcile](https://github.com/devfile/api/issues/1258)
 - [`make bundle` removes `alm-examples` for `DevfileRegistriesList` and `ClusterDevfileRegistriesList` CRDs due to bug with Kustomize](https://github.com/kubernetes-sigs/kustomize/issues/5042)
-- [Operator SDK is out of sync, should be upgraded to v1.39.1](https://github.com/devfile/api/issues/1626)

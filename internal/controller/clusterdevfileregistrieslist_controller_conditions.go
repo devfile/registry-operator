@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package controllers
+package controller
 
 import (
 	"context"
@@ -27,8 +27,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-// SetValidateDevfileRegistriesConditionAndUpdateCR sets the condition of the namespaced devfile registries list validation
-func (r *DevfileRegistriesListReconciler) SetValidateDevfileRegistriesConditionAndUpdateCR(ctx context.Context, req ctrl.Request, devfileRegistriesList *v1alpha1.DevfileRegistriesList, validateError error) error {
+// SetValidateDevfileRegistriesConditionAndUpdateCR sets the condition of the cluster devfile registries list validation
+func (r *ClusterDevfileRegistriesListReconciler) SetValidateDevfileRegistriesConditionAndUpdateCR(ctx context.Context, req ctrl.Request, clusterDevfileRegistriesList *v1alpha1.ClusterDevfileRegistriesList, validateError error) error {
 	log := ctrl.LoggerFrom(ctx)
 	var (
 		condition metav1.Condition
@@ -47,19 +47,19 @@ func (r *DevfileRegistriesListReconciler) SetValidateDevfileRegistriesConditionA
 			Type:    typeValidateDevfileRegistries,
 			Status:  metav1.ConditionFalse,
 			Reason:  "NotReady",
-			Message: fmt.Sprintf("Namespaced devfile registries list failed to validate: %v", validateError),
+			Message: fmt.Sprintf("Cluster devfile registries list failed to validate: %v", validateError),
 		}
 	}
 
 	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		validateDevfileRegistriesAndUpdateCondition(devfileRegistriesList.Spec.DevfileRegistries, condition, func(c metav1.Condition) {
-			meta.SetStatusCondition(&devfileRegistriesList.Status.Conditions, c)
+		validateDevfileRegistriesAndUpdateCondition(clusterDevfileRegistriesList.Spec.DevfileRegistries, condition, func(c metav1.Condition) {
+			meta.SetStatusCondition(&clusterDevfileRegistriesList.Status.Conditions, c)
 		})
-		return r.Status().Update(ctx, devfileRegistriesList)
+		return r.Status().Update(ctx, clusterDevfileRegistriesList)
 	})
 
 	if err != nil {
-		log.Error(err, "Unable to update namespaced devfile registries list")
+		log.Error(err, "Unable to update cluster devfile registries list")
 		return err
 	}
 

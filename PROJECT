@@ -1,8 +1,7 @@
 domain: devfile.io
 layout:
-- go.kubebuilder.io/v3
+- go.kubebuilder.io/v4
 plugins:
-  go.sdk.operatorframework.io/v2: {}
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: registry-operator

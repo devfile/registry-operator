@@ -33,13 +33,13 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # Image URL to use all building/pushing image targets
 IMG ?= quay.io/devfile/registry-operator:next
 # ENVTEST_VERSION refers to the version of the setup-envtest binary to use
-ENVTEST_VERSION=v0.0.0-20240405143037-c25fe2f5ca0f
+ENVTEST_VERSION ?= release-0.19
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
-ENVTEST_K8S_VERSION = 1.26
+ENVTEST_K8S_VERSION ?= 1.31.0
 # Controller tools version number
 CONTROLLER_TOOLS_VERSION ?= v0.23.0
 # Kustomize version number
-KUSTOMIZE_VERSION ?= v3.8.7
+KUSTOMIZE_VERSION ?= v5.4.3
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -110,7 +110,9 @@ TARGET_ARCH ?= amd64
 
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test -timeout=1h `go list ./... | grep -v /tests/` -coverprofile cover.out -v
+	KUBEBUILDER_ASSETS="$$( $(ENVTEST) use $(ENVTEST_K8S_VERSION) --use-deprecated-gcs=false -p path )"; \
+	export KUBEBUILDER_ASSETS; \
+	go test -timeout=1h `go list ./... | grep -v /tests/` -coverprofile cover.out -v
 
 ### test-integration: runs integration tests on the cluster set in context.
 .PHONY: test-integration
@@ -123,12 +125,13 @@ test-integration:
 ##@ Build
 
 .PHONY: build manager
+build: manager
 manager: manifests generate fmt vet ## Build manager binary.
-	GOOS=${TARGET_OS} GOARCH=${TARGET_ARCH} go build -o $(LOCALBIN)/manager ./main.go
+	GOOS=${TARGET_OS} GOARCH=${TARGET_ARCH} go build -o $(LOCALBIN)/manager ./cmd/main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	$(LOCALBIN)/manager
+	go run ./cmd/main.go
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
@@ -197,19 +200,18 @@ PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
 .PHONY: docker-buildx-build
 docker-buildx-build: test
 	$(MAKE) docker-buildx-setup
-	- docker buildx build --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
+	docker buildx build --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile $(shell pwd)
 	$(MAKE) docker-buildx-cleanup
 
 .PHONY: docker-buildx-push
 docker-buildx-push: test 
 	$(MAKE) docker-buildx-setup
-	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile.cross $(shell pwd)
+	docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile $(shell pwd)
 	$(MAKE) docker-buildx-cleanup
 
 # INTERNAL: Used to setup the docker-buildx command, not to be called by users
 .PHONY: docker-buildx-setup
 docker-buildx-setup:
-	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- docker buildx create --name registry-operator-builder
 	docker buildx use registry-operator-builder
 
@@ -217,19 +219,18 @@ docker-buildx-setup:
 .PHONY: docker-buildx-cleanup
 docker-buildx-cleanup:
 	- docker buildx rm registry-operator-builder
-	rm Dockerfile.cross
 
 # Build the bundle image.
 .PHONY: docker-bundle-buildx-build
 docker-bundle-buildx-build:
 	$(MAKE) docker-bundle-buildx-setup
-	- docker buildx build --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
+	docker buildx build --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
 	$(MAKE) docker-bundle-buildx-cleanup
 
 .PHONY: docker-bundle-buildx-push
 docker-bundle-buildx-push:
 	$(MAKE) docker-bundle-buildx-setup
-	- docker buildx build --push --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
+	docker buildx build --push --platform=${PLATFORMS} --tag ${BUNDLE_IMG} --provenance=false -f bundle.Dockerfile $(shell pwd)
 	$(MAKE) docker-bundle-buildx-cleanup
 
 # INTERNAL: Used to setup the docker-bundle-buildx command, not to be called by users
@@ -245,19 +246,17 @@ docker-bundle-buildx-cleanup:
 
 # Clone of docker-buildx command but redesigned to work with podman's workflow
 # Designed to build and push multi architecture images of the registry operator
-# This utilizes a new Dockerfile to insert platform args to preserve the original Dockerfile
+# The Dockerfile uses BUILDPLATFORM and TARGETARCH for cross-compilation.
 .PHONY: podman-buildx-build
 podman-buildx-build: test
-	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- podman manifest create ${IMG}
-	- podman build --platform=$(PLATFORMS) --manifest ${IMG} -f Dockerfile.cross $(shell pwd)
+	- podman build --platform=$(PLATFORMS) --manifest ${IMG} -f Dockerfile $(shell pwd)
 
 # Contains cleanup steps to remove files and manifests created during build
 .PHONY: podman-buildx-push
 podman-buildx-push:
 	- podman manifest push ${IMG}
 	- podman manifest rm ${IMG}
-	rm Dockerfile.cross
 
 # Build the podman image
 .PHONY: podman-build
@@ -284,8 +283,7 @@ uninstall-cert:
 # download controller-gen if necessary
 .PHONY: controller-gen
 controller-gen: $(LOCALBIN)
-	test -s $(CONTROLLER_GEN) && $(CONTROLLER_GEN) --version | grep -q $(CONTROLLER_TOOLS_VERSION) || \
-GOBIN=$(LOCALBIN) GOFLAGS="" go install sigs.k8s.io/controller-tools/cmd/controller-gen@$(CONTROLLER_TOOLS_VERSION)
+	$(call go-install-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen,$(CONTROLLER_TOOLS_VERSION))
 
 ##@ Deployment
 
@@ -306,20 +304,38 @@ deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/default | $(K8S_CLI) delete -f -
 
-KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
-kustomize: $(KUSTOMIZE)
-$(KUSTOMIZE): $(LOCALBIN)
-	test -s $(LOCALBIN)/kustomize || { curl -s $(KUSTOMIZE_INSTALL_SCRIPT) | bash -s -- $(subst v,,$(KUSTOMIZE_VERSION)) $(LOCALBIN); }
+kustomize: $(LOCALBIN) ## Download the configured kustomize version.
+	$(call go-install-tool,$(KUSTOMIZE),sigs.k8s.io/kustomize/kustomize/v5,$(KUSTOMIZE_VERSION))
 
 .PHONY: envtest
-envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
-$(ENVTEST): $(LOCALBIN)
-	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) GOFLAGS="" go install sigs.k8s.io/controller-runtime/tools/setup-envtest@$(ENVTEST_VERSION)
+envtest: $(LOCALBIN) ## Download the configured setup-envtest version.
+	$(call go-install-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest,$(ENVTEST_VERSION))
+
+# Keep versioned binaries and refresh the stable symlink on every invocation.
+# Install into a temporary directory so an existing symlink cannot overwrite another version.
+define go-install-tool
+	@set -e; \
+	if [ ! -f "$(1)-$(3)" ]; then \
+		tool_dir=$$(mktemp -d); \
+		trap 'rm -rf "$$tool_dir"' EXIT; \
+		GOBIN=$$tool_dir GOFLAGS="" go install $(2)@$(3); \
+		tool_name=$$(basename $(2)); \
+		case "$$tool_name" in v[0-9]*) tool_name=$$(basename $$(dirname $(2)));; esac; \
+		mv "$$tool_dir/$$tool_name" "$(1)-$(3)"; \
+	fi; \
+	ln -sf "$(abspath $(1)-$(3))" "$(1)"
+endef
+
+.PHONY: build-installer
+build-installer: manifests generate kustomize ## Generate dist/install.yaml with CRDs and deployment.
+	mkdir -p dist
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
+	$(KUSTOMIZE) build config/default > dist/install.yaml
 
 # Generate bundle manifests and metadata, then validate generated files.
 .PHONY: bundle
-bundle: manifests
+bundle: manifests kustomize
 	$(OPERATOR_SDK_CLI) generate kustomize manifests -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK_CLI) generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)

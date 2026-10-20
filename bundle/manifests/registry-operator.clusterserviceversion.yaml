@@ -50,11 +50,11 @@ metadata:
     capabilities: Basic Install
     categories: OpenShift Optional,Developer Tools
     containerImage: quay.io/devfile/registry-operator:v0.3.0
-    createdAt: "2024-08-20T09:11:27Z"
+    createdAt: "2026-10-20T14:30:43Z"
     description: Deploy and manage Devfile Registries on Kubernetes and OpenShift
       with the Devfile Registry operator.
-    operators.operatorframework.io/builder: operator-sdk-v1.36.0
-    operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
+    operators.operatorframework.io/builder: operator-sdk-v1.39.1
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/devfile/registry-operator
     support: Red Hat
   name: registry-operator.v0.3.0
@@ -274,18 +274,6 @@ spec:
       clusterPermissions:
       - rules:
         - apiGroups:
-          - apps
-          resources:
-          - deployments
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
           - ""
           resources:
           - configmaps
@@ -307,6 +295,18 @@ spec:
           - get
           - list
         - apiGroups:
+          - apps
+          resources:
+          - deployments
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
           - networking.k8s.io
           resources:
           - ingresses
@@ -322,52 +322,7 @@ spec:
           - registry.devfile.io
           resources:
           - clusterdevfileregistrieslists
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - registry.devfile.io
-          resources:
-          - clusterdevfileregistrieslists/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - registry.devfile.io
-          resources:
-          - clusterdevfileregistrieslists/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - registry.devfile.io
-          resources:
           - devfileregistries
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - registry.devfile.io
-          resources:
-          - devfileregistries/finalizers
-          - devfileregistries/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - registry.devfile.io
-          resources:
           - devfileregistrieslists
           verbs:
           - create
@@ -380,12 +335,16 @@ spec:
         - apiGroups:
           - registry.devfile.io
           resources:
+          - clusterdevfileregistrieslists/finalizers
           - devfileregistrieslists/finalizers
           verbs:
           - update
         - apiGroups:
           - registry.devfile.io
           resources:
+          - clusterdevfileregistrieslists/status
+          - devfileregistries/finalizers
+          - devfileregistries/status
           - devfileregistrieslists/status
           verbs:
           - get
@@ -439,35 +398,9 @@ spec:
             spec:
               containers:
               - args:
-                - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8080/
-                - --logtostderr=true
-                - --v=10
-                - --http2-disable=true
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.15.0
-                name: kube-rbac-proxy
-                ports:
-                - containerPort: 8443
-                  name: https
-                  protocol: TCP
-                resources:
-                  limits:
-                    cpu: 500m
-                    memory: 128Mi
-                  requests:
-                    cpu: 5m
-                    memory: 64Mi
-                securityContext:
-                  allowPrivilegeEscalation: false
-                  capabilities:
-                    drop:
-                    - ALL
-                  seccompProfile:
-                    type: RuntimeDefault
-              - args:
-                - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:8080
+                - --metrics-bind-address=:8443
                 - --leader-elect
+                - --health-probe-bind-address=:8081
                 command:
                 - /manager
                 image: quay.io/devfile/registry-operator:v0.3.0
@@ -595,6 +528,28 @@ spec:
     url: https://redhat.com
   version: 0.3.0
   webhookdefinitions:
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    conversionCRDs:
+    - clusterdevfileregistrieslists.registry.devfile.io
+    deploymentName: registry-operator-controller-manager
+    generateName: cclusterdevfileregistrieslists.kb.io
+    sideEffects: None
+    targetPort: 9443
+    type: ConversionWebhook
+    webhookPath: /convert
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    conversionCRDs:
+    - devfileregistrieslists.registry.devfile.io
+    deploymentName: registry-operator-controller-manager
+    generateName: cdevfileregistrieslists.kb.io
+    sideEffects: None
+    targetPort: 9443
+    type: ConversionWebhook
+    webhookPath: /convert
   - admissionReviewVersions:
     - v1
     containerPort: 443
