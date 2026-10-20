@@ -5,18 +5,6 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - apps
-  resources:
-  - deployments
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
   - ""
   resources:
   - configmaps
@@ -38,6 +26,18 @@ rules:
   - get
   - list
 - apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - networking.k8s.io
   resources:
   - ingresses
@@ -53,52 +53,7 @@ rules:
   - registry.devfile.io
   resources:
   - clusterdevfileregistrieslists
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - registry.devfile.io
-  resources:
-  - clusterdevfileregistrieslists/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - registry.devfile.io
-  resources:
-  - clusterdevfileregistrieslists/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - registry.devfile.io
-  resources:
   - devfileregistries
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - registry.devfile.io
-  resources:
-  - devfileregistries/finalizers
-  - devfileregistries/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - registry.devfile.io
-  resources:
   - devfileregistrieslists
   verbs:
   - create
@@ -111,12 +66,16 @@ rules:
 - apiGroups:
   - registry.devfile.io
   resources:
+  - clusterdevfileregistrieslists/finalizers
   - devfileregistrieslists/finalizers
   verbs:
   - update
 - apiGroups:
   - registry.devfile.io
   resources:
+  - clusterdevfileregistrieslists/status
+  - devfileregistries/finalizers
+  - devfileregistries/status
   - devfileregistrieslists/status
   verbs:
   - get

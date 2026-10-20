@@ -25,3 +25,6 @@ bin
 
 # cache directory
 .cache/
+
+# Consolidated installation manifests
+dist/

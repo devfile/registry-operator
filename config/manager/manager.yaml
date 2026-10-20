@@ -36,6 +36,7 @@ spec:
         - /manager
         args:
         - --leader-elect
+        - --health-probe-bind-address=:8081
         image: controller:latest
         imagePullPolicy: Always
         name: manager
