@@ -1,6 +1,6 @@
 module github.com/devfile/registry-operator
 
-go 1.24
+go 1.26.0
 
 require (
 	github.com/devfile/registry-support/index/generator v0.0.0-20240816133831-cf509ccd1a6b

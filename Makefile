@@ -37,7 +37,7 @@ ENVTEST_VERSION=v0.0.0-20240405143037-c25fe2f5ca0f
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.26
 # Controller tools version number
-CONTROLLER_TOOLS_VERSION ?= v0.14.0
+CONTROLLER_TOOLS_VERSION ?= v0.23.0
 # Kustomize version number
 KUSTOMIZE_VERSION ?= v3.8.7
 
@@ -283,9 +283,8 @@ uninstall-cert:
 # find or download controller-gen
 # download controller-gen if necessary
 .PHONY: controller-gen
-controller-gen: $(CONTROLLER_GEN)
-$(CONTROLLER_GEN): $(LOCALBIN)
-	test -s $(LOCALBIN)/controller-gen && $(LOCALBIN)/controller-gen --version | grep -q $(CONTROLLER_TOOLS_VERSION) || \
+controller-gen: $(LOCALBIN)
+	test -s $(CONTROLLER_GEN) && $(CONTROLLER_GEN) --version | grep -q $(CONTROLLER_TOOLS_VERSION) || \
 GOBIN=$(LOCALBIN) GOFLAGS="" go install sigs.k8s.io/controller-tools/cmd/controller-gen@$(CONTROLLER_TOOLS_VERSION)
 
 ##@ Deployment
@@ -340,5 +339,5 @@ bundle-push:
 .PHONY: gosec
 gosec:
 	# Run this command to install gosec, if not installed:
-	# go install github.com/securego/gosec/v2/cmd/gosec@v2.22.0
+	# go install github.com/securego/gosec/v2/cmd/gosec@v2.29.0
 	gosec -no-fail -fmt=sarif -out=gosec.sarif -exclude-dir pkg/test -exclude-dir tests ./...

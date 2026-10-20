@@ -3,7 +3,7 @@
 
 <div id="header">
 
-[![Go 1.24](https://img.shields.io/badge/1.24-blue?logo=go&labelColor=gray)](https://go.dev/doc/go1.24)
+[![Go 1.26](https://img.shields.io/badge/1.26-blue?logo=go&labelColor=gray)](https://go.dev/doc/go1.26)
 [![Apache2.0 License](https://img.shields.io/badge/license-Apache2.0-brightgreen.svg)](LICENSE)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8256/badge)](https://www.bestpractices.dev/projects/8256)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/devfile/registry-operator/badge)](https://securityscorecards.dev/viewer/?uri=github.com/devfile/registry-operator)
@@ -47,7 +47,7 @@ security setups.
 
 ### Development
 
-- Go 1.24.x
+- Go 1.26.x
 - Docker / Podman
 - Operator SDK 1.28.x
 
@@ -86,7 +86,7 @@ The repository contains a Makefile; building and deploying can be configured via
 | `BUNDLE_CHANNELS` | Sets the list channel(s) include bundle build under | `alpha` |
 | `BUNDLE_DEFAULT_CHANNEL` | Sets the default channel to use when installing the bundle | |
 | `ENVTEST_K8S_VERSION` | Version of k8s to use for the test environment | `1.26` (current) |
-| `CONTROLLER_TOOLS_VERSION` | Version of the controller tools | `v0.14.0` |
+| `CONTROLLER_TOOLS_VERSION` | Version of the controller tools | `v0.23.0` |
 | `KUSTOMIZE_VERSION` | Version of kustomize | `v3.8.7` | 
 | `GOBIN` | Path to install Go binaries to | `${GOPATH}/bin` |
 | `K8S_CLI` | Path to CLI tool to use with the target cluster environment, `kubectl` or `oc` | Either `oc` or `kubectl` if installed in that order |
