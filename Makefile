@@ -200,8 +200,7 @@ PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
 .PHONY: docker-buildx-build
 docker-buildx-build: test
 	$(MAKE) docker-buildx-setup
-	docker buildx build --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile $(shell pwd)
-	$(MAKE) docker-buildx-cleanup
+	docker buildx build --platform=$(PLATFORMS) --tag ${IMG} --provenance=false -f Dockerfile $(shell pwd); status=$$?; $(MAKE) docker-buildx-cleanup; exit $$status
 
 .PHONY: docker-buildx-push
 docker-buildx-push: test 
