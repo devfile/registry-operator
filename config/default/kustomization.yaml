@@ -12,10 +12,15 @@ namePrefix: registry-operator-
 #commonLabels:
 #  someName: someValue
 
-bases:
+resources:
 - ../crd
 - ../rbac
 - ../manager
+- metrics_service.yaml
+# [NETWORK POLICY] Optional ingress restrictions for metrics and webhooks.
+# Label monitoring namespaces metrics=enabled. Review the webhook policy for
+# your cluster's API-server source addresses before enabling these policies.
+#- ../network-policy
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix including the one in
 # crd/kustomization.yaml
 - ../webhook
@@ -24,51 +29,142 @@ bases:
 # [PROMETHEUS] To enable prometheus monitor, uncomment all sections with 'PROMETHEUS'.
 #- ../prometheus
 
-patchesStrategicMerge:
-# Protect the /metrics endpoint by putting it behind auth.
-# If you want your controller-manager to expose the /metrics
-# endpoint w/o any authn/z, please comment the following line.
-- manager_auth_proxy_patch.yaml
-
-# Mount the controller config file for loading manager configurations
-# through a ComponentConfig type
-#- manager_config_patch.yaml
+patches:
+- path: manager_metrics_patch.yaml
+  target:
+    kind: Deployment
 
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix including the one in
 # crd/kustomization.yaml
-- manager_webhook_patch.yaml
+- path: manager_webhook_patch.yaml
 
 # [CERTMANAGER] To enable cert-manager, uncomment all sections with 'CERTMANAGER'.
 # Uncomment 'CERTMANAGER' sections in crd/kustomization.yaml to enable the CA injection in the admission webhooks.
 # 'CERTMANAGER' needs to be enabled to use ca injection
-- webhookcainjection_patch.yaml
+- path: webhookcainjection_patch.yaml
 
-# the following config is for teaching kustomize how to do var substitution
-vars:
-# [CERTMANAGER] To enable cert-manager, uncomment all sections with 'CERTMANAGER' prefix.
-- name: CERTIFICATE_NAMESPACE # namespace of the certificate CR
-  objref:
+replacements:
+- source:
     kind: Certificate
     group: cert-manager.io
     version: v1
-    name: serving-cert # this name should match the one in certificate.yaml
-  fieldref:
-    fieldpath: metadata.namespace
-- name: CERTIFICATE_NAME
-  objref:
+    name: serving-cert
+    fieldPath: metadata.namespace
+  targets:
+  - select:
+      kind: ValidatingWebhookConfiguration
+    fieldPaths:
+    - metadata.annotations.[cert-manager.io/inject-ca-from]
+    options:
+      create: true
+      delimiter: /
+      index: 0
+  - select:
+      kind: MutatingWebhookConfiguration
+    fieldPaths:
+    - metadata.annotations.[cert-manager.io/inject-ca-from]
+    options:
+      create: true
+      delimiter: /
+      index: 0
+  - select:
+      kind: CustomResourceDefinition
+    fieldPaths:
+    - metadata.annotations.[cert-manager.io/inject-ca-from]
+    options:
+      create: true
+      delimiter: /
+      index: 0
+- source:
     kind: Certificate
     group: cert-manager.io
     version: v1
-    name: serving-cert # this name should match the one in certificate.yaml
-- name: SERVICE_NAMESPACE # namespace of the service
-  objref:
+    name: serving-cert
+    fieldPath: metadata.name
+  targets:
+  - select:
+      kind: ValidatingWebhookConfiguration
+    fieldPaths:
+    - metadata.annotations.[cert-manager.io/inject-ca-from]
+    options:
+      create: true
+      delimiter: /
+      index: 1
+  - select:
+      kind: MutatingWebhookConfiguration
+    fieldPaths:
+    - metadata.annotations.[cert-manager.io/inject-ca-from]
+    options:
+      create: true
+      delimiter: /
+      index: 1
+  - select:
+      kind: CustomResourceDefinition
+    fieldPaths:
+    - metadata.annotations.[cert-manager.io/inject-ca-from]
+    options:
+      create: true
+      delimiter: /
+      index: 1
+- source:
     kind: Service
     version: v1
     name: webhook-service
-  fieldref:
-    fieldpath: metadata.namespace
-- name: SERVICE_NAME
-  objref:
+    fieldPath: metadata.name
+  targets:
+  - select:
+      kind: Certificate
+      name: serving-cert
+    fieldPaths:
+    - spec.dnsNames.0
+    - spec.dnsNames.1
+    options:
+      delimiter: .
+      index: 0
+- source:
     kind: Service
     version: v1
     name: webhook-service
+    fieldPath: metadata.namespace
+  targets:
+  - select:
+      kind: Certificate
+      name: serving-cert
+    fieldPaths:
+    - spec.dnsNames.0
+    - spec.dnsNames.1
+    options:
+      delimiter: .
+      index: 1
+- source:
+    kind: Service
+    version: v1
+    name: webhook-service
+    fieldPath: metadata.name
+  targets:
+  - select:
+      kind: CustomResourceDefinition
+      name: devfileregistrieslists.registry.devfile.io
+    fieldPaths:
+    - spec.conversion.webhook.clientConfig.service.name
+  - select:
+      kind: CustomResourceDefinition
+      name: clusterdevfileregistrieslists.registry.devfile.io
+    fieldPaths:
+    - spec.conversion.webhook.clientConfig.service.name
+- source:
+    kind: Service
+    version: v1
+    name: webhook-service
+    fieldPath: metadata.namespace
+  targets:
+  - select:
+      kind: CustomResourceDefinition
+      name: devfileregistrieslists.registry.devfile.io
+    fieldPaths:
+    - spec.conversion.webhook.clientConfig.service.namespace
+  - select:
+      kind: CustomResourceDefinition
+      name: clusterdevfileregistrieslists.registry.devfile.io
+    fieldPaths:
+    - spec.conversion.webhook.clientConfig.service.namespace

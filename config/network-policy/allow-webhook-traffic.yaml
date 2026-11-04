@@ -1,0 +1,26 @@
+# Webhook requests originate from the Kubernetes API server, not the namespace
+# of the custom resource. Adapt this source selector for your control plane/CNI
+# before enabling the policy; namespace labels alone may not cover host traffic.
+# Match the webhook container port (9443), not the Service port (443).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-webhook-traffic
+  namespace: system
+  labels:
+    app.kubernetes.io/name: devfileregistry-operator
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  podSelector:
+    matchLabels:
+      control-plane: controller-manager
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          webhook: enabled
+    ports:
+    - port: 9443
+      protocol: TCP

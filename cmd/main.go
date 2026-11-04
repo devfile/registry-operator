@@ -29,11 +29,12 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	registryv1alpha1 "github.com/devfile/registry-operator/api/v1alpha1"
-	"github.com/devfile/registry-operator/controllers"
+	"github.com/devfile/registry-operator/internal/controller"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -53,7 +54,11 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
-	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
+	var secureMetrics bool
+	var enableHTTP2 bool
+	flag.StringVar(&metricsAddr, "metrics-bind-address", "0", "The metrics address: :8443 for HTTPS, :8080 for HTTP, or 0 to disable.")
+	flag.BoolVar(&secureMetrics, "metrics-secure", true, "Serve metrics over HTTPS with authentication and authorization.")
+	flag.BoolVar(&enableHTTP2, "enable-http2", false, "Enable HTTP/2 on the metrics and webhook servers.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
@@ -67,6 +72,21 @@ func main() {
 	setupLog.Info(("logger set up"))
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
+	// Configure TLS before starting either server. Preserve the existing webhook override.
+	disableHTTP2 := func(c *tls.Config) { c.NextProtos = []string{"http/1.1"} }
+	var tlsOpts []func(*tls.Config)
+	if !enableHTTP2 {
+		tlsOpts = append(tlsOpts, disableHTTP2)
+	}
+	webhookTLSOpts := tlsOpts
+	if value, set := os.LookupEnv("ENABLE_WEBHOOK_HTTP2"); set {
+		webhookTLSOpts = nil
+		if value != "true" {
+			webhookTLSOpts = append(webhookTLSOpts, disableHTTP2)
+		}
+	}
+	metricsOptions := newMetricsOptions(metricsAddr, secureMetrics, tlsOpts)
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		LeaderElection:         enableLeaderElection,
 		Scheme:                 scheme,
@@ -74,18 +94,16 @@ func main() {
 		LeaderElectionID:       "1984829e.devfile.io",
 		WebhookServer: webhook.NewServer(webhook.Options{
 			Port:    9443,
-			TLSOpts: []func(*tls.Config){},
+			TLSOpts: webhookTLSOpts,
 		}),
-		Metrics: metricsserver.Options{
-			BindAddress: metricsAddr,
-		},
+		Metrics: metricsOptions,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
 
-	if err = (&controllers.DevfileRegistryReconciler{
+	if err = (&controller.DevfileRegistryReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DevfileRegistry"),
 		Scheme: mgr.GetScheme(),
@@ -93,7 +111,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DevfileRegistry")
 		os.Exit(1)
 	}
-	if err = (&controllers.DevfileRegistriesListReconciler{
+	if err = (&controller.DevfileRegistriesListReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DevfileRegistriesList"),
 		Scheme: mgr.GetScheme(),
@@ -101,7 +119,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DevfileRegistriesList")
 		os.Exit(1)
 	}
-	if err = (&controllers.ClusterDevfileRegistriesListReconciler{
+	if err = (&controller.ClusterDevfileRegistriesListReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("ClusterDevfileRegistriesList"),
 		Scheme: mgr.GetScheme(),
@@ -124,22 +142,6 @@ func main() {
 			setupLog.Error(err, "unable to create webhook", "webhook", "ClusterDevfileRegistriesList")
 			os.Exit(1)
 		}
-
-		// Retrieve the option to enable HTTP2 on the Webhook server
-		enableWebhookHTTP2 := os.Getenv("ENABLE_WEBHOOK_HTTP2")
-		if enableWebhookHTTP2 == "" {
-			enableWebhookHTTP2 = "false"
-		}
-
-		if enableWebhookHTTP2 == "false" {
-			setupLog.Info("disabling http/2 on the webhook server")
-			webhookServer := mgr.GetWebhookServer().(*webhook.DefaultServer)
-			webhookServer.Options.TLSOpts = append(webhookServer.Options.TLSOpts,
-				func(c *tls.Config) {
-					c.NextProtos = []string{"http/1.1"}
-				},
-			)
-		}
 	}
 
 	// +kubebuilder:scaffold:builder
@@ -158,4 +160,13 @@ func main() {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+}
+
+// newMetricsOptions keeps HTTPS metrics protected by Kubernetes authentication and authorization.
+func newMetricsOptions(address string, secure bool, tlsOpts []func(*tls.Config)) metricsserver.Options {
+	options := metricsserver.Options{BindAddress: address, SecureServing: secure, TLSOpts: tlsOpts}
+	if secure {
+		options.FilterProvider = filters.WithAuthenticationAndAuthorization
+	}
+	return options
 }
