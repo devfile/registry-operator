@@ -24,9 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout registry-operator source code
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Go 1.x
-        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: 'go.mod'
       - name: Run Gosec Security Scanner
@@ -39,7 +39,7 @@ jobs:
             exit 1
           fi
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@b8d3b6e8af63cde30bdc382c0bc28114f4346c88 # v2.28.1
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           # Path to SARIF file relative to the root of the repository
           sarif_file: gosec.sarif
@@ -55,7 +55,7 @@ jobs:
       CACHED_MANAGER_IMAGE_TAG: .cache/manager_image_tag.txt
     steps:
       - name: Checkout registry-operator source code
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Download yq
         run: curl -sL https://github.com/mikefarah/yq/releases/download/v4.34.2/yq_linux_amd64 -o yq && chmod +x yq
       - name: Cache version tags
@@ -77,9 +77,9 @@ jobs:
       OPERATOR_SDK_CLI: ./operator-sdk
     steps:
       - name: Checkout registry-operator source code
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Go environment
-        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: 'go.mod'
       - name: Download operator-sdk
